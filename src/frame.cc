@@ -30,7 +30,6 @@ Shader shTex;
 Model mSponza(&aarAssets);
 Ubo uboProjView;
 
-
 void
 prepareDraw(App* app)
 {
@@ -142,6 +141,7 @@ run(App* app)
 
     arMainLoop.freeAll();
     aarAssets.freeAll();
+    aarAssets.destroy();
 }
 
 } /* namespace frame */

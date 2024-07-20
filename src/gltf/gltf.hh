@@ -29,7 +29,7 @@ enum class TARGET
 
 struct Scene
 {
-    size_t nodeIdx;
+    u32 nodeIdx;
 };
 
 /* A buffer represents a block of raw binary data, without an inherent structure or meaning.
@@ -37,7 +37,7 @@ struct Scene
  * This URI may either point to an external file, or be a data URI that encodes the binary data directly in the JSON file. */
 struct Buffer
 {
-    size_t byteLength;
+    u32 byteLength;
     adt::String uri;
     adt::String aBin;
 };
@@ -69,10 +69,10 @@ union Type
  * The raw data of a buffer is structured using bufferView objects and is augmented with data type information using accessor objects.*/
 struct Accessor
 {
-    size_t bufferView;
-    size_t byteOffset; /* The offset relative to the start of the buffer view in bytes. This MUST be a multiple of the size of the component datatype. */
+    u32 bufferView;
+    u32 byteOffset; /* The offset relative to the start of the buffer view in bytes. This MUST be a multiple of the size of the component datatype. */
     enum COMPONENT_TYPE componentType; /* REQUIRED */
-    size_t count; /* (REQUIRED) The number of elements referenced by this accessor, not to be confused with the number of bytes or number of components. */
+    u32 count; /* (REQUIRED) The number of elements referenced by this accessor, not to be confused with the number of bytes or number of components. */
     union Type max;
     union Type min;
     enum ACCESSOR_TYPE type; /* REQUIRED */
@@ -84,10 +84,10 @@ struct Accessor
  * and together they define the structure of the scene as a scene graph. */
 struct Node
 {
-    size_t camera;
-    adt::Array<size_t> children;
+    u32 camera;
+    adt::Array<u32> children;
     m4 matrix = m4Iden();
-    size_t mesh = NPOS; /* The index of the mesh in this node. */
+    u32 mesh = NPOS; /* The index of the mesh in this node. */
     v3 translation {};
     v4 rotation = qtIden();
     v3 scale {1, 1, 1};
@@ -124,10 +124,10 @@ struct Camera
  * This slice is defined using an offset and a length, in bytes. */
 struct BufferView
 {
-    size_t buffer;
-    size_t byteOffset = 0; /* The offset into the buffer in bytes. */
-    size_t byteLength;
-    size_t byteStride = 0; /* The stride, in bytes, between vertex attributes. When this is not defined, data is tightly packed. */
+    u32 buffer;
+    u32 byteOffset = 0; /* The offset into the buffer in bytes. */
+    u32 byteLength;
+    u32 byteStride = 0; /* The stride, in bytes, between vertex attributes. When this is not defined, data is tightly packed. */
     enum TARGET target;
 };
 
@@ -151,13 +151,13 @@ enum class PRIMITIVES
 struct Primitive
 {
     struct {
-        size_t NORMAL = NPOS;
-        size_t POSITION = NPOS;
-        size_t TEXCOORD_0 = NPOS;
-        size_t TANGENT = NPOS;
+        u32 NORMAL = NPOS;
+        u32 POSITION = NPOS;
+        u32 TEXCOORD_0 = NPOS;
+        u32 TANGENT = NPOS;
     } attributes; /* each value is the index of the accessor containing attribute’s data. */
-    size_t indices = NPOS; /* The index of the accessor that contains the vertex indices, drawElements() when defined and drawArrays() otherwise. */
-    size_t material = NPOS; /* The index of the material to apply to this primitive when rendering */
+    u32 indices = NPOS; /* The index of the accessor that contains the vertex indices, drawElements() when defined and drawArrays() otherwise. */
+    u32 material = NPOS; /* The index of the material to apply to this primitive when rendering */
     enum PRIMITIVES mode = PRIMITIVES::TRIANGLES;
 };
 
@@ -171,18 +171,18 @@ struct Mesh
 
 struct Texture
 {
-    size_t source = NPOS; /* The index of the image used by this texture. */
-    size_t sampler = NPOS; /* The index of the sampler used by this texture. When undefined, a sampler with repeat wrapping and auto filtering SHOULD be used. */
+    u32 source = NPOS; /* The index of the image used by this texture. */
+    u32 sampler = NPOS; /* The index of the sampler used by this texture. When undefined, a sampler with repeat wrapping and auto filtering SHOULD be used. */
 };
 
 struct TextureInfo
 {
-    size_t index = NPOS; /* (REQUIRED) The index of the texture. */
+    u32 index = NPOS; /* (REQUIRED) The index of the texture. */
 };
 
 struct NormalTextureInfo
 {
-    size_t index = NPOS; /* (REQUIRED) */
+    u32 index = NPOS; /* (REQUIRED) */
     f64 scale;
 };
 
@@ -203,7 +203,7 @@ struct Asset
     json::Parser parser;
     adt::String svGenerator;
     adt::String svVersion;
-    size_t defaultSceneIdx;
+    u32 defaultSceneIdx;
     adt::Array<Scene> aScenes;
     adt::Array<Buffer> aBuffers;
     adt::Array<BufferView> aBufferViews;

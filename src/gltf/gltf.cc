@@ -112,12 +112,12 @@ stringToAccessorType(adt::String sv)
 }
 
 static inline union Type
-assignUnionType(json::Object* obj, size_t n)
+assignUnionType(json::Object* obj, u32 n)
 {
     auto& arr = json::getArray(obj);
     union Type type;
 
-    for (size_t i = 0; i < n; i++)
+    for (u32 i = 0; i < n; i++)
         if (arr[i].tagVal.tag == json::TAG::LONG)
             type.MAT4.p[i] = static_cast<f64>(json::getLong(&arr[i]));
         else
@@ -277,7 +277,7 @@ Asset::processScenes()
         {
             auto& a = json::getArray(pNodes);
             for (auto& el : a)
-                this->aScenes.push({(size_t)json::getLong(&el)});
+                this->aScenes.push({(u32)json::getLong(&el)});
         }
         else
         {
@@ -317,7 +317,7 @@ Asset::processBuffers()
         }
 
         this->aBuffers.push({
-            .byteLength = static_cast<size_t>(json::getLong(pByteLength)),
+            .byteLength = static_cast<u32>(json::getLong(pByteLength)),
             .uri = svUri,
             .aBin = aBin
         });
@@ -348,10 +348,10 @@ Asset::processBufferViews()
         auto pTarget = json::searchObject(obj, "target");
 
         this->aBufferViews.push({
-            .buffer = static_cast<size_t>(json::getLong(pBuffer)),
-            .byteOffset = pByteOffset ? static_cast<size_t>(json::getLong(pByteOffset)) : 0,
-            .byteLength = static_cast<size_t>(json::getLong(pByteLength)),
-            .byteStride = pByteStride ? static_cast<size_t>(json::getLong(pByteStride)) : 0,
+            .buffer = static_cast<u32>(json::getLong(pBuffer)),
+            .byteOffset = pByteOffset ? static_cast<u32>(json::getLong(pByteOffset)) : 0,
+            .byteLength = static_cast<u32>(json::getLong(pByteLength)),
+            .byteStride = pByteStride ? static_cast<u32>(json::getLong(pByteStride)) : 0,
             .target = pTarget ? static_cast<enum TARGET>(json::getLong(pTarget)) : TARGET::NONE
         });
     }
@@ -387,10 +387,10 @@ Asset::processAccessors()
         enum ACCESSOR_TYPE type = stringToAccessorType(json::getStringView(pType));
  
         this->aAccessors.push({
-            .bufferView = pBufferView ? static_cast<size_t>(json::getLong(pBufferView)) : 0,
-            .byteOffset = pByteOffset ? static_cast<size_t>(json::getLong(pByteOffset)) : 0,
+            .bufferView = pBufferView ? static_cast<u32>(json::getLong(pBufferView)) : 0,
+            .byteOffset = pByteOffset ? static_cast<u32>(json::getLong(pByteOffset)) : 0,
             .componentType = static_cast<enum COMPONENT_TYPE>(json::getLong(pComponentType)),
-            .count = static_cast<size_t>(json::getLong(pCount)),
+            .count = static_cast<u32>(json::getLong(pCount)),
             .max = pMax ? accessorTypeToUnionType(type, pMax) : Type{},
             .min = pMin ? accessorTypeToUnionType(type, pMin) : Type{},
             .type = type
@@ -576,14 +576,14 @@ Asset::processNodes()
         Node nNode(this->pAlloc);
 
         auto pCamera = json::searchObject(obj, "camera");
-        if (pCamera) nNode.camera = static_cast<size_t>(json::getLong(pCamera));
+        if (pCamera) nNode.camera = static_cast<u32>(json::getLong(pCamera));
 
         auto pChildren = json::searchObject(obj, "children");
         if (pChildren)
         {
             auto& arrChil = json::getArray(pChildren);
             for (auto& c : arrChil)
-                nNode.children.push(static_cast<size_t>(json::getLong(&c)));
+                nNode.children.push(static_cast<u32>(json::getLong(&c)));
         }
 
         auto pMatrix = json::searchObject(obj, "matrix");
@@ -594,7 +594,7 @@ Asset::processNodes()
         }
 
         auto pMesh = json::searchObject(obj, "mesh");
-        if (pMesh) nNode.mesh = static_cast<size_t>(json::getLong(pMesh));
+        if (pMesh) nNode.mesh = static_cast<u32>(json::getLong(pMesh));
 
         auto pTranslation = json::searchObject(obj, "translation");
         if (pTranslation)

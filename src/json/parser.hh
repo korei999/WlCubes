@@ -39,7 +39,7 @@ private:
 inline Object*
 searchObject(adt::Array<Object>& aObj, adt::String svKey)
 {
-    for (size_t i = 0; i < aObj.size; i++)
+    for (u32 i = 0; i < aObj.size; i++)
         if (aObj[i].svKey == svKey)
             return &aObj[i];
 

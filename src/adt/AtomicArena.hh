@@ -7,16 +7,18 @@
 namespace adt
 {
 
+/* NOTE: realloc may call `AtomicArena::alloc()` (because polymorphism) this is why mtx is recursive */
 struct AtomicArena : Arena
 {
     mtx_t mtxA;
 
-    /* NOTE: realloc may call `AtomicArena::alloc()` (because polymorphism) this is why mtx is recursive */
+    AtomicArena() = default;
     AtomicArena(size_t cap) : Arena(cap) { mtx_init(&mtxA, mtx_recursive); }
 
-    void* alloc(size_t memberCount, size_t memberSize);
-    void* realloc(void* p, size_t size);
-    void free(void* p);
+    virtual void* alloc(size_t memberCount, size_t memberSize) override;
+    virtual void* realloc(void* p, size_t size) override;
+    virtual void free(void* p) override;
+    void destroy() { mtx_destroy(&this->mtxA); }
 };
 
 inline void*

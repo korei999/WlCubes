@@ -40,7 +40,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 
     /* load buffers first */
     adt::Array<GLuint> aBufferMap(this->pAlloc);
-    for (size_t i = 0; i < a.aBuffers.size; i++)
+    for (u32 i = 0; i < a.aBuffers.size; i++)
     {
         /*mtx_lock(&gl::mtxGlContext);*/
         /*c->bindGlContext();*/
@@ -58,7 +58,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 
     /* preload texures */
     adt::Array<Texture> aTex(this->pAlloc, a.aImages.size);
-    for (size_t i = 0; i < a.aImages.size; i++)
+    for (u32 i = 0; i < a.aImages.size; i++)
     {
         auto* p = &aTex[i];
         auto uri = a.aImages[i].uri;
@@ -72,19 +72,19 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
     }
     /*tp.wait();*/
 
-    size_t meshIdx = NPOS;
+    u32 meshIdx = NPOS;
     for (auto& mesh : a.aMeshes)
     {
         adt::Array<Mesh> aNMeshes(this->pAlloc);
 
         for (auto& primitive : mesh.aPrimitives)
         {
-            size_t accIndIdx = primitive.indices;
-            size_t accPosIdx = primitive.attributes.POSITION;
-            size_t accNormIdx = primitive.attributes.NORMAL;
-            size_t accTexIdx = primitive.attributes.TEXCOORD_0;
-            size_t accTanIdx = primitive.attributes.TANGENT;
-            size_t accMatIdx = primitive.material;
+            u32 accIndIdx = primitive.indices;
+            u32 accPosIdx = primitive.attributes.POSITION;
+            u32 accNormIdx = primitive.attributes.NORMAL;
+            u32 accTexIdx = primitive.attributes.TEXCOORD_0;
+            u32 accTanIdx = primitive.attributes.TANGENT;
+            u32 accMatIdx = primitive.material;
             enum gltf::PRIMITIVES mode = primitive.mode;
 
             auto& accPos = a.aAccessors[accPosIdx];
@@ -123,8 +123,8 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
                 nMesh.triangleCount = accPos.count;
             }
 
-            constexpr size_t v3Size = sizeof(v3) / sizeof(f32);
-            constexpr size_t v2Size = sizeof(v2) / sizeof(f32);
+            constexpr u32 v3Size = sizeof(v3) / sizeof(f32);
+            constexpr u32 v2Size = sizeof(v2) / sizeof(f32);
 
             /* if there are different VBO's for positions textures or normals,
              * given gltf file should be considered harmful, and this will crash ofc */
@@ -171,11 +171,11 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             if (accMatIdx != NPOS)
             {
                 auto& mat = a.aMaterials[accMatIdx];
-                size_t baseColorSourceIdx = mat.pbrMetallicRoughness.baseColorTexture.index;
+                u32 baseColorSourceIdx = mat.pbrMetallicRoughness.baseColorTexture.index;
 
                 if (baseColorSourceIdx != NPOS)
                 {
-                    size_t diffTexInd = a.aTextures[baseColorSourceIdx].source;
+                    u32 diffTexInd = a.aTextures[baseColorSourceIdx].source;
                     if (diffTexInd != NPOS)
                     {
                         nMesh.meshData.materials.diffuse = aTex[diffTexInd];
@@ -183,10 +183,10 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
                     }
                 }
 
-                size_t normalSourceIdx = mat.normalTexture.index;
+                u32 normalSourceIdx = mat.normalTexture.index;
                 if (normalSourceIdx != NPOS)
                 {
-                    size_t normTexIdx = a.aTextures[normalSourceIdx].source;
+                    u32 normTexIdx = a.aTextures[normalSourceIdx].source;
                     if (normTexIdx != NPOS)
                     {
                         nMesh.meshData.materials.normal = aTex[normalSourceIdx];
@@ -254,7 +254,7 @@ Model::drawGraph(enum DRAW flags,
         return r*aNodes.size + c;
     };
 
-    for (size_t i = 0; i < aNodes.size; i++)
+    for (u32 i = 0; i < aNodes.size; i++)
     {
         auto& node = aNodes[i];
         for (auto& ch : node.children)
@@ -317,13 +317,13 @@ Model::drawGraph(enum DRAW flags,
 /*}*/
 /**/
 
-Ubo::Ubo(size_t _size, GLint drawMode)
+Ubo::Ubo(u32 _size, GLint drawMode)
 {
     createBuffer(_size, drawMode);
 }
 
 void
-Ubo::createBuffer(size_t _size, GLint drawMode)
+Ubo::createBuffer(u32 _size, GLint drawMode)
 {
     this->size = _size;
     glGenBuffers(1, &this->id);
@@ -346,7 +346,7 @@ Ubo::bindBlock(Shader* sh, adt::String block, GLuint _point)
 }
 
 void
-Ubo::bufferData(void* pData, size_t offset, size_t _size)
+Ubo::bufferData(void* pData, u32 offset, u32 _size)
 {
     glBindBuffer(GL_UNIFORM_BUFFER, this->id);
     glBufferSubData(GL_UNIFORM_BUFFER, offset, _size, pData);
@@ -383,9 +383,9 @@ Ubo::bufferData(void* pData, size_t offset, size_t _size)
 //     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, drawMode);
 //     q.aaMeshes[0][0].meshData.eboSize = LEN(quadIndices);
 // 
-//     constexpr size_t v3Size = sizeof(v3) / sizeof(f32);
-//     constexpr size_t v2Size = sizeof(v2) / sizeof(f32);
-//     constexpr size_t stride = 5 * sizeof(f32);
+//     constexpr u32 v3Size = sizeof(v3) / sizeof(f32);
+//     constexpr u32 v2Size = sizeof(v2) / sizeof(f32);
+//     constexpr u32 stride = 5 * sizeof(f32);
 //     /* positions */
 //     glEnableVertexAttribArray(0);
 //     glVertexAttribPointer(0, v3Size, GL_FLOAT, GL_FALSE, stride, (void*)0);
@@ -425,9 +425,9 @@ Ubo::bufferData(void* pData, size_t offset, size_t _size)
 //     glBindBuffer(GL_ARRAY_BUFFER, q.aaMeshes[0][0].meshData.vbo);
 //     glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, drawMode);
 // 
-//     constexpr size_t v3Size = sizeof(v3) / sizeof(f32);
-//     constexpr size_t v2Size = sizeof(v2) / sizeof(f32);
-//     constexpr size_t stride = 8 * sizeof(f32);
+//     constexpr u32 v3Size = sizeof(v3) / sizeof(f32);
+//     constexpr u32 v2Size = sizeof(v2) / sizeof(f32);
+//     constexpr u32 stride = 8 * sizeof(f32);
 //     /* positions */
 //     glEnableVertexAttribArray(0);
 //     glVertexAttribPointer(0, v3Size, GL_FLOAT, GL_FALSE, stride, (void*)0);
@@ -516,9 +516,9 @@ Ubo::bufferData(void* pData, size_t offset, size_t _size)
 //     glBindBuffer(GL_ARRAY_BUFFER, q.aaMeshes[0][0].meshData.vbo);
 //     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, drawMode);
 // 
-//     constexpr size_t v3Size = sizeof(v3) / sizeof(f32);
-//     constexpr size_t v2Size = sizeof(v2) / sizeof(f32);
-//     constexpr size_t stride = 8 * sizeof(f32);
+//     constexpr u32 v3Size = sizeof(v3) / sizeof(f32);
+//     constexpr u32 v2Size = sizeof(v2) / sizeof(f32);
+//     constexpr u32 stride = 8 * sizeof(f32);
 // 
 //     /* positions */
 //     glEnableVertexAttribArray(0);

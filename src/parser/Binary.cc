@@ -12,13 +12,13 @@ Binary::loadFile(adt::String path)
 }
 
 void 
-Binary::skipBytes(size_t n)
+Binary::skipBytes(u32 n)
 {
     start = end = end + n;
 }
 
 adt::String
-Binary::readString(size_t size)
+Binary::readString(u32 size)
 {
     adt::String ret(&file[start], size - start);
     start = end = end + size;
@@ -58,7 +58,7 @@ Binary::read64()
 }
 
 void
-Binary::setPos(size_t p)
+Binary::setPos(u32 p)
 {
     start = end = p;
 }

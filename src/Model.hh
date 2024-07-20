@@ -39,15 +39,15 @@ operator^(enum DRAW l, enum DRAW r)
 struct Ubo
 {
     GLuint id;
-    size_t size;
+    u32 size;
     GLuint point;
 
     Ubo() = default;
-    Ubo(size_t _size, GLint drawMode);
+    Ubo(u32 _size, GLint drawMode);
 
-    void createBuffer(size_t _size, GLint drawMode);
+    void createBuffer(u32 _size, GLint drawMode);
     void bindBlock(Shader* sh, adt::String block, GLuint _point);
-    void bufferData(void* data, size_t offset, size_t _size);
+    void bufferData(void* data, u32 offset, u32 _size);
 };
 
 struct Materials
@@ -74,7 +74,7 @@ struct Mesh
 
     enum gltf::COMPONENT_TYPE indType;
     enum gltf::PRIMITIVES mode;
-    size_t triangleCount;
+    u32 triangleCount;
 };
 
 struct Model

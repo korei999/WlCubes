@@ -12,23 +12,23 @@ struct Binary
     adt::BaseAllocator* pAlloc;
     adt::String word;
     adt::String file;
-    size_t start;
-    size_t end;
+    u32 start;
+    u32 end;
 
     Binary(adt::BaseAllocator* p) : pAlloc(p) {}
     Binary(adt::BaseAllocator* p, adt::String path) : Binary(p) { this->loadFile(path); }
 
-    char& operator[](size_t i) { return file[i]; };
+    char& operator[](u32 i) { return file[i]; };
 
     void loadFile(adt::String path);
-    void skipBytes(size_t n);
-    adt::String readString(size_t size);
+    void skipBytes(u32 n);
+    adt::String readString(u32 size);
     u8 read8();
     u16 read16();
     u32 read32();
     u64 read64();
-    void setPos(size_t p);
-    size_t size() const { return file.size; };
+    void setPos(u32 p);
+    u32 size() const { return file.size; };
     bool finished();
 };
 
@@ -37,7 +37,7 @@ template <typename T>
 __attribute__((no_sanitize("undefined"))) /* unaligned pointers */
 #endif
 T
-readTypeBytes(adt::String vec, size_t i)
+readTypeBytes(adt::String vec, u32 i)
 {
     return *reinterpret_cast<T*>(&vec[i]);
 }

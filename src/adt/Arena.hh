@@ -38,6 +38,7 @@ struct Arena : BaseAllocator
     ArenaNode* pLatest = nullptr;
     ArenaBlock* pLatestBlock = nullptr;
 
+    Arena() = default;
     Arena(size_t cap);
 
     void reset();

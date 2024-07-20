@@ -5,7 +5,8 @@
 
 #include "ultratypes.h"
 
-#define NPOS static_cast<size_t>(-1UL)
+#define NPOS static_cast<u32>(-1UL)
+#define NPOSL static_cast<u64>(-1UL)
 
 namespace adt
 {

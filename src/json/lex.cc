@@ -32,8 +32,8 @@ Token
 Lexer::number()
 {
     Token r {};
-    size_t start = this->pos;
-    size_t i = start;
+    u32 start = this->pos;
+    u32 i = start;
 
     while (isxdigit(this->sFile[i])       ||
                     this->sFile[i] == '.' ||
@@ -55,8 +55,8 @@ Lexer::stringNoQuotes()
 {
     Token r {};
 
-    size_t start = this->pos;
-    size_t i = start;
+    u32 start = this->pos;
+    u32 i = start;
 
     while (isalpha(this->sFile[i]))
         i++;
@@ -81,8 +81,8 @@ Lexer::string()
 {
     Token r {};
 
-    size_t start = this->pos;
-    size_t i = start + 1;
+    u32 start = this->pos;
+    u32 i = start + 1;
     bool bEsc = false;
 
     while (this->sFile[i])

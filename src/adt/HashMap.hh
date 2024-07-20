@@ -47,6 +47,7 @@ struct HashMap
     f64 maxLoadFactor;
     size_t bucketCount = 0;
 
+    HashMap() = default;
     HashMap(BaseAllocator* pAllocator) : allocator(pAllocator), aBuckets(pAllocator), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
     HashMap(BaseAllocator* pAllocator, size_t prealloc) : allocator(pAllocator), aBuckets(pAllocator, prealloc), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
 

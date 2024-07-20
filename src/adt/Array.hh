@@ -10,21 +10,21 @@ struct Array
 {
     BaseAllocator* allocator;
     T* pData = nullptr;
-    size_t size = 0;
-    size_t capacity = 0;
+    u32 size = 0;
+    u32 capacity = 0;
 
+    Array() = default;
     Array(BaseAllocator* _allocator);
-    Array(BaseAllocator* _allocator, size_t _capacity);
+    Array(BaseAllocator* _allocator, u32 _capacity);
 
-    T& operator[](size_t i) { return this->pData[i]; }
-    /*const Array& operator=(const Array& other) { this->allocator = other.allocator; this->pData = other.pData; this->size = other.size; this-> capacity = other.capacity; }*/
+    T& operator[](u32 i) { return this->pData[i]; }
 
     T* push(const T& data);
     T& back();
     T& front();
     T* data() { return this->pData; }
-    bool empty() const { return size == 0;  }
-    void resize(size_t _size);
+    bool empty() const { return this->size == 0;  }
+    void resize(u32 _size);
     void free() { this->allocator->free(this->pData); }
 
     struct It
@@ -53,7 +53,7 @@ Array<T>::Array(BaseAllocator* _allocator)
 }
 
 template<typename T>
-Array<T>::Array(BaseAllocator* _allocator, size_t _capacity)
+Array<T>::Array(BaseAllocator* _allocator, u32 _capacity)
     : allocator(_allocator), capacity(_capacity)
 {
     pData = static_cast<T*>(this->allocator->alloc(this->capacity, sizeof(T)));
@@ -87,7 +87,7 @@ Array<T>::front()
 
 template<typename T>
 void
-Array<T>::resize(size_t _size)
+Array<T>::resize(u32 _size)
 {
     this->capacity = _size;
     this->pData = static_cast<T*>(this->allocator->realloc(this->pData, sizeof(T) * _size));
