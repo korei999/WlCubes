@@ -1,7 +1,7 @@
 #pragma once
 
 #include "String.hh"
-#include "allocator.hh"
+#include "BaseAllocator.hh"
 
 namespace json
 {

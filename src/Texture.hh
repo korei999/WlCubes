@@ -4,7 +4,7 @@
 #include "ultratypes.h"
 #include "App.hh"
 #include "gl/gl.hh"
-#include "allocator.hh"
+#include "BaseAllocator.hh"
 
 enum TEX_TYPE : int
 {

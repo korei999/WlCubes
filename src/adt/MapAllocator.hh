@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HashMap.hh"
+#include "DefaultAllocator.hh"
 
 namespace adt
 {

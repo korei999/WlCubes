@@ -57,15 +57,7 @@ replacePathSuffix(BaseAllocator* pAlloc, adt::String path, adt::String suffix)
 {
     auto lastSlash = adt::findLastOf(path, '/') + 1;
     adt::String pathToMtl = {&path[0], lastSlash};
-
-    printf("path:      %.*s\n", (int)path.size, path.pData);
-    printf("pathToMtl: %.*s\n", (int)pathToMtl.size, pathToMtl.pData);
-    printf("suffix: %.*s\n", (int)suffix.size, suffix.pData);
-
     auto r = adt::catString(pAlloc, pathToMtl, suffix);
-
-    printf("r: %s\n", r.pData);
-
     return r;
 }
 

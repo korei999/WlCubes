@@ -6,12 +6,12 @@
 #include <wayland-cursor.h>
 #include <wayland-egl-core.h>
 
-#include "wayland-protocols/xdg-shell.h"
+#include "Arena.hh"
+#include "BaseAllocator.hh"
+#include "ultratypes.h"
 #include "wayland-protocols/pointer-constraints-unstable-v1.h"
 #include "wayland-protocols/relative-pointer-unstable-v1.h"
-#include "ultratypes.h"
-#include "Arena.hh"
-#include "allocator.hh"
+#include "wayland-protocols/xdg-shell.h"
 
 #include "../../App.hh"
 

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "allocator.hh"
+#include "BaseAllocator.hh"
 
 #define ARENA_FIRST(A) ((A)->pBlocks)
 #define ARENA_NEXT(AB) ((AB)->pNext)

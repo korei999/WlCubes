@@ -1,6 +1,6 @@
 #pragma once
 
-#include "allocator.hh"
+#include "BaseAllocator.hh"
 
 namespace adt
 {
