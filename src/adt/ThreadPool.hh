@@ -36,6 +36,7 @@ struct ThreadPool
 
     void start();
     bool busy();
+    void submit(thrd_start_t pfnTask, void* pArgs) { submit({pfnTask, pArgs}); }
     void submit(TaskNode task);
     void wait();
     void stop();
@@ -69,10 +70,10 @@ inline bool
 ThreadPool::busy()
 {
     mtx_lock(&this->mtxQ);
-    bool ret = !this->qTasks.empty() || this->activeTaskCount > 0;
+    bool ret = !this->qTasks.empty();
     mtx_unlock(&this->mtxQ);
 
-    return ret;
+    return ret || this->activeTaskCount > 0;
 }
 
 inline int

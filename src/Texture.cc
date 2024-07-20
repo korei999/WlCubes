@@ -147,8 +147,8 @@ Texture::bind(GLint glTexture)
 void
 Texture::setTexture(u8* pData, GLint texMode, GLint format, GLsizei width, GLsizei height, App* c)
 {
-    /*mtx_lock(&gl::mtxGlContext);*/
-    /*c->bindGlContext();*/
+    mtx_lock(&gl::mtxGlContext);
+    c->bindGlContext();
 
     glGenTextures(1, &this->id);
     glBindTexture(GL_TEXTURE_2D, this->id);
@@ -162,8 +162,8 @@ Texture::setTexture(u8* pData, GLint texMode, GLint format, GLsizei width, GLsiz
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pData);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    /*c->unbindGlContext();*/
-    /*mtx_unlock(&gl::mtxGlContext);*/
+    c->unbindGlContext();
+    mtx_unlock(&gl::mtxGlContext);
 }
 
 CubeMapProjections::CubeMapProjections(const m4 proj, const v3 pos)

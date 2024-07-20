@@ -1,23 +1,8 @@
 #include "Model.hh"
 #include "logs.hh"
 #include "file.hh"
-
-// Model::~Model()
-// {
-//     if (!this->aaMeshes.empty())
-//     {
-//         for (auto& mm : aaMeshes)
-//         {
-//             for (auto& m : mm)
-//             {
-//                 auto& o = m.meshData;
-//                 glDeleteVertexArrays(1, &o.vao);
-//                 glDeleteBuffers(1, &o.vbo);
-//                 glDeleteBuffers(1, &o.ebo);
-//             }
-//         }
-//     }
-// }
+#include "ThreadPool.hh"
+#include "MapAllocator.hh"
 
 void
 Model::load(adt::String path, GLint drawMode, GLint texMode, App* c)
@@ -36,14 +21,12 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
     this->asset.load(path);
     auto& a = this->asset;;
 
-    /*ThreadPool tp(std::thread::hardware_concurrency());*/
-
     /* load buffers first */
     adt::Array<GLuint> aBufferMap(this->pAlloc);
     for (u32 i = 0; i < a.aBuffers.size; i++)
     {
-        /*mtx_lock(&gl::mtxGlContext);*/
-        /*c->bindGlContext();*/
+        mtx_lock(&gl::mtxGlContext);
+        c->bindGlContext();
 
         GLuint b;
         glGenBuffers(1, &b);
@@ -52,25 +35,56 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         aBufferMap.push(b);
 
-        /*c->unbindGlContext();*/
-        /*mtx_unlock(&gl::mtxGlContext);*/
+        c->unbindGlContext();
+        mtx_unlock(&gl::mtxGlContext);
     }
+
+    /*adt::AtomicArena aAlloc(adt::SIZE_8M);*/
+    adt::MapAllocator aAlloc;
+
+    adt::ThreadPool tp(&aAlloc);
+    tp.start();
 
     /* preload texures */
     adt::Array<Texture> aTex(this->pAlloc, a.aImages.size);
+
     for (u32 i = 0; i < a.aImages.size; i++)
     {
         auto* p = &aTex[i];
         auto uri = a.aImages[i].uri;
 
-        /*if (adt::endsWith(uri, ".bmp"))*/
-            *p = Texture(this->pAlloc, adt::replacePathSuffix(this->pAlloc, path, uri), TEX_TYPE::DIFFUSE, true, texMode, c);
+        struct args {
+            Texture* p;
+            adt::BaseAllocator* pAlloc;
+            adt::String path;
+            TEX_TYPE type;
+            bool flip;
+            GLint texMode;
+            App* c;
+        };
 
-            /*tp.submit([=]{*/
-            /*    *p = Texture(replacePathSuffix(path, uri), TEX_TYPE::DIFFUSE, true, texMode, c);*/
-            /*});*/
+        auto* arg = (args*)aAlloc.alloc(1, sizeof(args));
+        *arg = {
+            .p = p,
+            .pAlloc = &aAlloc,
+            .path = adt::replacePathSuffix(this->pAlloc, path, uri),
+            .type = TEX_TYPE::DIFFUSE,
+            .flip = true,
+            .texMode = texMode,
+            .c = c
+        };
+
+        auto task = [](void* pArgs) -> int {
+            auto a = *(args*)pArgs;
+            *a.p = Texture(a.pAlloc, a.path, a.type, a.flip, a.texMode, a.c);
+
+            return 0;
+        };
+
+        tp.submit(task, arg);
     }
-    /*tp.wait();*/
+
+    tp.wait();
 
     u32 meshIdx = NPOS;
     for (auto& mesh : a.aMeshes)
@@ -97,9 +111,8 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 
             nMesh.mode = mode;
 
-            /* manually unlock before loading texture */
-            /*mtx_lock(&gl::mtxGlContext);*/
-            /*c->bindGlContext();*/
+            mtx_lock(&gl::mtxGlContext);
+            c->bindGlContext();
 
             glGenVertexArrays(1, &nMesh.meshData.vao);
             glBindVertexArray(nMesh.meshData.vao);
@@ -164,8 +177,8 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             }
 
             glBindVertexArray(0);
-            /*c->unbindGlContext();*/
-            /*mtx_unlock(&gl::mtxGlContext);*/
+            c->unbindGlContext();
+            mtx_unlock(&gl::mtxGlContext);
 
             /* load textures */
             if (accMatIdx != NPOS)
@@ -202,6 +215,9 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 
     this->aTmIdxs = decltype(this->aTmIdxs)(this->pAlloc, sq(this->asset.aNodes.size));
     this->aTmCounters = decltype(this->aTmCounters)(this->pAlloc, this->asset.aNodes.size);
+
+    tp.stop();
+    aAlloc.freeAll();
 }
 
 void

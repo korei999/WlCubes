@@ -59,13 +59,14 @@ prepareDraw(App* app)
     uboProjView.createBuffer(sizeof(m4) * 2, GL_DYNAMIC_DRAW);
     uboProjView.bindBlock(&shTex, "ubProjView", 0);
 
-    mSponza.load("test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, app);
 
     /* unbind before creating threads */
-    /*app->unbindGlContext();*/
+    app->unbindGlContext();
+
+    mSponza.load("test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, app);
 
     /* restore context after assets are loaded */
-    /*app->bindGlContext();*/
+    app->bindGlContext();
 }
 
 void

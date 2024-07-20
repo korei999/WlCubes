@@ -49,7 +49,8 @@ struct Queue
         T& operator*() const { return self->pData[this->i]; }
         T* operator->() const { return &self->pData[this->i]; }
 
-        It& operator++()
+        It&
+        operator++()
         {
             if (this->counter >= self->size - 1)
             {
@@ -102,9 +103,8 @@ Queue<T>::resize(u32 _size)
 {
     auto nQ = Queue<T>(this->pAlloc, _size);
 
-    for (auto& e : *this)
-        nQ.pushBack(e);
-    printf("RESIZE\n");
+    for (int i = this->firstI(), t = 0; t < this->size; i = this->nextI(i), t++)
+        nQ.pushBack(this->pData[i]);
 
     this->free();
     *this = nQ;
