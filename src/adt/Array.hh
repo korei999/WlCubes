@@ -60,7 +60,7 @@ Array<T>::Array(BaseAllocator* _allocator, u32 _capacity)
 }
 
 template<typename T>
-T*
+inline T*
 Array<T>::push(const T& data)
 {
     if (this->size >= this->capacity)
@@ -71,22 +71,22 @@ Array<T>::push(const T& data)
     return &this->back();
 }
 
-    template<typename T>
-    T&
+template<typename T>
+inline T&
 Array<T>::back()
 {
     return this->pData[this->size - 1];
 }
 
 template<typename T>
-T&
+inline T&
 Array<T>::front()
 {
     return this->pData[0];
 }
 
 template<typename T>
-void
+inline void
 Array<T>::resize(u32 _size)
 {
     this->capacity = _size;

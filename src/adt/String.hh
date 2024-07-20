@@ -2,6 +2,7 @@
 
 #include "BaseAllocator.hh"
 #include "utils.hh"
+#include "hash.hh"
 
 namespace adt
 {
@@ -81,13 +82,17 @@ StringCreate(BaseAllocator* p, String s)
     return StringCreate(p, s.pData, s.size);
 }
 
+template<>
 constexpr size_t
-fnHash(const String& str)
+fnHash<String>(String& str)
 {
-    size_t hash = 0xCBF29CE484222325;
-    for (size_t i = 0; i < str.size; i++)
-        hash = (hash ^ size_t(str[i])) * 0x100000001B3;
-    return hash;
+    return hashFNV(str.pData, str.size);
+}
+
+constexpr size_t
+hashFNV(String str)
+{
+    return hashFNV(str.pData, str.size);
 }
 
 constexpr String

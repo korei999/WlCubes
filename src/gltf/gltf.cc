@@ -7,26 +7,26 @@ namespace gltf
 
 enum class HASH_CODES : u64
 {
-    scene = adt::fnHash("scene"),
-    scenes = adt::fnHash("scenes"),
-    nodes = adt::fnHash("nodes"),
-    meshes = adt::fnHash("meshes"),
-    cameras = adt::fnHash("cameras"),
-    buffers = adt::fnHash("buffers"),
-    bufferViews = adt::fnHash("bufferViews"),
-    accessors = adt::fnHash("accessors"),
-    materials = adt::fnHash("materials"),
-    textures = adt::fnHash("textures"),
-    images = adt::fnHash("images"),
-    samplers = adt::fnHash("samplers"),
-    skins = adt::fnHash("skins"),
-    animations = adt::fnHash("animations"),
-    SCALAR = adt::fnHash("SCALAR"),
-    VEC2 = adt::fnHash("VEC2"),
-    VEC3 = adt::fnHash("VEC3"),
-    VEC4 = adt::fnHash("VEC4"),
-    MAT3 = adt::fnHash("MAT3"),
-    MAT4 = adt::fnHash("MAT4")
+    scene = adt::hashFNV("scene"),
+    scenes = adt::hashFNV("scenes"),
+    nodes = adt::hashFNV("nodes"),
+    meshes = adt::hashFNV("meshes"),
+    cameras = adt::hashFNV("cameras"),
+    buffers = adt::hashFNV("buffers"),
+    bufferViews = adt::hashFNV("bufferViews"),
+    accessors = adt::hashFNV("accessors"),
+    materials = adt::hashFNV("materials"),
+    textures = adt::hashFNV("textures"),
+    images = adt::hashFNV("images"),
+    samplers = adt::hashFNV("samplers"),
+    skins = adt::hashFNV("skins"),
+    animations = adt::hashFNV("animations"),
+    SCALAR = adt::hashFNV("SCALAR"),
+    VEC2 = adt::hashFNV("VEC2"),
+    VEC3 = adt::hashFNV("VEC3"),
+    VEC4 = adt::hashFNV("VEC4"),
+    MAT3 = adt::hashFNV("MAT3"),
+    MAT4 = adt::hashFNV("MAT4")
 };
 
 #ifdef GLTF
@@ -172,8 +172,6 @@ Asset::load(adt::String path)
     this->processJSONObjs();
     this->defaultSceneIdx = json::getLong(this->jsonObjs.scene);
 
-    /*ThreadPool tp(std::thread::hardware_concurrency());*/
-
     this->processScenes();
     this->processBuffers();
     this->processBufferViews();
@@ -183,8 +181,6 @@ Asset::load(adt::String path)
     this->processMaterials();
     this->processImages();
     this->processNodes();
-
-    /*tp.wait();*/
 }
 
 void

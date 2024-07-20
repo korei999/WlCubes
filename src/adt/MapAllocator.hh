@@ -6,13 +6,6 @@
 namespace adt
 {
 
-template<>
-inline size_t
-fnHash<void* const>(void* const& x)
-{
-    return reinterpret_cast<size_t>(x);
-}
-
 struct MapAllocator : BaseAllocator
 {
     HashMap<void*> mPMap;

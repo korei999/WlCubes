@@ -75,6 +75,7 @@ struct Queue
 };
 
 template<typename T>
+inline
 Queue<T>::Queue(BaseAllocator* p, u32 prealloc)
     : pAlloc(p), capacity(prealloc)
 {

@@ -46,6 +46,7 @@ private:
     static int loop(void* _self);
 };
 
+inline
 ThreadPool::ThreadPool(BaseAllocator* p, u32 _threadCount)
     : pAlloc(p), qTasks(p, _threadCount), threadCount(_threadCount), activeTaskCount(0), bDone(false)
 {
@@ -56,6 +57,7 @@ ThreadPool::ThreadPool(BaseAllocator* p, u32 _threadCount)
     mtx_init(&this->mtxWait, mtx_plain);
 }
 
+inline
 ThreadPool::ThreadPool(BaseAllocator* p)
     : ThreadPool(p, getLogicalCoresCount()) {}
 
@@ -112,7 +114,7 @@ ThreadPool::loop(void* _self)
     return thrd_success;
 }
 
-void
+inline void
 ThreadPool::submit(TaskNode task)
 {
     mtx_lock(&this->mtxQ);
@@ -122,7 +124,7 @@ ThreadPool::submit(TaskNode task)
     cnd_signal(&this->cndQ);
 }
 
-void
+inline void
 ThreadPool::wait()
 {
     while (this->busy())
@@ -133,7 +135,7 @@ ThreadPool::wait()
     }
 }
 
-void
+inline void
 ThreadPool::stop()
 {
     this->bDone = true;
@@ -142,7 +144,7 @@ ThreadPool::stop()
         thrd_join(this->pThreads[i], nullptr);
 }
 
-void
+inline void
 ThreadPool::free()
 {
     this->pAlloc->free(this->pThreads);

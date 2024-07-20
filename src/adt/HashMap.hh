@@ -1,23 +1,10 @@
 #pragma once
 
 #include "Array.hh"
+#include "hash.hh"
 
 namespace adt
 {
-
-template<typename T>
-inline size_t
-fnHash(T& x)
-{
-    return (x);
-}
-
-template<>
-inline size_t
-fnHash<size_t>(size_t& x)
-{
-    return x;
-}
 
 constexpr f64 HASHMAP_DEFAULT_LOAD_FACTOR = 0.5;
 
@@ -65,7 +52,7 @@ struct HashMap
 };
 
 template<typename T>
-HashMapIt<T>
+inline HashMapIt<T>
 HashMap<T>::insert(const T& value)
 {
     if (this->loadFactor() >= this->maxLoadFactor)
@@ -95,7 +82,7 @@ HashMap<T>::insert(const T& value)
 }
 
 template<typename T>
-HashMapIt<T>
+inline HashMapIt<T>
 HashMap<T>::search(const T& value)
 {
     size_t hash = fnHash(value);
@@ -124,7 +111,7 @@ HashMap<T>::search(const T& value)
 }
 
 template<typename T>
-void
+inline void
 HashMap<T>::remove(size_t i)
 {
     this->aBuckets[i].bDeleted = true;
@@ -132,7 +119,7 @@ HashMap<T>::remove(size_t i)
 }
 
 template<typename T>
-void
+inline void
 HashMap<T>::rehash(size_t _size)
 {
     auto mNew = HashMap<T>(this->aBuckets.allocator, _size);
@@ -146,7 +133,7 @@ HashMap<T>::rehash(size_t _size)
 }
 
 template<typename T>
-HashMapIt<T>
+inline HashMapIt<T>
 HashMap<T>::tryInsert(const T& value)
 {
     auto f = this->search(value);
