@@ -89,6 +89,13 @@ fnHash<String>(String& str)
     return hashFNV(str.pData, str.size);
 }
 
+template<>
+constexpr size_t
+fnHash<const String>(const String& str)
+{
+    return hashFNV(str.pData, str.size);
+}
+
 constexpr size_t
 hashFNV(String str)
 {

@@ -93,7 +93,7 @@ accessorTypeToString(enum ACCESSOR_TYPE t)
 static inline enum ACCESSOR_TYPE
 stringToAccessorType(adt::String sv)
 {
-    switch (adt::fnHash(sv))
+    switch (adt::hashFNV(sv))
     {
         default:
         case static_cast<u64>(HASH_CODES::SCALAR):
@@ -189,7 +189,7 @@ Asset::processJSONObjs()
     /* collect all the top level objects */
     for (auto& node : json::getObject(this->parser.pHead))
     {
-        switch (adt::fnHash(node.svKey))
+        switch (adt::hashFNV(node.svKey))
         {
             default:
                 break;
