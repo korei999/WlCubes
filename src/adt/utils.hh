@@ -5,9 +5,6 @@
 
 #include "ultratypes.h"
 
-#define LEN(A) (sizeof(A) / sizeof(A[0]))
-#define ODD(A) (A & 1)
-#define EVEN(A) (!ODD(A))
 #define NPOS static_cast<size_t>(-1UL)
 
 namespace adt
@@ -27,11 +24,25 @@ min(A& l, B& r)
     return l < r ? l : r;
 }
 
-template<typename A>
+template<typename T>
 constexpr size_t
-size(A& a)
+size(const T& a)
 {
-    return LEN(a);
+    return sizeof(a) / sizeof(a[0]);
+}
+
+template<typename T>
+constexpr bool
+odd(const T& a)
+{
+    return a & 1;
+}
+
+template<typename T>
+constexpr bool
+even(const T& a)
+{
+    return !odd(a);
 }
 
 inline f64

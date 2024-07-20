@@ -3,6 +3,11 @@
 #include "WlClient.hh"
 #include "logs.hh"
 
+namespace wayland
+{
+namespace input
+{
+
 void
 keyboardKeymapHandler([[maybe_unused]] void* data,
                       [[maybe_unused]] wl_keyboard* keyboard,
@@ -172,3 +177,6 @@ relativePointerMotionHandler([[maybe_unused]] void *data,
     frame::player.mouse.relX += wl_fixed_to_int(dxUnaccel);
     frame::player.mouse.relY += wl_fixed_to_int(dyUnaccel);
 }
+
+} /* namespace input */
+} /* namespace wayland */

@@ -12,7 +12,7 @@ main()
 {
     adt::MapAllocator allocator;
 
-    WlClient app(&allocator, "WlCubes");
+    wayland::WlClient app(&allocator, "WlCubes");
     frame::run(&app);
 
     allocator.freeAll();

@@ -6,6 +6,9 @@
 #include "WlClient.hh"
 #include "logs.hh"
 
+namespace wayland
+{
+
 #include <string.h>
 
 EGLint eglLastErrorCode = EGL_SUCCESS;
@@ -22,15 +25,15 @@ EGLint eglLastErrorCode = EGL_SUCCESS;
 #endif
 
 static const zwp_relative_pointer_v1_listener relativePointerListener {
-	.relative_motion = relativePointerMotionHandler
+	.relative_motion = input::relativePointerMotionHandler
 };
 
 static const wl_pointer_listener pointerListener {
-    .enter = pointerEnterHandler,
-    .leave = pointerLeaveHandler,
-    .motion = pointerMotionHandler,
-    .button = pointerButtonHandler,
-    .axis = pointerAxisHandler,
+    .enter = input::pointerEnterHandler,
+    .leave = input::pointerLeaveHandler,
+    .motion = input::pointerMotionHandler,
+    .button = input::pointerButtonHandler,
+    .axis = input::pointerAxisHandler,
     .frame {},
     .axis_source {},
     .axis_stop {},
@@ -40,12 +43,12 @@ static const wl_pointer_listener pointerListener {
 };
 
 static const wl_keyboard_listener keyboardListener {
-    .keymap = keyboardKeymapHandler,
-    .enter = keyboardEnterHandler,
-    .leave = keyboardLeaveHandler,
-    .key = keyboardKeyHandler,
-    .modifiers = keyboardModifiersHandler,
-    .repeat_info = keyboardRepeatInfoHandler
+    .keymap = input::keyboardKeymapHandler,
+    .enter = input::keyboardEnterHandler,
+    .leave = input::keyboardLeaveHandler,
+    .key = input::keyboardKeyHandler,
+    .modifiers = input::keyboardModifiersHandler,
+    .repeat_info = input::keyboardRepeatInfoHandler
 };
 
 /* mutter compositor will complain if we do not pong */
@@ -468,3 +471,5 @@ WlClient::showWindow()
 {
     //
 }
+
+} /* namespace wayland */

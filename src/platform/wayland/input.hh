@@ -4,6 +4,11 @@
 
 #include <linux/input-event-codes.h>
 
+namespace wayland
+{
+namespace input
+{
+
 void keyboardKeymapHandler(void* data, wl_keyboard* keyboard, u32 format, s32 fd, u32 size);
 void keyboardEnterHandler(void* data, wl_keyboard* keyboard, u32 serial, wl_surface* surface, wl_array* keys);
 void keyboardLeaveHandler(void* data, wl_keyboard* keyboard, u32 serial, wl_surface* surface);
@@ -18,3 +23,6 @@ void pointerButtonHandler(void* data, wl_pointer* pointer, u32 serial, u32 time,
 void pointerAxisHandler(void* data, wl_pointer* pointer, u32 time, u32 axis, wl_fixed_t value);
 
 void relativePointerMotionHandler(void* data, zwp_relative_pointer_v1* zwp_relative_pointer_v1, u32 utime_hi, u32 utime_lo, wl_fixed_t dx, wl_fixed_t dy, wl_fixed_t dx_unaccel, wl_fixed_t dy_unaccel);
+
+} /* namespace input */
+} /* namespace wayland */

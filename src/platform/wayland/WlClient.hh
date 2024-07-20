@@ -15,6 +15,9 @@
 
 #include "../../App.hh"
 
+namespace wayland
+{
+
 struct WlClient : App
 {
     adt::BaseAllocator* allocator;
@@ -71,3 +74,5 @@ struct WlClient : App
     virtual void procEvents() override;
     virtual void showWindow() override;
 };
+
+} /* namespace wayland */
