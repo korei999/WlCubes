@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Arena.hh"
 #include <threads.h>
+
+#include "Arena.hh"
 
 namespace adt
 {
@@ -10,6 +11,7 @@ struct AtomicArena : Arena
 {
     mtx_t mtxA;
 
+    /* NOTE: realloc may call `AtomicArena::alloc()` (because polymorphism) this is why mtx is recursive */
     AtomicArena(size_t cap) : Arena(cap) { mtx_init(&mtxA, mtx_recursive); }
 
     void* alloc(size_t memberCount, size_t memberSize);
