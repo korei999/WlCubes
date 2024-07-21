@@ -178,15 +178,15 @@ Asset::load(adt::String path)
     adt::ThreadPool tp(&alloc);
     tp.start();
 
-    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processScenes(); return 0;      }, this);
-    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processBuffers(); return 0;     }, this);
-    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processBufferViews(); return 0; }, this);
-    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processAccessors(); return 0;   }, this);
-    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processMeshes(); return 0;      }, this);
-    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processTexures(); return 0;     }, this);
-    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processMaterials(); return 0;   }, this);
-    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processImages(); return 0;      }, this);
-    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processNodes(); return 0;       }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processScenes(); return 0;      }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processBuffers(); return 0;     }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processBufferViews(); return 0; }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processAccessors(); return 0;   }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processMeshes(); return 0;      }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processTexures(); return 0;     }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processMaterials(); return 0;   }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processImages(); return 0;      }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processNodes(); return 0;       }, this);
 
     tp.wait();
     tp.stop();
