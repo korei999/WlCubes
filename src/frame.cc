@@ -1,9 +1,10 @@
+#include "MapAllocator.hh"
 #include "AtomicArena.hh"
 #include "Model.hh"
 #include "Shader.hh"
 #include "colors.hh"
-#include "frame.hh"
 #include "file.hh"
+#include "frame.hh"
 #include "logs.hh"
 #include "math.hh"
 
@@ -16,8 +17,6 @@ namespace frame
 static f64 _prevTime;
 #endif
 
-static adt::AtomicArena aarAssets(adt::SIZE_1M * 300);
-
 controls::PlayerControls player {
     .pos {0.0, 1.0, 1.0},
     .moveSpeed = 4.0,
@@ -26,8 +25,10 @@ controls::PlayerControls player {
 
 f32 fov = 90.0f;
 
+static adt::MapAllocator allocAssets;
+
 Shader shTex;
-Model mSponza(&aarAssets);
+Model mSponza(&allocAssets);
 Ubo uboProjView;
 
 void
@@ -72,7 +73,7 @@ prepareDraw(App* app)
 void
 run(App* app)
 {
-    adt::Arena arMainLoop(adt::SIZE_8M);
+    adt::Arena allocMainLoop(adt::SIZE_8M);
 
     app->bRunning = true;
     app->bRelativeMode = true;
@@ -140,9 +141,9 @@ run(App* app)
 #endif
     }
 
-    arMainLoop.freeAll();
-    aarAssets.freeAll();
-    aarAssets.destroy();
+    allocMainLoop.freeAll();
+    allocAssets.freeAll();
+    /*allocAssets.destroy();*/
 }
 
 } /* namespace frame */

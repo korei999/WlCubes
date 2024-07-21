@@ -1,3 +1,5 @@
+#include "MapAllocator.hh"
+#include "ThreadPool.hh"
 #include "gltf.hh"
 #include "logs.hh"
 #include "file.hh"
@@ -172,15 +174,23 @@ Asset::load(adt::String path)
     this->processJSONObjs();
     this->defaultSceneIdx = json::getLong(this->jsonObjs.scene);
 
-    this->processScenes();
-    this->processBuffers();
-    this->processBufferViews();
-    this->processAccessors();
-    this->processMeshes();
-    this->processTexures();
-    this->processMaterials();
-    this->processImages();
-    this->processNodes();
+    adt::MapAllocator alloc;
+    adt::ThreadPool tp(&alloc);
+    tp.start();
+
+    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processScenes(); return 0;      }, this);
+    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processBuffers(); return 0;     }, this);
+    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processBufferViews(); return 0; }, this);
+    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processAccessors(); return 0;   }, this);
+    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processMeshes(); return 0;      }, this);
+    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processTexures(); return 0;     }, this);
+    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processMaterials(); return 0;   }, this);
+    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processImages(); return 0;      }, this);
+    tp.submit([](void* pArg) { auto* a = (Asset*)pArg; a->processNodes(); return 0;       }, this);
+
+    tp.wait();
+    tp.stop();
+    alloc.freeAll();
 }
 
 void
@@ -486,8 +496,8 @@ Asset::processTexures()
         auto pSampler = json::searchObject(obj, "sampler");
 
         this->aTextures.push({
-            .source = pSource ? json::getLong(pSource) : NPOS,
-            .sampler = pSampler ? json::getLong(pSampler) : NPOS
+            .source = pSource ? static_cast<u32>(json::getLong(pSource)) : NPOS,
+            .sampler = pSampler ? static_cast<u32>(json::getLong(pSampler)) : NPOS
         });
     }
 }

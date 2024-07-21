@@ -39,7 +39,6 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
         mtx_unlock(&gl::mtxGlContext);
     }
 
-    /*adt::AtomicArena aAlloc(adt::SIZE_8M);*/
     adt::MapAllocator aAlloc;
 
     adt::ThreadPool tp(&aAlloc);
