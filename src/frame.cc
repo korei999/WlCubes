@@ -1,9 +1,8 @@
 #include "MapAllocator.hh"
-#include "AtomicArena.hh"
+#include "ThreadPool.hh"
 #include "Model.hh"
 #include "Shader.hh"
 #include "colors.hh"
-#include "file.hh"
 #include "frame.hh"
 #include "logs.hh"
 #include "math.hh"
@@ -25,10 +24,12 @@ controls::PlayerControls player {
 
 f32 fov = 90.0f;
 
-static adt::MapAllocator allocAssets;
+/* FIXME: allocations are not atomic, and program dies on rehashing */
+static adt::MapAllocator allocAssets(adt::SIZE_1M);
 
 Shader shTex;
 Model mSponza(&allocAssets);
+Model mBackpack(&allocAssets);
 Ubo uboProjView;
 
 void
@@ -60,14 +61,48 @@ prepareDraw(App* app)
     uboProjView.createBuffer(sizeof(m4) * 2, GL_DYNAMIC_DRAW);
     uboProjView.bindBlock(&shTex, "ubProjView", 0);
 
+    adt::ThreadPool tp(&allocAssets);
+    tp.start();
 
     /* unbind before creating threads */
     app->unbindGlContext();
 
-    mSponza.load("test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, app);
+    struct ModelArg
+    {
+        Model* p;
+        adt::String path;
+        GLint drawMode;
+        GLint texMode;
+        App* c;
+    };
 
+    ModelArg sponza {&mSponza, "test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, app};
+    ModelArg backpack {&mBackpack, "test-assets/models/backpack/scene.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, app};
+
+    tp.submit([](void* p)
+        {
+            auto a = *(ModelArg*)p;
+            a.p->load(a.path, a.drawMode, a.texMode, a.c);
+            return 0;
+        },
+        &sponza
+    );
+
+    tp.submit([](void* p)
+        {
+            auto a = *(ModelArg*)p;
+            a.p->load(a.path, a.drawMode, a.texMode, a.c);
+            return 0;
+        },
+        &backpack
+    );
+
+    tp.wait();
     /* restore context after assets are loaded */
     app->bindGlContext();
+
+    tp.stop();
+    tp.free();
 }
 
 void
@@ -133,6 +168,8 @@ run(App* app)
 
             m4 m = m4Iden();
             mSponza.drawGraph(DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
+            /* FIXME: broken drawGraph */
+            /*mBackpack.drawGraph(DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);*/
         }
 
         app->swapBuffers();
@@ -143,7 +180,6 @@ run(App* app)
 
     allocMainLoop.freeAll();
     allocAssets.freeAll();
-    /*allocAssets.destroy();*/
 }
 
 } /* namespace frame */

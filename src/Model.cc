@@ -262,10 +262,10 @@ Model::drawGraph(enum DRAW flags,
                  const m4& tmGlobal)
 {
     auto& aNodes = this->asset.aNodes;
-    std::fill(this->aTmIdxs.begin(), this->aTmIdxs.end(), 0);
-    std::fill(this->aTmCounters.begin(), this->aTmCounters.end(), 0);
+    memset(aTmIdxs.data(), 0, aTmIdxs.size * sizeof(aTmIdxs[0]));
+    memset(aTmCounters.data(), 0, aTmCounters.size * sizeof(aTmIdxs[0]));
 
-    auto at = [&](int r, int c) -> int {
+    auto at = [&](u32 r, u32 c) -> int {
         return r*aNodes.size + c;
     };
 

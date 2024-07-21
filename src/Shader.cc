@@ -92,11 +92,6 @@ Shader::loadShaders(adt::String vertexPath, adt::String geometryPath, adt::Strin
     glDeleteShader(geometry);
 }
 
-Shader::Shader(Shader&& other)
-{
-    *this = std::move(other);
-}
-
 void
 Shader::operator=(Shader&& other)
 {
