@@ -25,6 +25,7 @@ struct Array
     T* data() { return this->pData; }
     bool empty() const { return this->size == 0;  }
     void resize(u32 _size);
+    void grow(u32 _size);
     void free() { this->allocator->free(this->pData); }
 
     struct It
@@ -64,7 +65,7 @@ inline T*
 Array<T>::push(const T& data)
 {
     if (this->size >= this->capacity)
-        this->resize(this->capacity * 2);
+        this->grow(this->capacity * 2);
 
     this->pData[this->size++] = data;
 
@@ -91,8 +92,14 @@ Array<T>::resize(u32 _size)
 {
     this->capacity = _size;
     this->pData = static_cast<T*>(this->allocator->realloc(this->pData, sizeof(T) * _size));
+}
 
-    /*memset(&this->pData[this->size], 0, sizeof(T) * (this->capacity - this->size));*/
+template<typename T>
+inline void
+Array<T>::grow(u32 _size)
+{
+    this->capacity = _size;
+    this->pData = static_cast<T*>(this->allocator->realloc(this->pData, sizeof(T) * _size));
 }
 
 } /* namespace adt */

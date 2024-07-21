@@ -212,8 +212,11 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
         this->aaMeshes.push(aNMeshes);
     }
 
-    this->aTmIdxs = decltype(this->aTmIdxs)(this->pAlloc, sq(this->asset.aNodes.size));
-    this->aTmCounters = decltype(this->aTmCounters)(this->pAlloc, this->asset.aNodes.size);
+    this->aTmIdxs = adt::Array<int>(this->pAlloc, sq(this->asset.aNodes.size));
+    this->aTmCounters = adt::Array<int>(this->pAlloc, this->asset.aNodes.size);
+
+    this->aTmIdxs.size = sq(this->asset.aNodes.size);
+    this->aTmCounters.size = this->asset.aNodes.size;
 
     tp.stop();
     aAlloc.freeAll();
@@ -262,18 +265,18 @@ Model::drawGraph(enum DRAW flags,
                  const m4& tmGlobal)
 {
     auto& aNodes = this->asset.aNodes;
-    memset(aTmIdxs.data(), 0, aTmIdxs.size * sizeof(aTmIdxs[0]));
-    memset(aTmCounters.data(), 0, aTmCounters.size * sizeof(aTmIdxs[0]));
+    memset(this->aTmIdxs.data(), 0, this->aTmIdxs.size * sizeof(aTmIdxs[0]));
+    memset(this->aTmCounters.data(), 0, this->aTmCounters.size * sizeof(aTmIdxs[0]));
 
-    auto at = [&](u32 r, u32 c) -> int {
+    auto at = [&](int r, int c) -> int {
         return r*aNodes.size + c;
     };
 
-    for (u32 i = 0; i < aNodes.size; i++)
+    for (int i = 0; i < (int)aNodes.size; i++)
     {
         auto& node = aNodes[i];
         for (auto& ch : node.children)
-            aTmIdxs[at(ch, aTmCounters[ch]++)] = i; /* give each children it's parent's idx's */
+            this->aTmIdxs[at(ch, this->aTmCounters[ch]++)] = i; /* give each children it's parent's idx's */
 
         if (node.mesh != NPOS)
         {
@@ -282,7 +285,7 @@ Model::drawGraph(enum DRAW flags,
             for (int j = 0; j < aTmCounters[i]; j++)
             {
                 /* collect each transformation from parent's map */
-                auto& n = aNodes[ aTmIdxs[at(i, j)] ];
+                auto& n = aNodes[ this->aTmIdxs[at(i, j)] ];
 
                 tm = m4Scale(tm, n.scale);
                 rot *= n.rotation;

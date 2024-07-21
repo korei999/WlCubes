@@ -71,6 +71,13 @@ StringCreate(BaseAllocator* p, const char* str, size_t size)
 }
 
 constexpr String
+StringCreate(BaseAllocator* p, size_t size)
+{
+    char* pData = static_cast<char*>(p->alloc(size + 1, sizeof(char)));
+    return {pData, size};
+}
+
+constexpr String
 StringCreate(BaseAllocator* p, const char* str)
 {
     return StringCreate(p, str, nullTermStringSize(str));

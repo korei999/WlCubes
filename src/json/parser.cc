@@ -268,7 +268,7 @@ Parser::printNode(Object* pNode, adt::String svEnd)
                         default:
                         case TAG::STRING:
                             {
-                                adt::String sl = getStringView(&arr[i]);
+                                adt::String sl = getString(&arr[i]);
                                 COUT("\"%.*s\"%.*s", (int)sl.size, sl.pData, (int)slE.size, slE.pData);
                             }
                             break;
@@ -328,7 +328,7 @@ Parser::printNode(Object* pNode, adt::String svEnd)
 
         case TAG::STRING:
             {
-                adt::String sl = getStringView(pNode);
+                adt::String sl = getString(pNode);
                 COUT("\"%.*s\": \"%.*s\"%.*s", (int)key.size, key.pData, (int)sl.size, sl.pData, (int)svEnd.size, svEnd.pData);
             }
             break;

@@ -84,6 +84,7 @@ struct Accessor
  * and together they define the structure of the scene as a scene graph. */
 struct Node
 {
+    adt::String name;
     u32 camera;
     adt::Array<u32> children;
     m4 matrix = m4Iden();

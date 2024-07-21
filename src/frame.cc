@@ -1,13 +1,12 @@
-#include "MapAllocator.hh"
-#include "ThreadPool.hh"
 #include "Model.hh"
 #include "Shader.hh"
+#include "ThreadPool.hh"
 #include "colors.hh"
 #include "frame.hh"
+#include "gl/gl.hh"
 #include "logs.hh"
 #include "math.hh"
-
-#include "gl/gl.hh"
+#include "MapAllocator.hh"
 
 namespace frame
 {
@@ -24,7 +23,6 @@ controls::PlayerControls player {
 
 f32 fov = 90.0f;
 
-/* FIXME: allocations are not atomic, and program dies on rehashing */
 static adt::MapAllocator allocAssets(adt::SIZE_1M);
 
 Shader shTex;
@@ -169,7 +167,11 @@ run(App* app)
             m4 m = m4Iden();
             mSponza.drawGraph(DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
             /* FIXME: broken drawGraph */
-            /*mBackpack.drawGraph(DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);*/
+            m = m4Iden();
+            m *= m4Translate(m, {0, 0.5, 0});
+            m *= m4Scale(m, 0.002);
+            m = m4RotY(m, toRad(90));
+            mBackpack.drawGraph(DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
         }
 
         app->swapBuffers();
@@ -180,6 +182,7 @@ run(App* app)
 
     allocMainLoop.freeAll();
     allocAssets.freeAll();
+    allocAssets.destroy();
 }
 
 } /* namespace frame */

@@ -4,6 +4,10 @@
 
 #include "ultratypes.h"
 
+#ifdef LOGS
+    #include "String.hh"
+#endif
+
 #define PI 3.14159265358979323846
 
 template<typename T> T sq(T x) { return x * x; }
@@ -121,7 +125,7 @@ union qt
 };
 
 #ifdef LOGS
-// std::string m4ToString(const m4& m, std::string_view prefix);
+adt::String m4ToString(adt::BaseAllocator* pAlloc, const m4& m, adt::String prefix);
 // std::string m3ToString(const m3& m, std::string_view prefix = "");
 // std::string v4ToString(const v4& v, std::string_view prefix = "");
 #endif

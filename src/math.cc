@@ -1,7 +1,3 @@
-#ifdef LOGS
-    #include "logs.hh"
-#endif
-
 #include "math.hh"
 
 static m4 m4LookAtInternal(const v3& R, const v3& U, const v3& D, const v3& P);
@@ -348,17 +344,21 @@ m3Transpose(const m3& m)
 }
 
 #ifdef LOGS
-// string
-// m4ToString(const m4& m, string_view prefix)
-// {
-//     auto e = m.e;
-//     return FMT("{}:\n\t{:.3f} {:.3f} {:.3f} {:.3f}\n\t{:.3f} {:.3f} {:.3f} {:.3f}\n\t{:.3f} {:.3f} {:.3f} {:.3f}\n\t{:.3f} {:.3f} {:.3f} {:.3f}\n",
-//         prefix,
-//         e[0][0], e[0][1], e[0][2], e[0][3],
-//         e[1][0], e[1][1], e[1][2], e[1][3],
-//         e[2][0], e[2][1], e[2][2], e[2][3],
-//         e[3][0], e[3][1], e[3][2], e[3][3]);
-// }
+adt::String
+m4ToString(adt::BaseAllocator* pAlloc, const m4& m, adt::String prefix)
+{
+    auto e = m.e;
+    auto r = adt::StringCreate(pAlloc, 128);
+
+    snprintf(r.pData, r.size, "%.*s:\n\t%.3f %.3f %.3f %.3f\n\t%.3f %.3f %.3f %.3f\n\t%.3f %.3f %.3f %.3f\n\t%.3f %.3f %.3f %.3f\n",
+                              (int)prefix.size, prefix.pData,
+                              e[0][0], e[0][1], e[0][2], e[0][3],
+                              e[1][0], e[1][1], e[1][2], e[1][3],
+                              e[2][0], e[2][1], e[2][2], e[2][3],
+                              e[3][0], e[3][1], e[3][2], e[3][3]);
+
+    return r;
+}
 // 
 // string
 // m3ToString(const m3& m, string_view prefix)

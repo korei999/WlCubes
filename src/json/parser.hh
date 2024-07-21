@@ -71,7 +71,7 @@ getDouble(Object* obj)
 }
 
 inline adt::String
-getStringView(Object* obj)
+getString(Object* obj)
 {
     return obj->tagVal.val.sv;
 }

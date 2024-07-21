@@ -178,15 +178,15 @@ Asset::load(adt::String path)
     adt::ThreadPool tp(&alloc);
     tp.start();
 
-    tp.submit([](void* a) { ((Asset*)a)->processScenes(); return 0;      }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processBuffers(); return 0;     }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processScenes();      return 0; }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processBuffers();     return 0; }, this);
     tp.submit([](void* a) { ((Asset*)a)->processBufferViews(); return 0; }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processAccessors(); return 0;   }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processMeshes(); return 0;      }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processTexures(); return 0;     }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processMaterials(); return 0;   }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processImages(); return 0;      }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processNodes(); return 0;       }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processAccessors();   return 0; }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processMeshes();      return 0; }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processTexures();     return 0; }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processMaterials();   return 0; }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processImages();      return 0; }, this);
+    tp.submit([](void* a) { ((Asset*)a)->processNodes();       return 0; }, this);
 
     tp.wait();
     tp.stop();
@@ -317,7 +317,7 @@ Asset::processBuffers()
 
         if (pUri)
         {
-            svUri = json::getStringView(pUri);
+            svUri = json::getString(pUri);
             auto sNewPath = adt::replacePathSuffix(this->pAlloc, this->parser.sName, svUri);
             aBin = adt::loadFile(this->pAlloc, sNewPath);
         }
@@ -390,7 +390,7 @@ Asset::processAccessors()
         auto pType = json::searchObject(obj, "type");
         if (!pType) LOG_FATAL("'type' field is required\n");
  
-        enum ACCESSOR_TYPE type = stringToAccessorType(json::getStringView(pType));
+        enum ACCESSOR_TYPE type = stringToAccessorType(json::getString(pType));
  
         this->aAccessors.push({
             .bufferView = pBufferView ? static_cast<u32>(json::getLong(pBufferView)) : 0,
@@ -431,7 +431,7 @@ Asset::processMeshes()
  
         adt::Array<Primitive> aPrimitives(this->pAlloc);
         auto pName = json::searchObject(obj, "name");
-        auto name = pName ? json::getStringView(pName) : "";
+        auto name = pName ? json::getString(pName) : "";
  
         auto& aPrim = json::getArray(pPrimitives);
         for (auto& p : aPrim)
@@ -566,7 +566,7 @@ Asset::processImages()
 
         auto pUri = json::searchObject(obj, "uri");
         if (pUri)
-            this->aImages.push({json::getStringView(pUri)});
+            this->aImages.push({json::getString(pUri)});
     }
 }
 
@@ -580,6 +580,9 @@ Asset::processNodes()
         auto& obj = json::getObject(&node);
 
         Node nNode(this->pAlloc);
+
+        auto pName = json::searchObject(obj, "name");
+        if (pName) nNode.name = json::getString(pName);
 
         auto pCamera = json::searchObject(obj, "camera");
         if (pCamera) nNode.camera = static_cast<u32>(json::getLong(pCamera));
