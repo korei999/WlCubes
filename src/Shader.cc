@@ -141,6 +141,7 @@ Shader::loadShader(GLenum type, adt::String path)
     }
 
     arena.freeAll();
+    arena.destroy();
     return shader;
 }
 

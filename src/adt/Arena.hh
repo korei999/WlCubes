@@ -12,8 +12,8 @@
 #define ARENA_FOREACH(A, IT) for (ArenaBlock* IT = ARENA_FIRST(A); IT; IT = ARENA_NEXT(IT))
 #define ARENA_FOREACH_SAFE(A, IT, TMP) for (ArenaBlock* IT = ARENA_FIRST(A), * TMP = nullptr; IT && ((TMP) = ARENA_NEXT(IT), true); (IT) = (TMP))
 
-#define ARENA_NODE_GET_FROM_DATA(PDATA) (reinterpret_cast<adt::ArenaNode*>(reinterpret_cast<u8*>(PDATA) - offsetof(adt::ArenaNode, pData)))
-#define ARENA_NODE_GET_FROM_BLOCK(PBLOCK) (reinterpret_cast<adt::ArenaNode*>(reinterpret_cast<u8*>(PBLOCK) + offsetof(adt::ArenaBlock, pData)))
+#define ARENA_NODE_GET_FROM_DATA(PDATA)   ((adt::ArenaNode*)((u8*)(PDATA)  - offsetof(adt::ArenaNode,  pData)))
+#define ARENA_NODE_GET_FROM_BLOCK(PBLOCK) ((adt::ArenaNode*)((u8*)(PBLOCK) + offsetof(adt::ArenaBlock, pData)))
 
 namespace adt
 {
@@ -53,7 +53,6 @@ struct Arena : BaseAllocator
 
 private:
     ArenaBlock* newBlock();
-    bool fitsNode(ArenaNode* pNode, size_t size);
     ArenaBlock* getFreeBlock();
 };
 
@@ -70,16 +69,14 @@ Arena::reset()
 {
     ARENA_FOREACH(this, pB)
     {
-        ArenaNode* pNode = ARENA_NODE_GET_FROM_BLOCK(pB), * pNext = nullptr;
-
-        while (pNode->pNext)
-        {
-            pNext = pNode->pNext;
-            pNode->size = 0;
-            pNode->pNext = nullptr;
-            pNode = pNext;
-        }
+        ArenaNode* pNode = ARENA_NODE_GET_FROM_BLOCK(pB);
+        pNode->pNext = pNode;
     }
+
+    auto first = ARENA_FIRST(this);
+    ArenaNode* pNode = ARENA_NODE_GET_FROM_BLOCK(first);
+    this->pLatest = pNode;
+    this->pLatestBlock = first;
 }
 
 inline ArenaBlock*
@@ -92,17 +89,11 @@ Arena::newBlock()
     memset(*ppLastBlock, 0, sizeof(ArenaBlock) + this->blockSize);
 
     auto* pNode = ARENA_NODE_GET_FROM_BLOCK(*ppLastBlock);
-    pNode->pNext = pNode; /* so we don't bump the very first one on `alloc()` */
+    pNode->pNext = pNode; /* don't bump the very first node on `alloc()` */
     this->pLatest = pNode;
     this->pLatestBlock = *ppLastBlock;
 
     return *ppLastBlock;
-}
-
-inline bool
-Arena::fitsNode(ArenaNode* pNode, size_t size)
-{
-    return size_t((u8*)pNode->pNext - (u8*)pNode) > size;
 }
 
 inline ArenaBlock*
@@ -147,7 +138,7 @@ repeat:
     if (nextAligned >= this->blockSize)
     {
         pFreeBlock = pFreeBlock->pNext;
-        pFreeBlock = this->newBlock();
+        if (!pFreeBlock) pFreeBlock = this->newBlock();
         goto repeat;
     }
 

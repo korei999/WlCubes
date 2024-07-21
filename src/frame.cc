@@ -1,3 +1,4 @@
+#include "MapAllocator.hh"
 #include "Model.hh"
 #include "Shader.hh"
 #include "ThreadPool.hh"
@@ -6,7 +7,6 @@
 #include "gl/gl.hh"
 #include "logs.hh"
 #include "math.hh"
-#include "MapAllocator.hh"
 
 namespace frame
 {
@@ -65,7 +65,7 @@ prepareDraw(App* app)
     /* unbind before creating threads */
     app->unbindGlContext();
 
-    struct ModelArg
+    struct ModelLoadArg
     {
         Model* p;
         adt::String path;
@@ -74,26 +74,17 @@ prepareDraw(App* app)
         App* c;
     };
 
-    ModelArg sponza {&mSponza, "test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, app};
-    ModelArg backpack {&mBackpack, "test-assets/models/backpack/scene.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, app};
+    ModelLoadArg sponza {&mSponza, "test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, app};
+    ModelLoadArg backpack {&mBackpack, "test-assets/models/backpack/scene.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, app};
 
-    tp.submit([](void* p)
-        {
-            auto a = *(ModelArg*)p;
-            a.p->load(a.path, a.drawMode, a.texMode, a.c);
-            return 0;
-        },
-        &sponza
-    );
+    auto load = [](void* p) -> int {
+        auto a = *(ModelLoadArg*)p;
+        a.p->load(a.path, a.drawMode, a.texMode, a.c);
+        return 0;
+    };
 
-    tp.submit([](void* p)
-        {
-            auto a = *(ModelArg*)p;
-            a.p->load(a.path, a.drawMode, a.texMode, a.c);
-            return 0;
-        },
-        &backpack
-    );
+    tp.submit(load, &sponza);
+    tp.submit(load, &backpack);
 
     tp.wait();
     /* restore context after assets are loaded */
@@ -149,7 +140,7 @@ run(App* app)
             /* copy both proj and view in one go */
             uboProjView.bufferData(&player, 0, sizeof(m4) * 2);
 
-            v3 lightPos {std::cosf(player.currTime) * 6.0f, 3, std::sinf(player.currTime) * 1.1f};
+            v3 lightPos {cosf(player.currTime) * 6.0f, 3, sinf(player.currTime) * 1.1f};
             constexpr v3 lightColor(colors::snow);
             f32 nearPlane = 0.01f, farPlane = 25.0f;
 
@@ -166,7 +157,6 @@ run(App* app)
 
             m4 m = m4Iden();
             mSponza.drawGraph(DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
-            /* FIXME: broken drawGraph */
             m = m4Iden();
             m *= m4Translate(m, {0, 0.5, 0});
             m *= m4Scale(m, 0.002);
