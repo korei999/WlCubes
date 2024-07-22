@@ -52,6 +52,10 @@ add_executable(
     src/Model.cc
 )
 
+if (CMAKE_BUILD_TYPE MATCHES "Release" AND CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY WIN32_EXECUTABLE TRUE)
+endif()
+
 if (FPS_COUNTER)
     add_definitions("-DFPS_COUNTER")
 endif()
@@ -139,6 +143,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     find_package(OpenGL REQUIRED)
     message(STATUS "OpenGL: '${OpenGL}'")
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
+    #target_link_options(${CMAKE_PROJECT_NAME} PRIVATE -ldinput8.lib -ldxguid.lib)
 
     target_sources(
         ${CMAKE_PROJECT_NAME}

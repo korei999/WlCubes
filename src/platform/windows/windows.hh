@@ -8,10 +8,10 @@ namespace win32
 
 struct Window : App
 {
-    HINSTANCE instance;
-    HWND window;
-    HDC deviceContext;
-    HGLRC glContext;
+    HINSTANCE hInstance;
+    HWND hWindow;
+    HDC hDeviceContext;
+    HGLRC hGlContext;
     WNDCLASSEXW windowClass;
 
     Window(adt::Allocator* p, adt::String name, HINSTANCE _instance);

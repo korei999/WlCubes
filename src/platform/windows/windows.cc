@@ -96,7 +96,7 @@ Window::Window(adt::Allocator* p, adt::String name, HINSTANCE _instance)
 {
     this->pAlloc = p;
     this->svName = name;
-    this->instance = _instance;
+    this->hInstance = _instance;
     this->init();
 }
 
@@ -112,7 +112,7 @@ Window::init()
     windowClass = {};
     windowClass.cbSize = sizeof(windowClass);
     windowClass.lpfnWndProc = input::windowProc;
-    windowClass.hInstance = instance;
+    windowClass.hInstance = hInstance;
     windowClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
     windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     windowClass.lpszClassName = L"opengl_window_class";
@@ -131,7 +131,7 @@ Window::init()
     this->wWidth = rect.right - rect.left;
     this->wHeight = rect.bottom - rect.top;
 
-    window = CreateWindowExW(exstyle,
+    hWindow = CreateWindowExW(exstyle,
                              windowClass.lpszClassName,
                              L"OpenGL Window",
                              style,
@@ -143,12 +143,10 @@ Window::init()
                              nullptr,
                              windowClass.hInstance,
                              this);
-    if (!window)
-        LOG_FATAL("CreateWindowExW failed\n");
+    if (!hWindow) LOG_FATAL("CreateWindowExW failed\n");
 
-    deviceContext = GetDC(window);
-    if (!deviceContext)
-        LOG_FATAL("GetDC failed\n");
+    hDeviceContext = GetDC(hWindow);
+    if (!hDeviceContext) LOG_FATAL("GetDC failed\n");
 
     int attrib[] {
         WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -168,15 +166,15 @@ Window::init()
 
     int format;
     UINT formats;
-    if (!wglChoosePixelFormatARB(deviceContext, attrib, nullptr, 1, &format, &formats) || formats == 0)
+    if (!wglChoosePixelFormatARB(hDeviceContext, attrib, nullptr, 1, &format, &formats) || formats == 0)
         LOG_FATAL("OpenGL does not support required pixel format!");
 
     PIXELFORMATDESCRIPTOR desc {};
     desc.nSize = sizeof(desc);
-    int ok = DescribePixelFormat(deviceContext, format, sizeof(desc), &desc);
+    int ok = DescribePixelFormat(hDeviceContext, format, sizeof(desc), &desc);
     if (!ok) LOG_FATAL("DescribePixelFormat failed\n");
 
-    if (!SetPixelFormat(deviceContext, format, &desc)) LOG_FATAL("Cannot set OpenGL selected pixel format!");
+    if (!SetPixelFormat(hDeviceContext, format, &desc)) LOG_FATAL("Cannot set OpenGL selected pixel format!");
 
     int attribContext[] {
         WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
@@ -190,10 +188,10 @@ Window::init()
         0,
     };
 
-    glContext = wglCreateContextAttribsARB(deviceContext, nullptr, attribContext);
-    if (!glContext) LOG_FATAL("Cannot create modern OpenGL context! OpenGL version 4.5 not supported?");
+    hGlContext = wglCreateContextAttribsARB(hDeviceContext, nullptr, attribContext);
+    if (!hGlContext) LOG_FATAL("Cannot create modern OpenGL context! OpenGL version 4.5 not supported?");
 
-    bool okContext = wglMakeCurrent(deviceContext, glContext);
+    bool okContext = wglMakeCurrent(hDeviceContext, hGlContext);
     if (!okContext) LOG_FATAL("wglMakeCurrent failed\n");
 
     if (!gladLoadGL()) LOG_FATAL("gladLoadGL failed\n");
@@ -210,7 +208,7 @@ Window::disableRelativeMode()
 void
 Window::enableRelativeMode()
 {
-    SetCapture(this->window);
+    SetCapture(this->hWindow);
 }
 
 void
@@ -244,7 +242,7 @@ Window::unsetFullscreen()
 void 
 Window::bindGlContext()
 {
-    wglMakeCurrent(deviceContext, glContext);
+    wglMakeCurrent(hDeviceContext, hGlContext);
 }
 
 void 
@@ -270,7 +268,7 @@ Window::toggleVSync()
 void
 Window::swapBuffers()
 {
-    if (!SwapBuffers(deviceContext)) LOG_WARN("SwapBuffers(dc): failed\n");
+    if (!SwapBuffers(hDeviceContext)) LOG_WARN("SwapBuffers(dc): failed\n");
 }
 
 void 
@@ -297,7 +295,7 @@ Window::procEvents()
 void
 Window::showWindow()
 {
-    ShowWindow(window, SW_SHOWDEFAULT);
+    ShowWindow(hWindow, SW_SHOWDEFAULT);
 }
 
 } /* namespace win32 */

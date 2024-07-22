@@ -4,14 +4,6 @@
 #include "logs.hh"
 #include "../../frame.hh"
 
-#include <hidusage.h>
-#ifndef HID_USAGE_PAGE_GENERIC
-#define HID_USAGE_PAGE_GENERIC         ((USHORT) 0x01)
-#endif
-#ifndef HID_USAGE_GENERIC_MOUSE
-#define HID_USAGE_GENERIC_MOUSE        ((USHORT) 0x02)
-#endif
-
 namespace win32
 {
 namespace input
@@ -20,25 +12,17 @@ namespace input
 LRESULT CALLBACK
 windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    Window* pWin = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-
-    RAWINPUTDEVICE Rid[1];
-    Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
-    Rid[0].usUsage = HID_USAGE_GENERIC_MOUSE;
-    Rid[0].dwFlags = RIDEV_INPUTSINK;
-    Rid[0].hwndTarget = hwnd;
-    RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
+    Window* self = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
     switch (msg)
     {
         case WM_DESTROY:
-            LOG_OK("WM_DESTROY\n");
-            PostQuitMessage(0);
+            self->bRunning = false;
             return 0;
 
         case WM_SIZE:
-            pWin->wWidth = LOWORD(lParam);
-            pWin->wHeight = HIWORD(lParam);
+            self->wWidth = LOWORD(lParam);
+            self->wHeight = HIWORD(lParam);
             break;
 
         case WM_NCCREATE:
@@ -81,7 +65,11 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                     case 'Q':
                         controls::pressedKeys[KEY_Q] = isUp;
-                        controls::procKeysOnce(pWin, KEY_Q, isUp);
+                        controls::procKeysOnce(self, KEY_Q, isUp);
+                        break;
+
+                    case 27: /* esc */
+                        self->bRunning = false;
                         break;
 
                     default:
@@ -100,26 +88,11 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             break;
 
-        // case WM_INPUT:
-        //     {
-        //         UINT dwSize = sizeof(RAWINPUT);
-        //         static BYTE lpb[sizeof(RAWINPUT)];
-
-        //         GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
-
-        //         RAWINPUT* raw = (RAWINPUT*)lpb;
-
-        //         if (raw->header.dwType == RIM_TYPEMOUSE) 
-        //         {
-        //             frame::player.mouse.relX += raw->data.mouse.lLastX;
-        //             frame::player.mouse.relY += raw->data.mouse.lLastY;
-        //         } 
-        //     }
-        //     break;
-
         default:
             break;
     }
+
+    // detectInput(self);
 
     return DefWindowProcW(hwnd, msg, wParam, lParam);
 }
