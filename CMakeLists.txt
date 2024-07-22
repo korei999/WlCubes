@@ -12,7 +12,7 @@ message(STATUS "CMAKE_C_COMPILER_ID: '${CMAKE_C_COMPILER_ID}'")
 message(STATUS "CMAKE_CXX_COMPILER_ID: '${CMAKE_CXX_COMPILER_ID}'")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_CXX_STANDARD 23) # somehow gcc wouldn't include c11 atomic types with anything older than 23
+    set(CMAKE_CXX_STANDARD 23)
 else()
     set(CMAKE_CXX_STANDARD 20)
 endif()
