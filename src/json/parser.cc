@@ -78,8 +78,8 @@ Parser::parseNode(Object* pNode)
             this->parseNull(&pNode->tagVal);
             break;
 
-        case Token::TRUE:
-        case Token::FALSE:
+        case Token::TRUE_:
+        case Token::FALSE_:
             this->parseBool(&pNode->tagVal);
             break;
     }
@@ -158,8 +158,8 @@ Parser::parseArray(Object* pNode)
                 this->parseNull(&aTVs.back().tagVal);
                 break;
 
-            case Token::TRUE:
-            case Token::FALSE:
+            case Token::TRUE_:
+            case Token::FALSE_:
                 this->parseBool(&aTVs.back().tagVal);
                 break;
 
@@ -194,7 +194,7 @@ Parser::parseNull(TagVal* pTV)
 void
 Parser::parseBool(TagVal* pTV)
 {
-    bool b = this->tCurr.type == Token::TRUE? true : false;
+    bool b = this->tCurr.type == Token::TRUE_ ? true : false;
     *pTV = {.tag = TAG::BOOL, .val = {.b = b}};
     this->next();
 }

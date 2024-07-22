@@ -66,9 +66,9 @@ Lexer::stringNoQuotes()
     if ("null" == r.svLiteral)
         r.type = Token::NULL_;
     else if ("false" == r.svLiteral)
-        r.type = Token::FALSE;
+        r.type = Token::FALSE_;
     else if ("true" == r.svLiteral)
-        r.type = Token::TRUE;
+        r.type = Token::TRUE_;
     else
         r.type = Token::IDENT;
 

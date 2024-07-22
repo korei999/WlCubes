@@ -20,8 +20,6 @@ namespace wayland
 
 struct WlClient : App
 {
-    adt::Allocator* allocator;
-
     wl_display* display {};
     wl_registry* registry {};
 

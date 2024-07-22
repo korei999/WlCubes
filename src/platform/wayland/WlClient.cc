@@ -221,8 +221,8 @@ static const wl_registry_listener registryListener {
 };
 
 WlClient::WlClient(adt::Allocator* _allocator, adt::String name)
-    : allocator(_allocator)
 {
+    this->pAlloc = _allocator;
     this->svName = name;
     this->init();
 }

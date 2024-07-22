@@ -8,6 +8,10 @@
 #ifdef __linux__
     #include <sys/sysinfo.h>
     #define getLogicalCoresCount() get_nprocs()
+#elif _WIN32
+    #include <windows.h>
+    #include <processthreadsapi.h>
+    #define getLogicalCoresCount() GetCurrentProcessorNumber()
 #endif
 
 namespace adt
@@ -27,7 +31,7 @@ struct ThreadPool
     u32 threadCount {};
     cnd_t cndQ, cndWait;
     mtx_t mtxQ, mtxWait;
-    atomic_int activeTaskCount;
+    _Atomic(int) activeTaskCount;
     bool bDone {};
 
     ThreadPool() = default;

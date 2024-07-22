@@ -10,6 +10,9 @@
 
 #endif
 
+#undef near//;
+#undef far//;
+
 namespace controls
 {
 

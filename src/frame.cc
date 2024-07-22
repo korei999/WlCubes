@@ -23,7 +23,7 @@ controls::PlayerControls player {
 
 f32 fov = 90.0f;
 
-static adt::AtomicArena allocAssets(adt::SIZE_1M * 100);
+static adt::AtomicArena allocAssets(adt::SIZE_1M * 200);
 
 Shader shTex;
 Model mSponza(&allocAssets);

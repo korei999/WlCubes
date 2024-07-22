@@ -4,6 +4,8 @@
 
 struct App
 {
+    adt::Allocator* pAlloc;
+    adt::String svName;
     int wWidth = 1920;
     int wHeight = 1080;
     bool bRunning = false;
@@ -12,7 +14,6 @@ struct App
     bool bPaused = false;
     bool bRelativeMode = false;
     bool bFullscreen = false;
-    adt::String svName;
 
     virtual ~App() = default;
 

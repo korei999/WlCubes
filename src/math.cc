@@ -197,10 +197,10 @@ m4
 m4RotX(const m4& m, const f32 angle)
 {
     m4 axisX {.e {
-        {1, 0,                0,               0},
-        {0, cos(angle),  sin(angle), 0},
-        {0, -sin(angle), cos(angle), 0},
-        {0, 0,                0,               1}
+        {1, 0,            0,           0},
+        {0, cosf(angle),  sinf(angle), 0},
+        {0, -sinf(angle), cosf(angle), 0},
+        {0, 0,            0,           1}
     }};
 
     return m * axisX;
@@ -210,10 +210,10 @@ m4
 m4RotY(const m4& m, const f32 angle)
 {
     m4 axisY {.e {
-        {cos(angle), 0, -sin(angle), 0},
-        {0,               1, 0,                0},
-        {sin(angle), 0, cos(angle),  0},
-        {0,               0, 0,                1}
+        {cosf(angle), 0,  -sinf(angle), 0},
+        {0,               1, 0,         0},
+        {sinf(angle), 0,  cosf(angle),  0},
+        {0,               0, 0,         1}
     }};
 
     return m * axisY;
@@ -223,10 +223,10 @@ m4
 m4RotZ(const m4& m, const f32 angle)
 {
     m4 axisZ {.e {
-        {cos(angle),  sin(angle), 0, 0},
-        {-sin(angle), cos(angle), 0, 0},
-        {0,                0,               1, 0},
-        {0,                0,               0, 1}
+        {cosf(angle),  sinf(angle), 0, 0},
+        {-sinf(angle), cosf(angle), 0, 0},
+        {0,            0,           1, 0},
+        {0,            0,           0, 1}
     }};
 
     return m * axisZ;
