@@ -5,6 +5,8 @@
 #elif _WIN32
     #include <windows.h>
     #include <sysinfoapi.h>
+    #undef min
+    #undef max
 #endif
 
 #include <stdio.h>
@@ -17,19 +19,19 @@
 namespace adt
 {
 
-// template<typename A, typename B>
-// constexpr A&
-// max(A& l, B& r)
-// {
-//     return l > r ? l : r;
-// }
-// 
-// template<typename A, typename B>
-// constexpr A&
-// min(A& l, B& r)
-// {
-//     return l < r ? l : r;
-// }
+template<typename A, typename B>
+constexpr A&
+max(A& l, B& r)
+{
+    return l > r ? l : r;
+}
+
+template<typename A, typename B>
+constexpr A&
+min(A& l, B& r)
+{
+    return l < r ? l : r;
+}
 
 template<typename T>
 constexpr size_t
