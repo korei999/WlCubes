@@ -325,18 +325,6 @@ Model::drawGraph(adt::Allocator* pFrameAlloc,
     }
 }
 
-/*void*/
-/*Model::drawInstanced(GLsizei count)*/
-/*{*/
-/*    for (auto& aaMeshes : objects)*/
-/*        for (auto& mesh : aaMeshes)*/
-/*        {*/
-/*            glBindVertexArray(mesh.vao);*/
-/*            glDrawElementsInstanced(GL_TRIANGLES, mesh.eboSize, GL_UNSIGNED_INT, nullptr, count);*/
-/*        }*/
-/*}*/
-/**/
-
 Ubo::Ubo(u32 _size, GLint drawMode)
 {
     createBuffer(_size, drawMode);

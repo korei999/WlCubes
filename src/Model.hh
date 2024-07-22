@@ -92,7 +92,6 @@ struct Model
     void loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c);
     void draw(enum DRAW flags, Shader* sh = nullptr, adt::String svUniform = "", adt::String svUniformM3Norm = "", const m4& tmGlobal = m4Iden());
     void drawGraph(adt::Allocator* pFrameAlloc, enum DRAW flags, Shader* sh, adt::String svUniform, adt::String svUniformM3Norm, const m4& tmGlobal);
-    /*void drawInstanced(GLsizei count);*/
 
 private:
     void parseOBJ(adt::String path, GLint drawMode, GLint texMode, App* c);
