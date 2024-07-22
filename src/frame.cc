@@ -59,7 +59,9 @@ prepareDraw(App* app)
     uboProjView.createBuffer(sizeof(m4) * 2, GL_DYNAMIC_DRAW);
     uboProjView.bindBlock(&shTex, "ubProjView", 0);
 
-    adt::ThreadPool tp(&allocAssets);
+    adt::Arena allocScope(adt::SIZE_1K);
+
+    adt::ThreadPool tp(&allocScope);
     tp.start();
 
     /* unbind before creating threads */
@@ -92,6 +94,9 @@ prepareDraw(App* app)
 
     tp.stop();
     tp.destroy();
+
+    allocScope.freeAll();
+    allocScope.destroy();
 }
 
 void
@@ -173,8 +178,8 @@ run(App* app)
     }
 
     allocFrame.freeAll();
-    allocAssets.freeAll();
     allocFrame.destroy();
+    allocAssets.freeAll();
     allocAssets.destroy();
 }
 

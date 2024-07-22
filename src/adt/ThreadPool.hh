@@ -72,10 +72,10 @@ inline bool
 ThreadPool::busy()
 {
     mtx_lock(&this->mtxQ);
-    bool ret = !this->qTasks.empty();
+    bool ret = !this->qTasks.empty() || this->activeTaskCount > 0;
     mtx_unlock(&this->mtxQ);
 
-    return ret || this->activeTaskCount > 0;
+    return ret;
 }
 
 inline int
