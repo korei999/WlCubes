@@ -8,7 +8,7 @@ namespace adt
 template<typename T>
 struct Array
 {
-    Allocator* allocator;
+    Allocator* pAlloc = nullptr;
     T* pData = nullptr;
     u32 size = 0;
     u32 capacity = 0;
@@ -21,13 +21,17 @@ struct Array
     const T& operator[](u32 i) const { return this->pData[i]; }
 
     T* push(const T& data);
-    T& back();
-    T& front();
+    T* pop();
+    T& back() { return this->pData[this->size - 1]; }
+    const T& back() const { return this->back(); }
+    T& front() { return this->pData[0]; }
+    const T& front() const { this->front(); }
     T* data() { return this->pData; }
+    const T* data() const { return this->data(); }
     bool empty() const { return this->size == 0;  }
     void resize(u32 _size);
     void grow(u32 _size);
-    void destroy() { this->allocator->free(this->pData); }
+    void destroy() { this->pAlloc->free(this->pData); }
 
     struct It
     {
@@ -49,16 +53,16 @@ struct Array
 
 template<typename T>
 Array<T>::Array(Allocator* _allocator)
-    : allocator(_allocator), capacity(SIZE_MIN)
+    : pAlloc(_allocator), capacity(SIZE_MIN)
 {
-    pData = static_cast<T*>(this->allocator->alloc(this->capacity, sizeof(T)));
+    pData = static_cast<T*>(this->pAlloc->alloc(this->capacity, sizeof(T)));
 }
 
 template<typename T>
 Array<T>::Array(Allocator* _allocator, u32 _capacity)
-    : allocator(_allocator), capacity(_capacity)
+    : pAlloc(_allocator), capacity(_capacity)
 {
-    pData = static_cast<T*>(this->allocator->alloc(this->capacity, sizeof(T)));
+    pData = static_cast<T*>(this->pAlloc->alloc(this->capacity, sizeof(T)));
 }
 
 template<typename T>
@@ -74,17 +78,11 @@ Array<T>::push(const T& data)
 }
 
 template<typename T>
-inline T&
-Array<T>::back()
+inline T*
+Array<T>::pop()
 {
-    return this->pData[this->size - 1];
-}
-
-template<typename T>
-inline T&
-Array<T>::front()
-{
-    return this->pData[0];
+    assert(!this->empty() && "popping from an empty array!");
+    return &this->pData[--this->size];
 }
 
 template<typename T>
@@ -102,7 +100,7 @@ inline void
 Array<T>::grow(u32 _size)
 {
     this->capacity = _size;
-    this->pData = static_cast<T*>(this->allocator->realloc(this->pData, sizeof(T) * _size));
+    this->pData = static_cast<T*>(this->pAlloc->realloc(this->pData, sizeof(T) * _size));
 }
 
 } /* namespace adt */

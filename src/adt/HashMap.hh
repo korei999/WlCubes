@@ -17,7 +17,7 @@ struct Bucket
 };
 
 template <typename T>
-struct HashMapIt
+struct HashMapRet
 {
     T* pData;
     size_t hash;
@@ -25,34 +25,34 @@ struct HashMapIt
     bool bInserted;
 };
 
-/* simple linear probing */
+/* `adt::fnHash<T>()` for hash function, linear probing */
 template<typename T>
 struct HashMap
 {
-    Allocator* allocator;
+    Allocator* pAlloc;
     Array<Bucket<T>> aBuckets;
     f64 maxLoadFactor;
     size_t bucketCount = 0;
 
     HashMap() = default;
-    HashMap(Allocator* pAllocator) : allocator(pAllocator), aBuckets(pAllocator), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
-    HashMap(Allocator* pAllocator, size_t prealloc) : allocator(pAllocator), aBuckets(pAllocator, prealloc), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
+    HashMap(Allocator* pAllocator) : pAlloc(pAllocator), aBuckets(pAllocator), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
+    HashMap(Allocator* pAllocator, size_t prealloc) : pAlloc(pAllocator), aBuckets(pAllocator, prealloc), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
 
     Bucket<T>& operator[](size_t i) { return this->aBuckets[i]; }
     const Bucket<T>& operator[](size_t i) const { return this->aBuckets[i]; }
 
     f64 loadFactor() const { return static_cast<f64>(this->bucketCount) / static_cast<f64>(this->aBuckets.capacity); }
     size_t capacity() const { return this->aBuckets.capacity; }
-    HashMapIt<T> insert(const T& value);
-    HashMapIt<T> search(const T& value);
+    HashMapRet<T> insert(const T& value);
+    HashMapRet<T> search(const T& value);
     void remove(size_t i);
     void rehash(size_t _size);
-    HashMapIt<T> tryInsert(const T& value);
+    HashMapRet<T> tryInsert(const T& value);
     void destroy() { this->aBuckets.destroy(); }
 };
 
 template<typename T>
-inline HashMapIt<T>
+inline HashMapRet<T>
 HashMap<T>::insert(const T& value)
 {
     if (this->loadFactor() >= this->maxLoadFactor)
@@ -82,13 +82,13 @@ HashMap<T>::insert(const T& value)
 }
 
 template<typename T>
-inline HashMapIt<T>
+inline HashMapRet<T>
 HashMap<T>::search(const T& value)
 {
     size_t hash = fnHash(value);
     size_t idx = hash % this->capacity();
 
-    HashMapIt<T> ret;
+    HashMapRet<T> ret;
     ret.hash = hash;
     ret.pData = nullptr;
     ret.bInserted = false;
@@ -122,7 +122,7 @@ template<typename T>
 inline void
 HashMap<T>::rehash(size_t _size)
 {
-    auto mNew = HashMap<T>(this->aBuckets.allocator, _size);
+    auto mNew = HashMap<T>(this->aBuckets.pAlloc, _size);
 
     for (size_t i = 0; i < this->aBuckets.capacity; i++)
         if (this->aBuckets[i].bOccupied)
@@ -133,7 +133,7 @@ HashMap<T>::rehash(size_t _size)
 }
 
 template<typename T>
-inline HashMapIt<T>
+inline HashMapRet<T>
 HashMap<T>::tryInsert(const T& value)
 {
     auto f = this->search(value);
