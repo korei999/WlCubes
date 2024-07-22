@@ -35,7 +35,7 @@ struct HashMap
     size_t bucketCount = 0;
 
     HashMap() = default;
-    HashMap(Allocator* pAllocator) : pAlloc(pAllocator), aBuckets(pAllocator), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
+    HashMap(Allocator* pAllocator) : pAlloc(pAllocator), aBuckets(pAllocator, SIZE_MIN), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
     HashMap(Allocator* pAllocator, size_t prealloc) : pAlloc(pAllocator), aBuckets(pAllocator, prealloc), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
 
     Bucket<T>& operator[](size_t i) { return this->aBuckets[i]; }

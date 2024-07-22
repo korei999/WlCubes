@@ -53,10 +53,7 @@ struct Array
 
 template<typename T>
 Array<T>::Array(Allocator* _allocator)
-    : pAlloc(_allocator), capacity(SIZE_MIN)
-{
-    pData = static_cast<T*>(this->pAlloc->alloc(this->capacity, sizeof(T)));
-}
+    : Array<T>(_allocator, SIZE_MIN) {}
 
 template<typename T>
 Array<T>::Array(Allocator* _allocator, u32 _capacity)
@@ -69,6 +66,8 @@ template<typename T>
 inline T*
 Array<T>::push(const T& data)
 {
+    assert(this->capacity > 0 && "pushing to the uninitialized array");
+
     if (this->size >= this->capacity)
         this->grow(this->capacity * 2);
 
@@ -81,7 +80,7 @@ template<typename T>
 inline T*
 Array<T>::pop()
 {
-    assert(!this->empty() && "popping from an empty array!");
+    assert(!this->empty() && "popping from the empty array!");
     return &this->pData[--this->size];
 }
 
