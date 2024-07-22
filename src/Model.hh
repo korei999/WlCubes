@@ -79,19 +79,19 @@ struct Mesh
 
 struct Model
 {
-    adt::BaseAllocator* pAlloc;
+    adt::Allocator* pAlloc;
     adt::String savedPath;
     adt::Array<adt::Array<Mesh>> aaMeshes;
     gltf::Asset asset;
 
-    Model(adt::BaseAllocator* p) : pAlloc(p), aaMeshes(p), asset(p), aTmIdxs(p), aTmCounters(p) {}
-    Model(adt::BaseAllocator* p, adt::String path, GLint drawMode, GLint texMode, App* c) : Model(p) { this->load(path, drawMode, texMode, c); }
+    Model(adt::Allocator* p) : pAlloc(p), aaMeshes(p), asset(p), aTmIdxs(p), aTmCounters(p) {}
+    Model(adt::Allocator* p, adt::String path, GLint drawMode, GLint texMode, App* c) : Model(p) { this->load(path, drawMode, texMode, c); }
 
     void load(adt::String path, GLint drawMode, GLint texMode, App* c);
     void loadOBJ(adt::String path, GLint drawMode, GLint texMode, App* c);
     void loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c);
     void draw(enum DRAW flags, Shader* sh = nullptr, adt::String svUniform = "", adt::String svUniformM3Norm = "", const m4& tmGlobal = m4Iden());
-    void drawGraph(enum DRAW flags, Shader* sh, adt::String svUniform, adt::String svUniformM3Norm, const m4& tmGlobal);
+    void drawGraph(adt::Allocator* pFrameAlloc, enum DRAW flags, Shader* sh, adt::String svUniform, adt::String svUniformM3Norm, const m4& tmGlobal);
     /*void drawInstanced(GLsizei count);*/
 
 private:

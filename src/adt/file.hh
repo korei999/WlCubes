@@ -7,11 +7,11 @@ namespace adt
 {
 
 inline String
-loadFile(BaseAllocator* pAlloc, String path)
+loadFile(Allocator* pAlloc, String path)
 {
     String ret;
 
-    auto sn = StringCreate(pAlloc, path);
+    auto sn = makeString(pAlloc, path);
 
     FILE* pf = fopen(sn.pData, "rb");
     if (pf)
@@ -31,7 +31,7 @@ loadFile(BaseAllocator* pAlloc, String path)
 }
 
 inline Array<u8>
-loadFileToCharArray(BaseAllocator* pAlloc, String path)
+loadFileToCharArray(Allocator* pAlloc, String path)
 {
     Array<u8> ret(pAlloc);
 
@@ -53,11 +53,11 @@ loadFileToCharArray(BaseAllocator* pAlloc, String path)
 }
 
 inline String
-replacePathSuffix(BaseAllocator* pAlloc, adt::String path, adt::String suffix)
+replacePathSuffix(Allocator* pAlloc, adt::String path, adt::String suffix)
 {
     auto lastSlash = adt::findLastOf(path, '/') + 1;
     adt::String pathToMtl = {&path[0], lastSlash};
-    auto r = adt::catString(pAlloc, pathToMtl, suffix);
+    auto r = adt::concat(pAlloc, pathToMtl, suffix);
     return r;
 }
 

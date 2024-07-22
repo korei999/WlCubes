@@ -345,13 +345,13 @@ m3Transpose(const m3& m)
 
 #ifdef LOGS
 adt::String
-m4ToString(adt::BaseAllocator* pAlloc, const m4& m, adt::String prefix)
+m4ToString(adt::Allocator* pAlloc, const m4& m, adt::String prefix)
 {
     auto e = m.e;
-    auto r = adt::StringCreate(pAlloc, 128);
+    auto r = adt::makeString(pAlloc, 128);
 
     snprintf(r.pData, r.size, "%.*s:\n\t%.3f %.3f %.3f %.3f\n\t%.3f %.3f %.3f %.3f\n\t%.3f %.3f %.3f %.3f\n\t%.3f %.3f %.3f %.3f\n",
-                              (int)prefix.size, prefix.pData,
+                              prefix.size, prefix.pData,
                               e[0][0], e[0][1], e[0][2], e[0][3],
                               e[1][0], e[1][1], e[1][2], e[1][3],
                               e[2][0], e[2][1], e[2][2], e[2][3],
@@ -359,24 +359,30 @@ m4ToString(adt::BaseAllocator* pAlloc, const m4& m, adt::String prefix)
 
     return r;
 }
-// 
-// string
-// m3ToString(const m3& m, string_view prefix)
-// {
-//     auto e = m.e;
-//     return FMT("{}:\n\t{:.3f} {:.3f} {:.3f}\n\t{:.3f} {:.3f} {:.3f}\n\t{:.3f} {:.3f} {:.3f}\n\t{:.3f} {:.3f} {:.3f}\n",
-//         prefix,
-//         e[0][0], e[0][1], e[0][2],
-//         e[1][0], e[1][1], e[1][2],
-//         e[2][0], e[2][1], e[2][2],
-//         e[3][0], e[3][1], e[3][2]);
-// }
-// 
-// string
-// v4ToString(const v4& v, string_view prefix)
-// {
-//     return FMT("{}:\n\t{:.3f} {:.3f} {:.3f} {:.3f}\n", prefix, v.x, v.y, v.z, v.w);
-// }
+
+adt::String
+m3ToString(adt::Allocator* pAlloc, const m3& m, adt::String prefix)
+{
+    auto e = m.e;
+    auto r = adt::makeString(pAlloc, 128);
+
+    snprintf(r.pData, r.size, "%.*s:\n\t%.3f %.3f %.3f\n\t%.3f %.3f %.3f\n\t%.3f %.3f %.3f\n",
+                              prefix.size, prefix.pData,
+                              e[0][0], e[0][1], e[0][2],
+                              e[1][0], e[1][1], e[1][2],
+                              e[2][0], e[2][1], e[2][2]);
+
+    return r;
+}
+
+adt::String
+v4ToString(adt::Allocator* pAlloc, const v4& v, adt::String prefix)
+{
+    auto r = adt::makeString(pAlloc, 128);
+    snprintf(r.pData, r.size, "%.*s:\n\t%.3f %.3f %.3f %.3f\n", prefix.size, prefix.pData, v.x, v.y, v.z, v.w);
+
+    return r;
+}
 #endif
 
 m3

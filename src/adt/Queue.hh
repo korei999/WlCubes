@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BaseAllocator.hh"
+#include "Allocator.hh"
 
 namespace adt
 {
@@ -8,7 +8,7 @@ namespace adt
 template<typename T>
 struct Queue
 {
-    BaseAllocator* pAlloc {};
+    Allocator* pAlloc {};
     T* pData {};
     int size {};
     int capacity {};
@@ -16,8 +16,8 @@ struct Queue
     int last {};
 
     Queue() = default;
-    Queue(BaseAllocator* p) : Queue(p, SIZE_MIN) {}
-    Queue(BaseAllocator* p, u32 prealloc);
+    Queue(Allocator* p) : Queue(p, SIZE_MIN) {}
+    Queue(Allocator* p, u32 prealloc);
 
     T* pushBack(const T& val);
     T* popFront();
@@ -28,7 +28,7 @@ struct Queue
     T* data() { return &this->pData[0]; }
     const T& data() const { return this->pData[0]; }
     bool empty() const { return this->size == 0; }
-    void free() { this->pAlloc->free(this->pData); }
+    void destroy() { this->pAlloc->free(this->pData); }
     void resize(u32 _size);
     int nextI(int i) { return (i + 1) >= this->capacity ? 0 : (i + 1); }
     int prevI(int i) { return (i - 1) < 0 ? this->capacity - 1 : (i - 1); }
@@ -76,7 +76,7 @@ struct Queue
 
 template<typename T>
 inline
-Queue<T>::Queue(BaseAllocator* p, u32 prealloc)
+Queue<T>::Queue(Allocator* p, u32 prealloc)
     : pAlloc(p), capacity(prealloc)
 {
     this->pData = (T*)this->pAlloc->alloc(prealloc, sizeof(T));
@@ -107,7 +107,7 @@ Queue<T>::resize(u32 _size)
     for (int i = this->firstI(), t = 0; t < this->size; i = this->nextI(i), t++)
         nQ.pushBack(this->pData[i]);
 
-    this->free();
+    this->destroy();
     *this = nQ;
 }
 

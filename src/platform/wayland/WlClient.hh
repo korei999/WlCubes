@@ -7,7 +7,7 @@
 #include <wayland-egl-core.h>
 
 #include "Arena.hh"
-#include "BaseAllocator.hh"
+#include "Allocator.hh"
 #include "ultratypes.h"
 #include "wayland-protocols/pointer-constraints-unstable-v1.h"
 #include "wayland-protocols/relative-pointer-unstable-v1.h"
@@ -20,7 +20,7 @@ namespace wayland
 
 struct WlClient : App
 {
-    adt::BaseAllocator* allocator;
+    adt::Allocator* allocator;
 
     wl_display* display {};
     wl_registry* registry {};
@@ -55,7 +55,7 @@ struct WlClient : App
 
     wl_keyboard* keyboard {};
 
-    WlClient(adt::BaseAllocator* _allocator, adt::String name);
+    WlClient(adt::Allocator* _allocator, adt::String name);
     virtual ~WlClient() override;
 
     virtual void init() override;

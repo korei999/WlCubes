@@ -7,10 +7,10 @@
 void
 Model::load(adt::String path, GLint drawMode, GLint texMode, App* c)
 {
-    /*if (adt::endsWith(path, ".gltf"))*/
+    if (path.endsWith(".gltf"))
         this->loadGLTF(path, drawMode, texMode, c);
-    /*else*/
-    /*    LOG_FATAL("trying to load unsupported asset: '%.*s'\n", (int)path.size, path.pData);*/
+    else
+        LOG_FATAL("trying to load unsupported asset: '%.*s'\n", (int)path.size, path.pData);
 
     this->savedPath = path;
 }
@@ -52,9 +52,12 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
         auto* p = &aTex[i];
         auto uri = a.aImages[i].uri;
 
+        if (!uri.endsWith(".bmp"))
+            LOG_FATAL("trying to load unsupported texture: '%.*s'\n", uri.size, uri.pData);
+
         struct args {
             Texture* p;
-            adt::BaseAllocator* pAlloc;
+            adt::Allocator* pAlloc;
             adt::String path;
             TEX_TYPE type;
             bool flip;
@@ -85,7 +88,6 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 
     tp.wait();
 
-    u32 meshIdx = NPOS;
     for (auto& mesh : a.aMeshes)
     {
         adt::Array<Mesh> aNMeshes(this->pAlloc);
@@ -214,9 +216,8 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 
     this->aTmIdxs = adt::Array<int>(this->pAlloc, sq(this->asset.aNodes.size));
     this->aTmCounters = adt::Array<int>(this->pAlloc, this->asset.aNodes.size);
-
-    this->aTmIdxs.size = sq(this->asset.aNodes.size);
-    this->aTmCounters.size = this->asset.aNodes.size;
+    this->aTmIdxs.resize(sq(this->asset.aNodes.size));
+    this->aTmCounters.resize(this->asset.aNodes.size);
 
     tp.stop();
     aAlloc.freeAll();
@@ -258,7 +259,8 @@ Model::draw(enum DRAW flags, Shader* sh, adt::String svUniform, adt::String svUn
 }
 
 void
-Model::drawGraph(enum DRAW flags,
+Model::drawGraph(adt::Allocator* pFrameAlloc,
+                 enum DRAW flags,
                  Shader* sh,
                  adt::String svUniform,
                  adt::String svUniformM3Norm,
@@ -380,27 +382,27 @@ Ubo::bufferData(void* pData, u32 offset, u32 _size)
 //          1.0f, -1.0f,  0.0f,  1.0f,  0.0f,
 //          1.0f,  1.0f,  0.0f,  1.0f,  1.0f,
 //     };
-// 
+//
 //     GLuint quadIndices[] {
 //         0, 1, 2, 0, 2, 3
 //     };
-// 
+//
 //     Model q;
 //     q.aaMeshes.resize(1);
 //     q.aaMeshes.back().push({});
-// 
+//
 //     glGenVertexArrays(1, &q.aaMeshes[0][0].meshData.vao);
 //     glBindVertexArray(q.aaMeshes[0][0].meshData.vao);
-// 
+//
 //     glGenBuffers(1, &q.aaMeshes[0][0].meshData.vbo);
 //     glBindBuffer(GL_ARRAY_BUFFER, q.aaMeshes[0][0].meshData.vbo);
 //     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, drawMode);
-// 
+//
 //     glGenBuffers(1, &q.aaMeshes[0][0].meshData.ebo);
 //     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, q.aaMeshes[0][0].meshData.ebo);
 //     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, drawMode);
 //     q.aaMeshes[0][0].meshData.eboSize = LEN(quadIndices);
-// 
+//
 //     constexpr u32 v3Size = sizeof(v3) / sizeof(f32);
 //     constexpr u32 v2Size = sizeof(v2) / sizeof(f32);
 //     constexpr u32 stride = 5 * sizeof(f32);
@@ -410,39 +412,39 @@ Ubo::bufferData(void* pData, u32 offset, u32 _size)
 //     /* texture coords */
 //     glEnableVertexAttribArray(1);
 //     glVertexAttribPointer(1, v2Size, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(f32) * v3Size));
-// 
+//
 //     glBindVertexArray(0);
-// 
+//
 //     LOG_OK("quad '%u' created\n", q.aaMeshes[0][0].meshData.vao);
 //     q.savedPath = "Quad";
 //     return q;
 // }
-// 
+//
 // Model
 // getPlane(GLint drawMode)
 // {
 //     f32 planeVertices[] {
 //         /* positions            texcoords   normals          */
-//          25.0f, -0.5f,  25.0f,  25.0f,  0.0f,  0.0f, 1.0f, 0.0f,  
-//         -25.0f, -0.5f, -25.0f,   0.0f, 25.0f,  0.0f, 1.0f, 0.0f,  
-//         -25.0f, -0.5f,  25.0f,   0.0f,  0.0f,  0.0f, 1.0f, 0.0f,  
-//                                                                   
-//         -25.0f, -0.5f, -25.0f,   0.0f, 25.0f,  0.0f, 1.0f, 0.0f,  
-//          25.0f, -0.5f,  25.0f,  25.0f,  0.0f,  0.0f, 1.0f, 0.0f,  
-//          25.0f, -0.5f, -25.0f,  25.0f, 25.0f,  0.0f, 1.0f, 0.0f 
+//          25.0f, -0.5f,  25.0f,  25.0f,  0.0f,  0.0f, 1.0f, 0.0f,
+//         -25.0f, -0.5f, -25.0f,   0.0f, 25.0f,  0.0f, 1.0f, 0.0f,
+//         -25.0f, -0.5f,  25.0f,   0.0f,  0.0f,  0.0f, 1.0f, 0.0f,
+//
+//         -25.0f, -0.5f, -25.0f,   0.0f, 25.0f,  0.0f, 1.0f, 0.0f,
+//          25.0f, -0.5f,  25.0f,  25.0f,  0.0f,  0.0f, 1.0f, 0.0f,
+//          25.0f, -0.5f, -25.0f,  25.0f, 25.0f,  0.0f, 1.0f, 0.0f
 //     };
-// 
+//
 //     Model q;
 //     q.aaMeshes.resize(1);
 //     q.aaMeshes.back().push({});
-// 
+//
 //     glGenVertexArrays(1, &q.aaMeshes[0][0].meshData.vao);
 //     glBindVertexArray(q.aaMeshes[0][0].meshData.vao);
-// 
+//
 //     glGenBuffers(1, &q.aaMeshes[0][0].meshData.vbo);
 //     glBindBuffer(GL_ARRAY_BUFFER, q.aaMeshes[0][0].meshData.vbo);
 //     glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, drawMode);
-// 
+//
 //     constexpr u32 v3Size = sizeof(v3) / sizeof(f32);
 //     constexpr u32 v2Size = sizeof(v2) / sizeof(f32);
 //     constexpr u32 stride = 8 * sizeof(f32);
@@ -455,27 +457,27 @@ Ubo::bufferData(void* pData, u32 offset, u32 _size)
 //     /* normals */
 //     glEnableVertexAttribArray(2);
 //     glVertexAttribPointer(2, v3Size, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(f32) * (v3Size + v2Size)));
-// 
+//
 //     glBindVertexArray(0);
-// 
+//
 //     LOG_OK("plane '%u' created\n", q.aaMeshes[0][0].meshData.vao);
 //     return q;
 // }
-// 
+//
 // void
 // drawQuad(const Model& q)
 // {
 //     glBindVertexArray(q.aaMeshes[0][0].meshData.vao);
 //     glDrawElements(GL_TRIANGLES, q.aaMeshes[0][0].meshData.eboSize, GL_UNSIGNED_INT, nullptr);
 // }
-// 
+//
 // void
 // drawPlane(const Model& q)
 // {
 //     glBindVertexArray(q.aaMeshes[0][0].meshData.vao);
 //     glDrawArrays(GL_TRIANGLES, 0, 6);
 // }
-// 
+//
 // Model
 // getCube(GLint drawMode)
 // {
@@ -483,7 +485,7 @@ Ubo::bufferData(void* pData, u32 offset, u32 _size)
 //         /* back face */
 //         -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, /* bottom-left */
 //          1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, /* top-right */
-//          1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, /* bottom-right */    
+//          1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, /* bottom-right */
 //          1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, /* top-right */
 //         -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, /* bottom-left */
 //         -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, /* top-left */
@@ -523,21 +525,21 @@ Ubo::bufferData(void* pData, u32 offset, u32 _size)
 //         -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, /* top-left */
 //         -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  /* bottom-left */
 //     };
-// 
+//
 //     Model q;
 //     q.aaMeshes.resize(1);
-// 
+//
 //     glGenVertexArrays(1, &q.aaMeshes[0][0].meshData.vao);
 //     glBindVertexArray(q.aaMeshes[0][0].meshData.vao);
-// 
+//
 //     glGenBuffers(1, &q.aaMeshes[0][0].meshData.vbo);
 //     glBindBuffer(GL_ARRAY_BUFFER, q.aaMeshes[0][0].meshData.vbo);
 //     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, drawMode);
-// 
+//
 //     constexpr u32 v3Size = sizeof(v3) / sizeof(f32);
 //     constexpr u32 v2Size = sizeof(v2) / sizeof(f32);
 //     constexpr u32 stride = 8 * sizeof(f32);
-// 
+//
 //     /* positions */
 //     glEnableVertexAttribArray(0);
 //     glVertexAttribPointer(0, v3Size, GL_FLOAT, GL_FALSE, stride, (void*)0);
@@ -547,13 +549,13 @@ Ubo::bufferData(void* pData, u32 offset, u32 _size)
 //     /* normals */
 //     glEnableVertexAttribArray(2);
 //     glVertexAttribPointer(2, v3Size, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(f32) * (v3Size + v2Size)));
-// 
+//
 //     glBindVertexArray(0);
-// 
+//
 //     LOG(OK, "cube '{}' created\n", q.aaMeshes[0][0].meshData.vao);
 //     return q;
 // }
-// 
+//
 // void
 // drawCube(const Model& q)
 // {

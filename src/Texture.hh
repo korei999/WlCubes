@@ -4,7 +4,7 @@
 #include "ultratypes.h"
 #include "App.hh"
 #include "gl/gl.hh"
-#include "BaseAllocator.hh"
+#include "Allocator.hh"
 
 enum TEX_TYPE : int
 {
@@ -14,15 +14,15 @@ enum TEX_TYPE : int
 
 struct Texture
 {
-    adt::BaseAllocator* pAlloc;
+    adt::Allocator* pAlloc;
     GLuint id = 0;
     enum TEX_TYPE type;
 
     adt::String texPath;
 
     Texture() = default;
-    Texture(adt::BaseAllocator* p) : pAlloc(p) {}
-    Texture(adt::BaseAllocator* p, adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c) : pAlloc(p) { this->loadBMP(path, type, flip, texMode, c); }
+    Texture(adt::Allocator* p) : pAlloc(p) {}
+    Texture(adt::Allocator* p, adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c) : pAlloc(p) { this->loadBMP(path, type, flip, texMode, c); }
 
     void loadBMP(adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c);
     void bind(GLint glTexture);

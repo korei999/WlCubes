@@ -21,7 +21,7 @@ struct TaskNode
 
 struct ThreadPool
 {
-    BaseAllocator* pAlloc {};
+    Allocator* pAlloc {};
     Queue<TaskNode> qTasks;
     thrd_t* pThreads {};
     u32 threadCount {};
@@ -31,8 +31,8 @@ struct ThreadPool
     bool bDone {};
 
     ThreadPool() = default;
-    ThreadPool(BaseAllocator* p, u32 _threadCount);
-    ThreadPool(BaseAllocator* p);
+    ThreadPool(Allocator* p, u32 _threadCount);
+    ThreadPool(Allocator* p);
 
     void start();
     bool busy();
@@ -40,14 +40,14 @@ struct ThreadPool
     void submit(TaskNode task);
     void wait();
     void stop();
-    void free();
+    void destroy();
 
 private:
     static int loop(void* _self);
 };
 
 inline
-ThreadPool::ThreadPool(BaseAllocator* p, u32 _threadCount)
+ThreadPool::ThreadPool(Allocator* p, u32 _threadCount)
     : pAlloc(p), qTasks(p, _threadCount), threadCount(_threadCount), activeTaskCount(0), bDone(false)
 {
     this->pThreads = (thrd_t*)p->alloc(_threadCount, sizeof(thrd_t));
@@ -58,7 +58,7 @@ ThreadPool::ThreadPool(BaseAllocator* p, u32 _threadCount)
 }
 
 inline
-ThreadPool::ThreadPool(BaseAllocator* p)
+ThreadPool::ThreadPool(Allocator* p)
     : ThreadPool(p, getLogicalCoresCount()) {}
 
 inline void
@@ -145,10 +145,10 @@ ThreadPool::stop()
 }
 
 inline void
-ThreadPool::free()
+ThreadPool::destroy()
 {
     this->pAlloc->free(this->pThreads);
-    this->qTasks.free();
+    this->qTasks.destroy();
     cnd_destroy(&this->cndQ);
     mtx_destroy(&this->mtxQ);
     cnd_destroy(&this->cndWait);

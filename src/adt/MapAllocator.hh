@@ -8,7 +8,7 @@
 namespace adt
 {
 
-struct MapAllocator : BaseAllocator
+struct MapAllocator : Allocator
 {
     mtx_t mtxA;
     HashMap<void*> mPMap;
@@ -68,7 +68,7 @@ MapAllocator::freeAll()
             this->mPMap.remove(i);
         }
 
-    this->mPMap.free();
+    this->mPMap.destroy();
 }
 
 } /* namespace adt */

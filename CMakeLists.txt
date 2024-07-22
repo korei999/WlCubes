@@ -1,18 +1,29 @@
 cmake_minimum_required(VERSION 3.8)
 
+project(WlCubes VERSION 0.2 LANGUAGES CXX C)
+message(STATUS "CMAKE_PROJECT_VERSION: '${CMAKE_PROJECT_VERSION}'")
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 23) # somehow gcc wouldn't include c11 atomic types with anything older than 23
+
+message(STATUS "CMAKE_C_COMPILER_ID: '${CMAKE_C_COMPILER_ID}'")
+message(STATUS "CMAKE_CXX_COMPILER_ID: '${CMAKE_CXX_COMPILER_ID}'")
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_CXX_STANDARD 23) # somehow gcc wouldn't include c11 atomic types with anything older than 23
+else()
+    set(CMAKE_CXX_STANDARD 20)
+endif()
+
+message(STATUS "CMAKE_CXX_STANDARD: '${CMAKE_CXX_STANDARD}'")
+
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
-
-project(WlCubes VERSION 0.2 LANGUAGES CXX C)
-message(STATUS "CMAKE_PROJECT_VERSION: '${CMAKE_PROJECT_VERSION}'")
 
 add_compile_options(-Wall -Wextra -fms-extensions)
 include_directories(BEFORE "src/adt")

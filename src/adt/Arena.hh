@@ -3,9 +3,8 @@
 #include <math.h>
 #include <string.h>
 #include <stddef.h>
-#include <threads.h>
 
-#include "BaseAllocator.hh"
+#include "Allocator.hh"
 
 #define ARENA_FIRST(A) ((A)->pBlocks)
 #define ARENA_NEXT(AB) ((AB)->pNext)
@@ -21,7 +20,7 @@ namespace adt
 struct ArenaBlock
 {
     ArenaBlock* pNext = nullptr;
-    u8 pData[];
+    u8 pData[]; /* flexible array member */
 };
 
 struct ArenaNode
@@ -29,12 +28,11 @@ struct ArenaNode
     ArenaNode* pNext = nullptr;
     ArenaBlock* pBlock;
     size_t size = 0;
-    u8 pData[]; /* flexible array member */
+    u8 pData[];
 };
 
-struct Arena : BaseAllocator
+struct Arena : Allocator
 {
-    mtx_t mtxA;
     ArenaBlock* pBlocks = nullptr;
     size_t blockSize = 0;
     ArenaNode* pLatest = nullptr;
@@ -60,7 +58,6 @@ inline
 Arena::Arena(size_t cap)
     : blockSize(alignedBytes(cap + sizeof(ArenaNode))) /* preventively align */
 {
-    mtx_init(&mtxA, mtx_plain);
     this->newBlock();
 }
 
@@ -119,7 +116,6 @@ Arena::alignedBytes(size_t bytes)
 inline void*
 Arena::alloc(size_t memberCount, size_t memberSize)
 {
-    mtx_lock(&this->mtxA);
     auto* pFreeBlock = this->pLatestBlock;
 
     auto requested = memberCount * memberSize;
@@ -147,7 +143,6 @@ repeat:
     pNode->pBlock = pFreeBlock;
     this->pLatest = pNode;
 
-    mtx_unlock(&this->mtxA);
     return &pNode->pData;
 }
 
@@ -165,19 +160,16 @@ Arena::realloc(void* p, size_t size)
     auto aligned = alignedBytes(size);
     size_t nextAligned = ((u8*)pNode + aligned) - (u8*)pBlockOff;
 
-    mtx_lock(&this->mtxA);
     if (pNode == this->pLatest && nextAligned < this->blockSize)
     {
         pNode->size = size;
         pNode->pNext = (ArenaNode*)((u8*)pNode + aligned + sizeof(ArenaNode));
 
-        mtx_unlock(&this->mtxA);
         return p;
     }
     else
     {
         /* alloc locks again */
-        mtx_unlock(&this->mtxA);
         void* pR = this->alloc(size, 1);
         memcpy(pR, p, pNode->size);
 
@@ -195,7 +187,7 @@ Arena::freeAll()
 inline void
 Arena::destroy()
 {
-    mtx_destroy(&this->mtxA);
+    //
 }
 
 } /* namespace adt */

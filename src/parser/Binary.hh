@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BaseAllocator.hh"
+#include "Allocator.hh"
 #include "utils.hh"
 #include "String.hh"
 
@@ -9,14 +9,14 @@ namespace parser
 
 struct Binary
 {
-    adt::BaseAllocator* pAlloc;
+    adt::Allocator* pAlloc;
     adt::String word;
     adt::String file;
     u32 start;
     u32 end;
 
-    Binary(adt::BaseAllocator* p) : pAlloc(p) {}
-    Binary(adt::BaseAllocator* p, adt::String path) : Binary(p) { this->loadFile(path); }
+    Binary(adt::Allocator* p) : pAlloc(p) {}
+    Binary(adt::Allocator* p, adt::String path) : Binary(p) { this->loadFile(path); }
 
     char& operator[](u32 i) { return file[i]; };
 

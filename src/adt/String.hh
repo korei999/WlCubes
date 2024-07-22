@@ -1,43 +1,60 @@
 #pragma once
 
-#include "BaseAllocator.hh"
+#include "Allocator.hh"
 #include "utils.hh"
 #include "hash.hh"
 
 namespace adt
 {
 
-constexpr size_t
+constexpr u32
 nullTermStringSize(const char* str)
 {
-    size_t i = 0;
+    u32 i = 0;
     while (str[i] != '\0')
         i++;
 
     return i;
 }
 
+/* just pointer + size, no allocations, use `makeString()` for that */
 struct String
 {
     char* pData = nullptr;
-    size_t size = 0;
+    u32 size = 0;
 
     constexpr String() = default;
     constexpr String(char* sNullTerminated) : pData(sNullTerminated), size(nullTermStringSize(sNullTerminated)) {}
     constexpr String(const char* sNullTerminated) : pData(const_cast<char*>(sNullTerminated)), size(nullTermStringSize(sNullTerminated)) {}
-    constexpr String(char* pStr, size_t len) : pData(pStr), size(len) {}
+    constexpr String(char* pStr, u32 len) : pData(pStr), size(len) {}
 
-    constexpr char& operator[](size_t i) { return this->pData[i]; }
-    constexpr const char& operator[](size_t i) const { return this->pData[i]; }
+    constexpr char& operator[](u32 i) { return this->pData[i]; }
+    constexpr const char& operator[](u32 i) const { return this->pData[i]; }
 
     constexpr char* data() { return this->pData; }
+    constexpr bool endsWith(String other);
 };
+
+constexpr bool
+String::endsWith(String r)
+{
+    auto& l = *this;
+
+    if (l.size < r.size)
+        return false;
+
+    for (int i = r.size - 1, j = l.size - 1; i >= 0; i--, j--)
+        if (r[i] != l[j])
+            return false;
+
+    return true;
+}
 
 constexpr bool
 operator==(const String& sL, const String& sR)
 {
     auto m = min(sL.size, sR.size);
-    for (size_t i = 0; i < m; i++)
+    for (u32 i = 0; i < m; i++)
         if (sL[i] != sR[i])
             return false;
 
@@ -50,10 +67,10 @@ operator!=(const String& sL, const String& sR)
     return !(sL == sR);
 }
 
-constexpr size_t
+constexpr u32
 findLastOf(String sv, char c)
 {
-    for (long i = sv.size - 1; i >= 0; i--)
+    for (int i = sv.size - 1; i >= 0; i--)
         if (sv[i] == c)
             return i;
 
@@ -61,32 +78,32 @@ findLastOf(String sv, char c)
 }
 
 constexpr String
-StringCreate(BaseAllocator* p, const char* str, size_t size)
+makeString(Allocator* p, const char* str, u32 size)
 {
     char* pData = static_cast<char*>(p->alloc(size + 1, sizeof(char)));
-    for (size_t i = 0; i < size; i++)
+    for (u32 i = 0; i < size; i++)
         pData[i] = str[i];
 
     return {pData, size};
 }
 
 constexpr String
-StringCreate(BaseAllocator* p, size_t size)
+makeString(Allocator* p, u32 size)
 {
     char* pData = static_cast<char*>(p->alloc(size + 1, sizeof(char)));
     return {pData, size};
 }
 
 constexpr String
-StringCreate(BaseAllocator* p, const char* str)
+makeString(Allocator* p, const char* str)
 {
-    return StringCreate(p, str, nullTermStringSize(str));
+    return makeString(p, str, nullTermStringSize(str));
 }
 
 constexpr String
-StringCreate(BaseAllocator* p, String s)
+makeString(Allocator* p, String s)
 {
-    return StringCreate(p, s.pData, s.size);
+    return makeString(p, s.pData, s.size);
 }
 
 template<>
@@ -110,33 +127,20 @@ hashFNV(String str)
 }
 
 constexpr String
-catString(BaseAllocator* p, String l, String r)
+concat(Allocator* p, String l, String r)
 {
-    size_t len = l.size + r.size;
+    u32 len = l.size + r.size;
     char* ret = (char*)p->alloc(len + 1, sizeof(char));
 
-    size_t pos = 0;
-    for (size_t i = 0; i < l.size; i++, pos++)
+    u32 pos = 0;
+    for (u32 i = 0; i < l.size; i++, pos++)
         ret[pos] = l[i];
-    for (size_t i = 0; i < r.size; i++, pos++)
+    for (u32 i = 0; i < r.size; i++, pos++)
         ret[pos] = r[i];
 
     ret[len] = '\0';
 
     return {ret, len};
-}
-
-constexpr bool
-endsWith(String l, String r)
-{
-    if (l.size < r.size)
-        return false;
-
-    for (size_t i = l.size - r.size; i < l.size; i++)
-        if (l[i] != r[i])
-            return false;
-
-    return true;
 }
 
 } /* namespace adt */

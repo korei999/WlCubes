@@ -29,14 +29,14 @@ struct HashMapIt
 template<typename T>
 struct HashMap
 {
-    BaseAllocator* allocator;
+    Allocator* allocator;
     Array<Bucket<T>> aBuckets;
     f64 maxLoadFactor;
     size_t bucketCount = 0;
 
     HashMap() = default;
-    HashMap(BaseAllocator* pAllocator) : allocator(pAllocator), aBuckets(pAllocator), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
-    HashMap(BaseAllocator* pAllocator, size_t prealloc) : allocator(pAllocator), aBuckets(pAllocator, prealloc), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
+    HashMap(Allocator* pAllocator) : allocator(pAllocator), aBuckets(pAllocator), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
+    HashMap(Allocator* pAllocator, size_t prealloc) : allocator(pAllocator), aBuckets(pAllocator, prealloc), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
 
     Bucket<T>& operator[](size_t i) { return this->aBuckets[i]; }
     const Bucket<T>& operator[](size_t i) const { return this->aBuckets[i]; }
@@ -48,7 +48,7 @@ struct HashMap
     void remove(size_t i);
     void rehash(size_t _size);
     HashMapIt<T> tryInsert(const T& value);
-    void free() { this->aBuckets.free(); }
+    void destroy() { this->aBuckets.destroy(); }
 };
 
 template<typename T>
@@ -128,7 +128,7 @@ HashMap<T>::rehash(size_t _size)
         if (this->aBuckets[i].bOccupied)
             mNew.insert(this->aBuckets[i].data);
 
-    this->free();
+    this->destroy();
     *this = mNew;
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BaseAllocator.hh"
+#include "Allocator.hh"
 
 namespace adt
 {
@@ -8,16 +8,17 @@ namespace adt
 template<typename T>
 struct Array
 {
-    BaseAllocator* allocator;
+    Allocator* allocator;
     T* pData = nullptr;
     u32 size = 0;
     u32 capacity = 0;
 
     Array() = default;
-    Array(BaseAllocator* _allocator);
-    Array(BaseAllocator* _allocator, u32 _capacity);
+    Array(Allocator* _allocator);
+    Array(Allocator* _allocator, u32 _capacity);
 
     T& operator[](u32 i) { return this->pData[i]; }
+    const T& operator[](u32 i) const { return this->pData[i]; }
 
     T* push(const T& data);
     T& back();
@@ -26,7 +27,7 @@ struct Array
     bool empty() const { return this->size == 0;  }
     void resize(u32 _size);
     void grow(u32 _size);
-    void free() { this->allocator->free(this->pData); }
+    void destroy() { this->allocator->free(this->pData); }
 
     struct It
     {
@@ -47,14 +48,14 @@ struct Array
 };
 
 template<typename T>
-Array<T>::Array(BaseAllocator* _allocator)
+Array<T>::Array(Allocator* _allocator)
     : allocator(_allocator), capacity(SIZE_MIN)
 {
     pData = static_cast<T*>(this->allocator->alloc(this->capacity, sizeof(T)));
 }
 
 template<typename T>
-Array<T>::Array(BaseAllocator* _allocator, u32 _capacity)
+Array<T>::Array(Allocator* _allocator, u32 _capacity)
     : allocator(_allocator), capacity(_capacity)
 {
     pData = static_cast<T*>(this->allocator->alloc(this->capacity, sizeof(T)));
@@ -90,8 +91,10 @@ template<typename T>
 inline void
 Array<T>::resize(u32 _size)
 {
-    this->capacity = _size;
-    this->pData = static_cast<T*>(this->allocator->realloc(this->pData, sizeof(T) * _size));
+    if (this->size < _size)
+        this->grow(_size);
+
+    this->size = _size;
 }
 
 template<typename T>

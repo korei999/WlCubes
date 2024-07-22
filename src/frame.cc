@@ -1,4 +1,4 @@
-#include "MapAllocator.hh"
+#include "AtomicArena.hh"
 #include "Model.hh"
 #include "Shader.hh"
 #include "ThreadPool.hh"
@@ -23,7 +23,7 @@ controls::PlayerControls player {
 
 f32 fov = 90.0f;
 
-static adt::MapAllocator allocAssets(adt::SIZE_1M);
+static adt::AtomicArena allocAssets(adt::SIZE_1M * 100);
 
 Shader shTex;
 Model mSponza(&allocAssets);
@@ -91,13 +91,13 @@ prepareDraw(App* app)
     app->bindGlContext();
 
     tp.stop();
-    tp.free();
+    tp.destroy();
 }
 
 void
 run(App* app)
 {
-    adt::Arena allocMainLoop(adt::SIZE_8M);
+    adt::Arena allocFrame(adt::SIZE_8M);
 
     app->bRunning = true;
     app->bRelativeMode = true;
@@ -156,22 +156,25 @@ run(App* app)
             shTex.setF("uFarPlane", farPlane);
 
             m4 m = m4Iden();
-            mSponza.drawGraph(DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
+            mSponza.drawGraph(&allocFrame, DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
             m = m4Iden();
             m *= m4Translate(m, {0, 0.5, 0});
             m *= m4Scale(m, 0.002);
             m = m4RotY(m, toRad(90));
-            mBackpack.drawGraph(DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
+            mBackpack.drawGraph(&allocFrame, DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
         }
 
+        allocFrame.reset();
         app->swapBuffers();
+
 #ifdef FPS_COUNTER
         _fpsCount++;
 #endif
     }
 
-    allocMainLoop.freeAll();
+    allocFrame.freeAll();
     allocAssets.freeAll();
+    allocFrame.destroy();
     allocAssets.destroy();
 }
 
