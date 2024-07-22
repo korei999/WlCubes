@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdatomic.h>
 #include <threads.h>
 
 #include "Queue.hh"
@@ -10,8 +9,17 @@
     #define getLogicalCoresCount() get_nprocs()
 #elif _WIN32
     #include <windows.h>
-    #include <processthreadsapi.h>
-    #define getLogicalCoresCount() GetCurrentProcessorNumber()
+    #include <sysinfoapi.h>
+
+inline DWORD
+_getLogicalCoresCountWIN32()
+{
+    SYSTEM_INFO info;
+    GetSystemInfo(&info);
+    return info.dwNumberOfProcessors;
+}
+
+    #define getLogicalCoresCount() _getLogicalCoresCountWIN32()
 #endif
 
 namespace adt

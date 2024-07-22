@@ -32,6 +32,10 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-class-memaccess")
 endif()
 
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    add_definitions("-D_CRT_SECURE_NO_WARNINGS")
+endif()
+
 add_executable(
     ${CMAKE_PROJECT_NAME}
     src/main.cc
@@ -62,7 +66,13 @@ if (CMAKE_BUILD_TYPE MATCHES "Asan")
     set(CMAKE_BUILD_TYPE "Debug")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g3 -fsanitize=undefined -fsanitize=address")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g3 -fsanitize=undefined -fsanitize=address")
-    add_link_options(-fsanitize=undefined -fsanitize=address)
+
+    if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+        # doesn't work...
+        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE clang_rt.asan_cxx-x86_64.lib clang_rt.asan-x86_64.lib)
+    else()
+        add_link_options(-fsanitize=undefined -fsanitize=address)
+    endif()
 endif()
 
 message(STATUS "CMAKE_BUILD_TYPE: '${CMAKE_BUILD_TYPE}'")
