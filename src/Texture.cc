@@ -268,8 +268,8 @@ flipCpyBGRAtoRGBA(u8* dest, u8* src, int width, int height, bool vertFlip)
     int f = vertFlip ? -(height - 1) : 0;
     int inc = vertFlip ? 2 : 0;
 
-    u32* d = reinterpret_cast<u32*>(dest);
-    u32* s = reinterpret_cast<u32*>(src);
+    u32* d = (u32*)(dest);
+    u32* s = (u32*)(src);
 
     auto swapRedBlueBits = [](u32 col) -> u32 {
         u32 r = col & 0x00'ff'00'00;
@@ -285,8 +285,8 @@ flipCpyBGRAtoRGBA(u8* dest, u8* src, int width, int height, bool vertFlip)
             for (size_t i = 0; i < adt::size(colorsPack); i++)
                 colorsPack[i] = swapRedBlueBits(s[y*width + x + i]);
 
-            auto _dest = reinterpret_cast<__m128i_u*>(&d[(y-f)*width + x]);
-            _mm_storeu_si128(_dest, *reinterpret_cast<__m128i*>(colorsPack));
+            auto _dest = (__m128i*)(&d[(y-f)*width + x]);
+            _mm_storeu_si128(_dest, *(__m128i*)(colorsPack));
         }
 
         f += inc;

@@ -22,7 +22,7 @@ v3Length(const v3& v)
     res += sq(v.y);
     res += sq(v.z);
 
-    return sqrt(res);
+    return sqrtf(res);
 }
 
 f32
@@ -34,7 +34,7 @@ v4Length(const v4& v)
     res += sq(v.z);
     res += sq(v.w);
 
-    return sqrt(res);
+    return sqrtf(res);
 }
 
 v3
@@ -130,13 +130,13 @@ v3::operator*=(const f32 s)
 f32
 v3Rad(const v3& l, const v3& r)
 {
-    return acos(v3Dot(l, r) / (v3Length(l) * v3Length(r)));
+    return acosf(v3Dot(l, r) / (v3Length(l) * v3Length(r)));
 }
 
 f32
 v3Dist(const v3& l, const v3& r)
 {
-    return sqrt(sq(r.x - l.x) + sq(r.y - l.y) + sq(r.z - l.z));
+    return sqrtf(sq(r.x - l.x) + sq(r.y - l.y) + sq(r.z - l.z));
 }
 
 f32
@@ -176,8 +176,8 @@ operator*(const m4& l, const m4& r)
 m4
 m4Rot(const m4& m, const f32 th, const v3& ax)
 {
-    const f32 c = cos(th);
-    const f32 s = sin(th);
+    const f32 c = cosf(th);
+    const f32 s = sinf(th);
 
     const f32 x = ax.x;
     const f32 y = ax.y;
@@ -275,7 +275,7 @@ m4
 m4Pers(const f32 fov, const f32 asp, const f32 n, const f32 f)
 {
     /* b(back), l(left) are not needed if viewing volume is symmetric */
-    f32 t = n * tan(fov / 2);
+    f32 t = n * tanf(fov / 2);
     f32 r = t * asp;
 
     return m4 {.e {

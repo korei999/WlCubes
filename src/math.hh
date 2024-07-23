@@ -16,8 +16,10 @@ constexpr f64 toRad(f64 x) { return x * PI / 180.0; }
 constexpr f32 toDeg(f32 x) { return x * 180.0f / static_cast<f32>(PI); }
 constexpr f32 toRad(f32 x) { return x * static_cast<f32>(PI) / 180.0f; }
 
-constexpr f64 toRad(int x) { return toRad(static_cast<f64>(x)); }
-constexpr f32 toDeg(int x) { return toDeg(static_cast<f64>(x)); }
+constexpr f64 toRad(long x) { return toRad(static_cast<f64>(x)); }
+constexpr f64 toDeg(long x) { return toDeg(static_cast<f64>(x)); }
+constexpr f32 toRad(int x) { return toRad(static_cast<f32>(x)); }
+constexpr f32 toDeg(int x) { return toDeg(static_cast<f32>(x)); }
 
 #define COLOR4(hex)                                                                                                    \
     {                                                                                                                  \

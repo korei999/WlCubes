@@ -118,13 +118,13 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             glGenVertexArrays(1, &nMesh.meshData.vao);
             glBindVertexArray(nMesh.meshData.vao);
 
-            if (accIndIdx != NPOS)
+            if (accIndIdx != adt::NPOS)
             {
                 auto& accInd = a.aAccessors[accIndIdx];
                 auto& bvInd = a.aBufferViews[accInd.bufferView];
                 nMesh.indType = accInd.componentType;
                 nMesh.meshData.eboSize = accInd.count;
-                nMesh.triangleCount = NPOS;
+                nMesh.triangleCount = adt::NPOS;
 
                 /* TODO: figure out how to reuse VBO data for index buffer (possible?) */
                 glGenBuffers(1, &nMesh.meshData.ebo);
@@ -156,7 +156,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
                                   bvTex.byteStride, reinterpret_cast<void*>(bvTex.byteOffset + accTex.byteOffset));
 
              /*normals */
-            if (accNormIdx != NPOS)
+            if (accNormIdx != adt::NPOS)
             {
                 auto& accNorm = a.aAccessors[accNormIdx];
                 auto& bvNorm = a.aBufferViews[accNorm.bufferView];
@@ -167,7 +167,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             }
 
             /* tangents */
-            if (accTanIdx != NPOS)
+            if (accTanIdx != adt::NPOS)
             {
                 auto& accTan = a.aAccessors[accTanIdx];
                 auto& bvTan = a.aBufferViews[accTan.bufferView];
@@ -182,15 +182,15 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             mtx_unlock(&gl::mtxGlContext);
 
             /* load textures */
-            if (accMatIdx != NPOS)
+            if (accMatIdx != adt::NPOS)
             {
                 auto& mat = a.aMaterials[accMatIdx];
                 u32 baseColorSourceIdx = mat.pbrMetallicRoughness.baseColorTexture.index;
 
-                if (baseColorSourceIdx != NPOS)
+                if (baseColorSourceIdx != adt::NPOS)
                 {
                     u32 diffTexInd = a.aTextures[baseColorSourceIdx].source;
-                    if (diffTexInd != NPOS)
+                    if (diffTexInd != adt::NPOS)
                     {
                         nMesh.meshData.materials.diffuse = aTex[diffTexInd];
                         nMesh.meshData.materials.diffuse.type = TEX_TYPE::DIFFUSE;
@@ -198,10 +198,10 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
                 }
 
                 u32 normalSourceIdx = mat.normalTexture.index;
-                if (normalSourceIdx != NPOS)
+                if (normalSourceIdx != adt::NPOS)
                 {
                     u32 normTexIdx = a.aTextures[normalSourceIdx].source;
-                    if (normTexIdx != NPOS)
+                    if (normTexIdx != adt::NPOS)
                     {
                         nMesh.meshData.materials.normal = aTex[normalSourceIdx];
                         nMesh.meshData.materials.normal.type = TEX_TYPE::NORMAL;
@@ -247,7 +247,7 @@ Model::draw(enum DRAW flags, Shader* sh, adt::String svUniform, adt::String svUn
                 if (flags & DRAW::APPLY_NM) sh->setM3(svUniformM3Norm, m3Normal(m));
             }
 
-            if (e.triangleCount != NPOS)
+            if (e.triangleCount != adt::NPOS)
                 glDrawArrays(static_cast<GLenum>(e.mode), 0, e.triangleCount);
             else
                 glDrawElements(static_cast<GLenum>(e.mode),
@@ -280,7 +280,7 @@ Model::drawGraph(adt::Allocator* pFrameAlloc,
         for (auto& ch : node.children)
             this->aTmIdxs[at(ch, this->aTmCounters[ch]++)] = i; /* give each children it's parent's idx's */
 
-        if (node.mesh != NPOS)
+        if (node.mesh != adt::NPOS)
         {
             m4 tm = tmGlobal;
             qt rot = qtIden();
@@ -313,7 +313,7 @@ Model::drawGraph(adt::Allocator* pFrameAlloc,
                     if (flags & DRAW::APPLY_NM) sh->setM3(svUniformM3Norm, m3Normal(tm));
                 }
 
-                if (e.triangleCount != NPOS)
+                if (e.triangleCount != adt::NPOS)
                     glDrawArrays(static_cast<GLenum>(e.mode), 0, e.triangleCount);
                 else
                     glDrawElements(static_cast<GLenum>(e.mode),

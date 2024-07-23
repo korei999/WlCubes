@@ -120,9 +120,9 @@ assignUnionType(json::Object* obj, u32 n)
 
     for (u32 i = 0; i < n; i++)
         if (arr[i].tagVal.tag == json::TAG::LONG)
-            type.MAT4.p[i] = static_cast<f64>(json::getLong(&arr[i]));
+            type.MAT4.p[i] = f32(json::getLong(&arr[i]));
         else
-            type.MAT4.p[i] = json::getDouble(&arr[i]);
+            type.MAT4.p[i] = f32(json::getDouble(&arr[i]));
 
     return type;
 }
@@ -139,9 +139,9 @@ accessorTypeToUnionType(enum ACCESSOR_TYPE t, json::Object* obj)
             {
                 auto& arr = json::getArray(obj);
                 if (arr[0].tagVal.tag == json::TAG::LONG)
-                    type.SCALAR = static_cast<f64>(json::getLong(&arr[0]));
+                    type.SCALAR = f64(json::getLong(&arr[0]));
                 else
-                    type.SCALAR = static_cast<f64>(json::getDouble(&arr[0]));
+                    type.SCALAR = f64(json::getDouble(&arr[0]));
             }
             break;
         case ACCESSOR_TYPE::VEC2:
@@ -421,7 +421,6 @@ Asset::processMeshes()
 {
     auto meshes = this->jsonObjs.meshes;
     auto& arr = json::getArray(meshes);
-    int i = 0;
     for (auto& e : arr)
     {
         auto& obj = json::getObject(&e);
@@ -451,13 +450,13 @@ Asset::processMeshes()
  
             aPrimitives.push({
                 .attributes {
-                    .NORMAL = pNORMAL ? static_cast<decltype(Primitive::attributes.NORMAL)>(json::getLong(pNORMAL)) : NPOS,
-                    .POSITION = pPOSITION ? static_cast<decltype(Primitive::attributes.POSITION)>(json::getLong(pPOSITION)) : NPOS,
-                    .TEXCOORD_0 = pTEXCOORD_0 ? static_cast<decltype(Primitive::attributes.TEXCOORD_0)>(json::getLong(pTEXCOORD_0)) : NPOS,
-                    .TANGENT = pTANGENT ? static_cast<decltype(Primitive::attributes.TANGENT)>(json::getLong(pTANGENT)) : NPOS,
+                    .NORMAL = pNORMAL ? static_cast<decltype(Primitive::attributes.NORMAL)>(json::getLong(pNORMAL)) : adt::NPOS,
+                    .POSITION = pPOSITION ? static_cast<decltype(Primitive::attributes.POSITION)>(json::getLong(pPOSITION)) : adt::NPOS,
+                    .TEXCOORD_0 = pTEXCOORD_0 ? static_cast<decltype(Primitive::attributes.TEXCOORD_0)>(json::getLong(pTEXCOORD_0)) : adt::NPOS,
+                    .TANGENT = pTANGENT ? static_cast<decltype(Primitive::attributes.TANGENT)>(json::getLong(pTANGENT)) : adt::NPOS,
                 },
-                .indices = pIndices ? static_cast<decltype(Primitive::indices)>(json::getLong(pIndices)) : NPOS,
-                .material = pMaterial ? static_cast<decltype(Primitive::material)>(json::getLong(pMaterial)) : NPOS,
+                .indices = pIndices ? static_cast<decltype(Primitive::indices)>(json::getLong(pIndices)) : adt::NPOS,
+                .material = pMaterial ? static_cast<decltype(Primitive::material)>(json::getLong(pMaterial)) : adt::NPOS,
                 .mode = pMode ? static_cast<decltype(Primitive::mode)>(json::getLong(pMode)) : PRIMITIVES::TRIANGLES,
             });
         }
@@ -496,8 +495,8 @@ Asset::processTexures()
         auto pSampler = json::searchObject(obj, "sampler");
 
         this->aTextures.push({
-            .source = pSource ? static_cast<u32>(json::getLong(pSource)) : NPOS,
-            .sampler = pSampler ? static_cast<u32>(json::getLong(pSampler)) : NPOS
+            .source = pSource ? static_cast<u32>(json::getLong(pSource)) : adt::NPOS,
+            .sampler = pSampler ? static_cast<u32>(json::getLong(pSampler)) : adt::NPOS
         });
     }
 }

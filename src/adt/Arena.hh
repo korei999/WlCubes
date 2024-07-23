@@ -109,8 +109,8 @@ Arena::getFreeBlock()
 inline size_t
 Arena::alignedBytes(size_t bytes)
 {
-    f64 mulOf = static_cast<f64>(bytes) / static_cast<f64>(sizeof(size_t));
-    return sizeof(size_t) * ceil(mulOf);
+    f64 mulOf = f64(bytes) / f64(sizeof(size_t));
+    return size_t(sizeof(size_t) * ceil(mulOf));
 }
 
 inline void*

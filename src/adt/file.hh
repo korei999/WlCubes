@@ -17,7 +17,7 @@ loadFile(Allocator* pAlloc, String path)
     if (pf)
     {
         fseek(pf, 0, SEEK_END);
-        size_t size = ftell(pf) + 1;
+        long size = ftell(pf) + 1;
         rewind(pf);
 
         ret.pData = static_cast<char*>(pAlloc->alloc(size, sizeof(char)));
@@ -39,7 +39,7 @@ loadFileToCharArray(Allocator* pAlloc, String path)
     if (pf)
     {
         fseek(pf, 0, SEEK_END);
-        size_t size = ftell(pf);
+        long size = ftell(pf);
         rewind(pf);
 
         ret.resize(size + 1);

@@ -14,7 +14,7 @@ message(STATUS "CMAKE_CXX_COMPILER_ID: '${CMAKE_CXX_COMPILER_ID}'")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_STANDARD 23)
 else()
-    set(CMAKE_CXX_STANDARD 20)
+    set(CMAKE_CXX_STANDARD 23)
 endif()
 
 message(STATUS "CMAKE_CXX_STANDARD: '${CMAKE_CXX_STANDARD}'")
@@ -25,7 +25,12 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-add_compile_options(-Wall -Wextra -fms-extensions)
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    add_compile_options(-Wall -Wextra -fms-extensions)
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4146")
+endif()
+
 include_directories(BEFORE "src/adt")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -68,22 +73,33 @@ endif()
 
 if (CMAKE_BUILD_TYPE MATCHES "Asan")
     set(CMAKE_BUILD_TYPE "Debug")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g3 -fsanitize=undefined -fsanitize=address")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g3 -fsanitize=undefined -fsanitize=address")
 
-    if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-        # doesn't work...
-        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE clang_rt.asan_cxx-x86_64.lib clang_rt.asan-x86_64.lib)
-    else()
-        add_link_options(-fsanitize=undefined -fsanitize=address)
+    if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g3 -fsanitize=undefined -fsanitize=address")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g3 -fsanitize=undefined -fsanitize=address")
+
+        if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+            # doesn't work...
+            target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE clang_rt.asan_cxx-x86_64.lib clang_rt.asan-x86_64.lib)
+        else()
+            add_link_options(-fsanitize=undefined -fsanitize=address)
+        endif()
+
     endif()
 endif()
 
 message(STATUS "CMAKE_BUILD_TYPE: '${CMAKE_BUILD_TYPE}'")
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmissing-field-initializers")
-    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function)
+
+    if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmissing-field-initializers")
+        target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function)
+    else()
+        target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /wd4312 /wd4267)
+    endif()
+
     add_definitions("-DLOGS") # used for LOG_* macros
     add_definitions("-DDEBUG")
     add_definitions("-DFPS_COUNTER")

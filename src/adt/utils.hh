@@ -13,11 +13,11 @@
 
 #include "ultratypes.h"
 
-#define NPOS static_cast<u32>(-1UL)
-#define NPOSL static_cast<u64>(-1UL)
-
 namespace adt
 {
+
+constexpr u32 NPOS = static_cast<u32>(-1U);
+constexpr u64 NPOS64 = static_cast<u64>(-1UL);
 
 template<typename A, typename B>
 constexpr A&

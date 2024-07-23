@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <threads.h>
 
 #include "Queue.hh"
@@ -39,7 +40,7 @@ struct ThreadPool
     u32 threadCount {};
     cnd_t cndQ, cndWait;
     mtx_t mtxQ, mtxWait;
-    _Atomic(int) activeTaskCount;
+    std::atomic<int> activeTaskCount;
     bool bDone {};
 
     ThreadPool() = default;

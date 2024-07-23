@@ -95,7 +95,7 @@ Parser::parseIdent(TagVal* pTV)
 void
 Parser::parseNumber(TagVal* pTV)
 {
-    bool bReal = adt::findLastOf(this->tCurr.svLiteral, '.') != NPOS;
+    bool bReal = adt::findLastOf(this->tCurr.svLiteral, '.') != adt::NPOS;
 
     if (bReal)
         *pTV = {.tag = TAG::DOUBLE, .val = {.d = atof(this->tCurr.svLiteral.data())}};
@@ -115,7 +115,8 @@ Parser::parseObject(Object* pNode)
     for (; this->tCurr.type != Token::RBRACE; this->next())
     {
         this->expect(Token::IDENT, __FILE__, __LINE__);
-        aObjs.push({.svKey = this->tCurr.svLiteral, .tagVal = {}});
+        Object ob {.svKey = this->tCurr.svLiteral, .tagVal = {}};
+        aObjs.push(ob);
 
         /* skip identifier and ':' */
         this->next();
@@ -232,7 +233,7 @@ Parser::printNode(Object* pNode, adt::String svEnd)
                     q1 = q0 = "\"";
                 }
 
-                COUT("%.*s%.*s%.*s%.*s{\n", (int)q0.size, q0.pData, (int)objName0.size, objName0.pData, (int)q1.size, q1.pData, (int)objName1.size, objName1.pData);
+                COUT("%.*s%.*s%.*s%.*s{\n", q0.size, q0.pData, objName0.size, objName0.pData, (int)q1.size, q1.pData, (int)objName1.size, objName1.pData);
                 for (size_t i = 0; i < obj.size; i++)
                 {
                     adt::String slE = (i == obj.size - 1) ? "\n" : ",\n";

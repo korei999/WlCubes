@@ -88,7 +88,7 @@ struct Node
     u32 camera;
     adt::Array<u32> children;
     m4 matrix = m4Iden();
-    u32 mesh = NPOS; /* The index of the mesh in this node. */
+    u32 mesh = adt::NPOS; /* The index of the mesh in this node. */
     v3 translation {};
     v4 rotation = qtIden();
     v3 scale {1, 1, 1};
@@ -152,13 +152,13 @@ enum class PRIMITIVES
 struct Primitive
 {
     struct {
-        u32 NORMAL = NPOS;
-        u32 POSITION = NPOS;
-        u32 TEXCOORD_0 = NPOS;
-        u32 TANGENT = NPOS;
+        u32 NORMAL = adt::NPOS;
+        u32 POSITION = adt::NPOS;
+        u32 TEXCOORD_0 = adt::NPOS;
+        u32 TANGENT = adt::NPOS;
     } attributes; /* each value is the index of the accessor containing attribute’s data. */
-    u32 indices = NPOS; /* The index of the accessor that contains the vertex indices, drawElements() when defined and drawArrays() otherwise. */
-    u32 material = NPOS; /* The index of the material to apply to this primitive when rendering */
+    u32 indices = adt::NPOS; /* The index of the accessor that contains the vertex indices, drawElements() when defined and drawArrays() otherwise. */
+    u32 material = adt::NPOS; /* The index of the material to apply to this primitive when rendering */
     enum PRIMITIVES mode = PRIMITIVES::TRIANGLES;
 };
 
@@ -172,18 +172,18 @@ struct Mesh
 
 struct Texture
 {
-    u32 source = NPOS; /* The index of the image used by this texture. */
-    u32 sampler = NPOS; /* The index of the sampler used by this texture. When undefined, a sampler with repeat wrapping and auto filtering SHOULD be used. */
+    u32 source = adt::NPOS; /* The index of the image used by this texture. */
+    u32 sampler = adt::NPOS; /* The index of the sampler used by this texture. When undefined, a sampler with repeat wrapping and auto filtering SHOULD be used. */
 };
 
 struct TextureInfo
 {
-    u32 index = NPOS; /* (REQUIRED) The index of the texture. */
+    u32 index = adt::NPOS; /* (REQUIRED) The index of the texture. */
 };
 
 struct NormalTextureInfo
 {
-    u32 index = NPOS; /* (REQUIRED) */
+    u32 index = adt::NPOS; /* (REQUIRED) */
     f64 scale;
 };
 

@@ -145,7 +145,7 @@ run(App* app)
             /* copy both proj and view in one go */
             uboProjView.bufferData(&player, 0, sizeof(m4) * 2);
 
-            v3 lightPos {cosf(player.currTime) * 6.0f, 3, sinf(player.currTime) * 1.1f};
+            v3 lightPos {cosf((f32)player.currTime) * 6.0f, 3.0f, sinf((f32)player.currTime) * 1.1f};
             constexpr v3 lightColor(colors::snow);
             f32 nearPlane = 0.01f, farPlane = 25.0f;
 
@@ -163,9 +163,9 @@ run(App* app)
             m4 m = m4Iden();
             mSponza.drawGraph(&allocFrame, DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
             m = m4Iden();
-            m *= m4Translate(m, {0, 0.5, 0});
-            m *= m4Scale(m, 0.002);
-            m = m4RotY(m, toRad(90));
+            m *= m4Translate(m, {0.0f, 0.5f, 0.0f});
+            m *= m4Scale(m, 0.002f);
+            m = m4RotY(m, toRad(90.0f));
             mBackpack.drawGraph(&allocFrame, DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
         }
 

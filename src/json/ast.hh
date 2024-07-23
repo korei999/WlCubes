@@ -32,7 +32,7 @@ struct Object;
 
 union Val
 {
-    adt::Nullptr n;
+    void* n;
     adt::String sv;
     long l;
     double d;
