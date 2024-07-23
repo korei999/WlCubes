@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Allocator.hh"
+#include "utils.hh"
 
 namespace adt
 {
@@ -49,12 +50,12 @@ struct Queue
         T& operator*() const { return self->pData[this->i]; }
         T* operator->() const { return &self->pData[this->i]; }
 
-        It&
+        It
         operator++()
         {
             if (this->counter >= self->size - 1)
             {
-                this->i = -1;
+                this->i = NPOS;
                 return *this;
             }
 
@@ -64,14 +65,14 @@ struct Queue
             return *this;
         }
 
-        It& operator++(int) { It tmp = *this; *this++; return tmp; }
+        It operator++(int) { It tmp = *this; *this++; return tmp; }
 
         friend bool operator==(const It& l, const It& r) { return l.i == r.i; }
         friend bool operator!=(const It& l, const It& r) { return l.i != r.i; }
     };
 
     It begin() { return {this, this->firstI()}; }
-    It end() { return {this, -1}; }
+    It end() { return {this, NPOS}; }
 };
 
 template<typename T>

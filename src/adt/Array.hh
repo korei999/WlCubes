@@ -41,8 +41,8 @@ struct Array
 
         T& operator*() const { return *p; }
         T* operator->() const { return p; }
-        It& operator++() { this->p++; return *this; }
-        It& operator++(int) { It tmp = *this; (*this)++; return tmp; }
+        It operator++() { this->p++; return *this; }
+        It operator++(int) { It tmp = *this; (*this)++; return tmp; }
         friend bool operator==(const It& l, const It& r) { return l.p == r.p; }
         friend bool operator!=(const It& l, const It& r) { return l.p != r.p; }
     };

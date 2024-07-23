@@ -33,6 +33,38 @@ struct String
 
     constexpr char* data() { return this->pData; }
     constexpr bool endsWith(String other);
+
+    struct It
+    {
+        char* p;
+        u32 i;
+        u32 size;
+
+        It(String* _self, u32 _i) : p(_self->pData), i(_i), size(_self->size) {}
+
+        char& operator*() const { return this->p[this->i]; }
+        char* operator->() const { return &this->p[this->i]; }
+
+        It operator++()
+        {
+            if (this->i >= this->size)
+            {
+                this->i = NPOS;
+                return *this;
+            }
+
+            this->i++;
+            return *this;
+        }
+
+        It operator++(int) { It tmp = *this; ++(*this); return tmp; }
+
+        friend bool operator==(const It& l, const It& r) { return l.i == r.i; }
+        friend bool operator!=(const It& l, const It& r) { return l.i != r.i; }
+    };
+
+    It begin() { return {this, 0}; }
+    It end() { return {this, NPOS}; }
 };
 
 constexpr bool
