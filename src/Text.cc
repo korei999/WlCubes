@@ -146,22 +146,11 @@ Text::genMesh()
 {
     adt::Arena allocScope(adt::SIZE_1M);
 
-    auto at = [](int p) -> f32 {
-        /*return ((1024.0f / 16.0f) * p) / 1024.0f;*/
-        return ((1.0f / 16.0f) * p);
+    /* 16/16 bitmap aka extended ascii */
+    auto getUV = [](int p) -> f32 {
+        return (1.0f / 16.0f) * p;
     };
 
-    // /* example */
-    // f32 vertices[] {
-    //   /* x      y      z */      /* uv */
-    //     -1.0f,  1.0f,  0.0f,    0.0f,  1.0f, /* tl */
-    //     -1.0f, -1.0f,  0.0f,    0.0f,  0.0f, /* bl */
-    //      1.0f, -1.0f,  0.0f,    1.0f,  0.0f, /* br */
-
-    //     -1.0f,  1.0f,  0.0f,    0.0f,  1.0f, /* tl */
-    //      1.0f,  1.0f,  0.0f,    1.0f,  1.0f, /* tr */
-    //      1.0f, -1.0f,  0.0f,    1.0f,  0.0f, /* br */
-    // };
     struct CharQuad
     {
         f32 vs[30];
@@ -176,19 +165,19 @@ Text::genMesh()
         auto pair = asciiToUVMap[(int)c];
 
         /* tl */
-        f32 x0 = at(pair.x);
-        f32 y0 = at(pair.y);
+        f32 x0 = getUV(pair.x);
+        f32 y0 = getUV(pair.y);
 
         /* bl */
         f32 x1 = x0;
-        f32 y1 = y0 - at(1);
+        f32 y1 = y0 - getUV(1);
 
         /* br */
-        f32 x2 = x0 + at(1);
+        f32 x2 = x0 + getUV(1);
         f32 y2 = y1;
 
         /* tr */
-        f32 x3 = x1 + at(1);
+        f32 x3 = x1 + getUV(1);
         f32 y3 = y0;
 
         if (c == '\n')
@@ -229,7 +218,6 @@ Text::genMesh()
     glBindVertexArray(0);
 
     allocScope.freeAll();
-    allocScope.destroy();
 }
 
 void

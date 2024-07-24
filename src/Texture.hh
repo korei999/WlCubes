@@ -15,10 +15,11 @@ enum TEX_TYPE : int
 struct Texture
 {
     adt::Allocator* pAlloc;
+    adt::String texPath;
+    u32 width;
+    u32 height;
     GLuint id = 0;
     enum TEX_TYPE type;
-
-    adt::String texPath;
 
     Texture() = default;
     Texture(adt::Allocator* p) : pAlloc(p) {}

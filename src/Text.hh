@@ -14,6 +14,7 @@ struct Text
     Text(adt::String s) : str(s) { this->genMesh(); }
 
     void draw();
+
 private:
     void genMesh();
 };

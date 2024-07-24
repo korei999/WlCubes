@@ -131,6 +131,8 @@ Texture::loadBMP(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLin
     }
 
     setTexture(pixels.data(), texMode, format, width, height, magFilter, minFilter, c);
+    this->width = width;
+    this->height = height;
 
 #ifdef TEXTURE
     LOG(OK, "%.*s: id: %d, texMode: %d\n", (int)path.size, path.pData, this->id, format);
