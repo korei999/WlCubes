@@ -77,7 +77,7 @@ prepareDraw(App* app)
                      "TEXT\n"
                      "RENDERING\n");
 
-    tAsciiMap.loadBMP("/home/korei/Pictures/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, app);
+    tAsciiMap.loadBMP("test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, app);
 
     adt::Arena allocScope(adt::SIZE_1K);
     adt::ThreadPool tp(&allocScope);

@@ -3,7 +3,7 @@
 #include "Pair.hh"
 #include "Text.hh"
 
-constexpr adt::Pair<u8, u8> asciiToUVMap[128] {
+constexpr adt::Pair<u8, u8> asciiToUVMap[255] {
     {},
     {},
     {},
