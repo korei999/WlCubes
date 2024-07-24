@@ -7,6 +7,7 @@
 #include "gl/gl.hh"
 #include "logs.hh"
 #include "math.hh"
+#include "Text.hh"
 
 namespace frame
 {
@@ -26,8 +27,13 @@ f32 fov = 90.0f;
 static adt::AtomicArena allocAssets(adt::SIZE_1M * 200);
 
 Shader shTex;
+Shader shBitMap;
+Shader shColor;
 Model mSponza(&allocAssets);
 Model mBackpack(&allocAssets);
+Texture tAsciiMap(&allocAssets);
+Text textBiden;
+Quad mQuad;
 Ubo uboProjView;
 
 void
@@ -52,15 +58,28 @@ prepareDraw(App* app)
     glClearColor(gray.r, gray.g, gray.b, gray.a);
 
     shTex.loadShaders("shaders/simpleTex.vert", "shaders/simpleTex.frag");
+    shColor.loadShaders("shaders/simpleUB.vert", "shaders/simple.frag");
+    shBitMap.loadShaders("shaders/simpleTex.vert", "shaders/simpleTexFont.frag");
 
     shTex.use();
     shTex.setI("tex0", 0);
 
+    shBitMap.use();
+    shBitMap.setI("tex0", 0);
+
     uboProjView.createBuffer(sizeof(m4) * 2, GL_DYNAMIC_DRAW);
     uboProjView.bindBlock(&shTex, "ubProjView", 0);
+    uboProjView.bindBlock(&shColor, "ubProjView", 0);
+    uboProjView.bindBlock(&shBitMap, "ubProjView", 0);
+
+    mQuad = makeQuad(GL_STATIC_DRAW);
+    textBiden = Text("AMAZING\n"
+                     "TEXT\n"
+                     "RENDERING\n");
+
+    tAsciiMap.loadBMP("/home/korei/Pictures/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, app);
 
     adt::Arena allocScope(adt::SIZE_1K);
-
     adt::ThreadPool tp(&allocScope);
     tp.start();
 
@@ -136,7 +155,7 @@ run(App* app)
             player.procMouse();
             player.procKeys(app);
 
-            f32 aspect = static_cast<f32>(app->wWidth) / static_cast<f32>(app->wHeight);
+            f32 aspect = f32(app->wWidth) / f32(app->wHeight);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -146,7 +165,7 @@ run(App* app)
             uboProjView.bufferData(&player, 0, sizeof(m4) * 2);
 
             v3 lightPos {cosf((f32)player.currTime) * 6.0f, 3.0f, sinf((f32)player.currTime) * 1.1f};
-            constexpr v3 lightColor(colors::snow);
+            constexpr v3 lightColor(colors::aqua);
             f32 nearPlane = 0.01f, farPlane = 25.0f;
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -166,7 +185,20 @@ run(App* app)
             m *= m4Translate(m, {0.0f, 0.5f, 0.0f});
             m *= m4Scale(m, 0.002f);
             m = m4RotY(m, toRad(90.0f));
+
             mBackpack.drawGraph(&allocFrame, DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
+
+            m = m4Iden();
+            m = m4Translate(m, {-3, 3, 1});
+            m = m4RotY(m, toRad(90.0f));
+            m = m4Scale(m, 0.1f);
+
+            shBitMap.use();
+            shBitMap.setM4("uModel", m);
+            glDisable(GL_CULL_FACE);
+            tAsciiMap.bind(GL_TEXTURE0);
+            textBiden.draw();
+            glEnable(GL_CULL_FACE);
         }
 
         allocFrame.reset();

@@ -22,13 +22,15 @@ struct Texture
 
     Texture() = default;
     Texture(adt::Allocator* p) : pAlloc(p) {}
-    Texture(adt::Allocator* p, adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c) : pAlloc(p) { this->loadBMP(path, type, flip, texMode, c); }
+    Texture(adt::Allocator* p, adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c) : pAlloc(p) {
+        this->loadBMP(path, type, flip, texMode, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, c);
+    }
 
-    void loadBMP(adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c);
+    void loadBMP(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint magFilter, GLint minFilter, App* c);
     void bind(GLint glTexture);
 
 private:
-    void setTexture(u8* data, GLint texMode, GLint format, GLsizei width, GLsizei height, App* c);
+    void setTexture(u8* data, GLint texMode, GLint format, GLsizei width, GLsizei height, GLint magFilter, GLint minFilter, App* c);
 };
 
 struct ShadowMap
@@ -52,8 +54,8 @@ struct CubeMapProjections
     m4& operator[](size_t i) { return tms[i]; }
 };
 
-ShadowMap createShadowMap(const int width, const int height);
-CubeMap createCubeShadowMap(const int width, const int height);
+ShadowMap makeShadowMap(const int width, const int height);
+CubeMap makeCubeShadowMap(const int width, const int height);
 void flipCpyBGRAtoRGBA(u8* dest, u8* src, int width, int height, bool vertFlip);
 void flipCpyBGRtoRGB(u8* dest, u8* src, int width, int height, bool vertFlip);
 void flipCpyBGRtoRGBA(u8* dest, u8* src, int width, int height, bool vertFlip);

@@ -47,7 +47,7 @@ struct String
 
         It operator++()
         {
-            if (this->i >= this->size)
+            if (this->i >= this->size - 1)
             {
                 this->i = NPOS;
                 return *this;

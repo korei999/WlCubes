@@ -157,11 +157,15 @@ PlayerControls::procMovements([[maybe_unused]] App* c)
     {
         combinedMove -= this->up;
     }
-
     f32 len = v3Length(combinedMove);
     if (len > 0) combinedMove = v3Norm(combinedMove, len);
 
-    this->pos += combinedMove * static_cast<f32>(moveSpeed);
+    if (pressedKeys[KEY_LEFTSHIFT])
+        moveSpeed *= 3;
+    if (pressedKeys[KEY_LEFTALT])
+        moveSpeed /= 3;
+
+    this->pos += combinedMove * f32(moveSpeed);
 }
 
 void

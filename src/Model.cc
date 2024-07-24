@@ -10,7 +10,7 @@ Model::load(adt::String path, GLint drawMode, GLint texMode, App* c)
     if (path.endsWith(".gltf"))
         this->loadGLTF(path, drawMode, texMode, c);
     else
-        LOG_FATAL("trying to load unsupported asset: '%.*s'\n", (int)path.size, path.pData);
+        LOG_FATAL("trying to load unsupported asset: '%.*s'\n", path.size, path.pData);
 
     this->savedPath = path;
 }
@@ -219,6 +219,18 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
     this->aTmIdxs.resize(sq(this->asset.aNodes.size));
     this->aTmCounters.resize(this->asset.aNodes.size);
 
+    auto& aNodes = this->asset.aNodes;
+    auto at = [&](int r, int c) -> int {
+        return r*aNodes.size + c;
+    };
+
+    for (int i = 0; i < (int)aNodes.size; i++)
+    {
+        auto& node = aNodes[i];
+        for (auto& ch : node.children)
+            this->aTmIdxs[at(ch, this->aTmCounters[ch]++)] = i; /* give each children it's parent's idx's */
+    }
+
     tp.stop();
     aAlloc.freeAll();
 }
@@ -267,8 +279,6 @@ Model::drawGraph(adt::Allocator* pFrameAlloc,
                  const m4& tmGlobal)
 {
     auto& aNodes = this->asset.aNodes;
-    memset(this->aTmIdxs.data(), 0, this->aTmIdxs.size * sizeof(aTmIdxs[0]));
-    memset(this->aTmCounters.data(), 0, this->aTmCounters.size * sizeof(aTmIdxs[0]));
 
     auto at = [&](int r, int c) -> int {
         return r*aNodes.size + c;
@@ -277,9 +287,6 @@ Model::drawGraph(adt::Allocator* pFrameAlloc,
     for (int i = 0; i < (int)aNodes.size; i++)
     {
         auto& node = aNodes[i];
-        for (auto& ch : node.children)
-            this->aTmIdxs[at(ch, this->aTmCounters[ch]++)] = i; /* give each children it's parent's idx's */
-
         if (node.mesh != adt::NPOS)
         {
             m4 tm = tmGlobal;
@@ -361,53 +368,55 @@ Ubo::bufferData(void* pData, u32 offset, u32 _size)
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-// Model
-// getQuad(GLint drawMode)
-// {
-//     f32 quadVertices[] {
-//         -1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-//         -1.0f, -1.0f,  0.0f,  0.0f,  0.0f,
-//          1.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-//          1.0f,  1.0f,  0.0f,  1.0f,  1.0f,
-//     };
-//
-//     GLuint quadIndices[] {
-//         0, 1, 2, 0, 2, 3
-//     };
-//
-//     Model q;
-//     q.aaMeshes.resize(1);
-//     q.aaMeshes.back().push({});
-//
-//     glGenVertexArrays(1, &q.aaMeshes[0][0].meshData.vao);
-//     glBindVertexArray(q.aaMeshes[0][0].meshData.vao);
-//
-//     glGenBuffers(1, &q.aaMeshes[0][0].meshData.vbo);
-//     glBindBuffer(GL_ARRAY_BUFFER, q.aaMeshes[0][0].meshData.vbo);
-//     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, drawMode);
-//
-//     glGenBuffers(1, &q.aaMeshes[0][0].meshData.ebo);
-//     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, q.aaMeshes[0][0].meshData.ebo);
-//     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, drawMode);
-//     q.aaMeshes[0][0].meshData.eboSize = LEN(quadIndices);
-//
-//     constexpr u32 v3Size = sizeof(v3) / sizeof(f32);
-//     constexpr u32 v2Size = sizeof(v2) / sizeof(f32);
-//     constexpr u32 stride = 5 * sizeof(f32);
-//     /* positions */
-//     glEnableVertexAttribArray(0);
-//     glVertexAttribPointer(0, v3Size, GL_FLOAT, GL_FALSE, stride, (void*)0);
-//     /* texture coords */
-//     glEnableVertexAttribArray(1);
-//     glVertexAttribPointer(1, v2Size, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(f32) * v3Size));
-//
-//     glBindVertexArray(0);
-//
-//     LOG_OK("quad '%u' created\n", q.aaMeshes[0][0].meshData.vao);
-//     q.savedPath = "Quad";
-//     return q;
-// }
-//
+Quad
+makeQuad(GLint drawMode)
+{
+    f32 vertices[] {
+        /* pos (4*3)*sizeof(f32) */
+        -1.0f,  1.0f,  0.0f, /* tl */
+        -1.0f, -1.0f,  0.0f, /* bl */
+         1.0f, -1.0f,  0.0f, /* br */
+         1.0f,  1.0f,  0.0f, /* tr */
+
+         /* tex */
+         0.0f,  1.0f,
+         0.0f,  0.0f,
+         1.0f,  0.0f,
+         1.0f,  1.0f,    
+    };
+
+
+    GLuint indices[] {
+        0, 1, 2, 0, 2, 3
+    };
+
+    Quad q {};
+
+    glGenVertexArrays(1, &q.vao);
+    glBindVertexArray(q.vao);
+
+    glGenBuffers(1, &q.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, q.vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, drawMode);
+
+    glGenBuffers(1, &q.ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, q.ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, drawMode);
+    q.eboSize = adt::size(indices);
+
+    /* positions */
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    /* texture coords */
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(f32)*4*3));
+
+    glBindVertexArray(0);
+
+    LOG_OK("quad '%u' created\n", q.vao);
+    return q;
+}
+
 // Model
 // getPlane(GLint drawMode)
 // {
@@ -452,12 +461,6 @@ Ubo::bufferData(void* pData, u32 offset, u32 _size)
 //     return q;
 // }
 //
-// void
-// drawQuad(const Model& q)
-// {
-//     glBindVertexArray(q.aaMeshes[0][0].meshData.vao);
-//     glDrawElements(GL_TRIANGLES, q.aaMeshes[0][0].meshData.eboSize, GL_UNSIGNED_INT, nullptr);
-// }
 //
 // void
 // drawPlane(const Model& q)

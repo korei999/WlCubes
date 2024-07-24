@@ -51,6 +51,7 @@ add_executable(
     src/parser/Binary.cc
     src/Texture.cc
     src/Model.cc
+    src/Text.cc
 )
 
 if (CMAKE_BUILD_TYPE MATCHES "Release" AND CMAKE_SYSTEM_NAME MATCHES "Windows")

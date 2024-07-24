@@ -100,7 +100,22 @@ private:
     adt::Array<int> aTmCounters; /* map's sizes */
 };
 
-// Model getQuad(GLint drawMode = GL_STATIC_DRAW);
+struct Quad
+{
+    GLuint vao;
+    GLuint vbo;
+    GLuint ebo;
+    GLuint eboSize;
+
+    void
+    draw()
+    {
+        glBindVertexArray(this->vao);
+        glDrawElements(GL_TRIANGLES, this->eboSize, GL_UNSIGNED_INT, nullptr);
+    }
+};
+
+Quad makeQuad(GLint drawMode);
 // Model getPlane(GLint drawMode = GL_STATIC_DRAW);
 // Model getCube(GLint drawMode = GL_STATIC_DRAW);
 // void drawQuad(const Model& q);

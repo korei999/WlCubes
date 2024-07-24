@@ -37,9 +37,11 @@
  */
 
 void
-Texture::loadBMP(adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c)
+Texture::loadBMP(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint magFilter, GLint minFilter, App* c)
 {
+#ifdef TEXTURE
     LOG_OK("loading '%.*s' texture...\n", (int)path.size, path.pData);
+#endif
 
     if (this->id != 0)
     {
@@ -119,16 +121,16 @@ Texture::loadBMP(adt::String path, TEX_TYPE type, bool flip, GLint texMode, App*
     {
         default:
         case GL_RGB:
-            flipCpyBGRtoRGBA(pixels.data(), reinterpret_cast<u8*>(&p[p.start]), width, height, flip);
+            flipCpyBGRtoRGBA(pixels.data(), (u8*)(&p[p.start]), width, height, flip);
             format = GL_RGBA;
             break;
 
         case GL_RGBA:
-            flipCpyBGRAtoRGBA(pixels.data(), reinterpret_cast<u8*>(&p[p.start]), width, height, flip);
+            flipCpyBGRAtoRGBA(pixels.data(), (u8*)(&p[p.start]), width, height, flip);
             break;
     }
 
-    setTexture(pixels.data(), texMode, format, width, height, c);
+    setTexture(pixels.data(), texMode, format, width, height, magFilter, minFilter, c);
 
 #ifdef TEXTURE
     LOG(OK, "%.*s: id: %d, texMode: %d\n", (int)path.size, path.pData, this->id, format);
@@ -145,7 +147,7 @@ Texture::bind(GLint glTexture)
 }
 
 void
-Texture::setTexture(u8* pData, GLint texMode, GLint format, GLsizei width, GLsizei height, App* c)
+Texture::setTexture(u8* pData, GLint texMode, GLint format, GLsizei width, GLsizei height, GLint magFilter, GLint minFilter, App* c)
 {
     mtx_lock(&gl::mtxGlContext);
     c->bindGlContext();
@@ -156,8 +158,8 @@ Texture::setTexture(u8* pData, GLint texMode, GLint format, GLsizei width, GLsiz
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texMode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texMode);
     /* set texture filtering parameters */
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
     /* load image, create texture and generate mipmaps */
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pData);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -177,7 +179,7 @@ CubeMapProjections::CubeMapProjections(const m4 proj, const v3 pos)
     } {}
 
 ShadowMap
-createShadowMap(const int width, const int height)
+makeShadowMap(const int width, const int height)
 {
     GLenum none = GL_NONE;
     ShadowMap res {};
@@ -220,7 +222,7 @@ createShadowMap(const int width, const int height)
 }
 
 CubeMap
-createCubeShadowMap(const int width, const int height)
+makeCubeShadowMap(const int width, const int height)
 {
     GLuint depthCubeMap;
     glGenTextures(1, &depthCubeMap);
