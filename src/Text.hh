@@ -11,10 +11,10 @@ struct Text
     GLuint vboSize;
 
     Text() = default;
-    Text(adt::String s, int x, int y) : str(s) { this->genMesh(x, y); }
+    Text(adt::String s, int x, int y, GLint drawMode) : str(s) { this->genMesh(x, y, drawMode); }
 
     void draw();
 
 private:
-    void genMesh(int x, int y);
+    void genMesh(int x, int y, GLint drawMode);
 };
