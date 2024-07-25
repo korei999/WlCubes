@@ -16,8 +16,6 @@ namespace frame
 static f64 _prevTime;
 #endif
 
-static f64 prevTime;
-
 controls::PlayerControls player {
     .pos {0.0, 1.0, 1.0},
     .moveSpeed = 4.0,
@@ -201,6 +199,7 @@ run(App* app)
             shBitMap.setM4("uProj", proj);
             textBiden.draw();
 
+            static f64 prevTime = 0.0;
             if (player.currTime >= prevTime + 1.0)
             {
                 static int toggle = 0;
