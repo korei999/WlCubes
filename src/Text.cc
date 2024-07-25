@@ -147,17 +147,16 @@ Text::genMesh(int xOrigin, int yOrigin)
 {
     adt::Arena allocScope(adt::SIZE_1M);
 
+    struct CharQuad
+    {
+        f32 vs[24];
+    };
+
+    adt::Array<CharQuad> aQuads(&allocScope);
     /* 16/16 bitmap aka extended ascii */
     auto getUV = [](int p) -> f32 {
         return (1.0f / 16.0f) * p;
     };
-
-    struct CharQuad
-    {
-        f32 vs[30];
-    };
-
-    adt::Array<CharQuad> aQuads(&allocScope);
 
     f32 xOff = 0.0f;
     f32 yOff = 0.0f;
@@ -189,13 +188,13 @@ Text::genMesh(int xOrigin, int yOrigin)
         }
 
         aQuads.push({
-            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin, 0.0f,    x0,  y0, /* tl */
-            -0.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin, 0.0f,    x1,  y1, /* bl */
-             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin, 0.0f,    x2,  y2, /* br */
+            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin,     x0, y0, /* tl */
+            -0.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin,     x1, y1, /* bl */
+             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin,     x2, y2, /* br */
 
-            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin, 0.0f,    x0,  y0, /* tl */
-             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin, 0.0f,    x2,  y2, /* br */
-             2.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin, 0.0f,    x3,  y3, /* tr */
+            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin,     x0, y0, /* tl */
+             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin,     x2, y2, /* br */
+             2.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin,     x3, y3, /* tr */
         });
 
         xOff += 2.0f;
@@ -206,14 +205,14 @@ Text::genMesh(int xOrigin, int yOrigin)
 
     glGenBuffers(1, &this->vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, aQuads.size * sizeof(f32) * 8 * 6, aQuads.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, aQuads.size * sizeof(f32) * 4 * 6, aQuads.data(), GL_STATIC_DRAW);
 
     /* positions */
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(f32), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(f32), (void*)0);
     /* texture coords */
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(f32), (void*)(3 * sizeof(f32)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(f32), (void*)(2 * sizeof(f32)));
 
     this->vboSize = aQuads.size * 6; /* 6 vertices for 1 quad */
 
