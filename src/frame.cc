@@ -59,7 +59,7 @@ prepareDraw(App* app)
 
     shTex.loadShaders("shaders/simpleTex.vert", "shaders/simpleTex.frag");
     shColor.loadShaders("shaders/simpleUB.vert", "shaders/simple.frag");
-    shBitMap.loadShaders("shaders/simpleTex.vert", "shaders/simpleTexFont.frag");
+    shBitMap.loadShaders("shaders/font/font.vert", "shaders/font/font.frag");
 
     shTex.use();
     shTex.setI("tex0", 0);
@@ -70,12 +70,11 @@ prepareDraw(App* app)
     uboProjView.createBuffer(sizeof(m4) * 2, GL_DYNAMIC_DRAW);
     uboProjView.bindBlock(&shTex, "ubProjView", 0);
     uboProjView.bindBlock(&shColor, "ubProjView", 0);
-    uboProjView.bindBlock(&shBitMap, "ubProjView", 0);
 
     mQuad = makeQuad(GL_STATIC_DRAW);
-    textBiden = Text("AMAZING\n"
-                     "TEXT\n"
-                     "RENDERING\n");
+    textBiden = Text("Amazing\n"
+                     "Text\n"
+                     "Rendering\n");
 
     tAsciiMap.loadBMP("test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, app);
 
@@ -181,23 +180,30 @@ run(App* app)
 
             m4 m = m4Iden();
             mSponza.drawGraph(&allocFrame, DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
+
             m = m4Iden();
             m *= m4Translate(m, {0.0f, 0.5f, 0.0f});
             m *= m4Scale(m, 0.002f);
             m = m4RotY(m, toRad(90.0f));
-
             mBackpack.drawGraph(&allocFrame, DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
 
             m = m4Iden();
-            m = m4Translate(m, {-3, 3, 1});
-            m = m4RotY(m, toRad(90.0f));
-            m = m4Scale(m, 0.1f);
+            m = m4Translate(m, {-0.9, 0.9, 0});
+            m = m4Scale(m, 0.03f);
 
             shBitMap.use();
-            shBitMap.setM4("uModel", m);
-            glDisable(GL_CULL_FACE);
             tAsciiMap.bind(GL_TEXTURE0);
+            shBitMap.setM4("uModel", m);
+
+            glDisable(GL_CULL_FACE);
             textBiden.draw();
+
+            m = m4Iden();
+            m = m4Translate(m, {0.3, -0.8, 0});
+            m = m4Scale(m, 0.03f);
+            shBitMap.setM4("uModel", m);
+            textBiden.draw();
+
             glEnable(GL_CULL_FACE);
         }
 
