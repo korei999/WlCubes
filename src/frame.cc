@@ -207,9 +207,9 @@ run(App* app)
                 adt::String zelya;
 
                 if ((toggle = !toggle)) zelya = "ITS ZELENSKY";
-                else zelya = " HELLO BIDEN";
+                else zelya = "HELLO BIDEN";
 
-                textZelensky.update(&allocFrame, zelya, uiScale - zelya.size *2, uiScale - 2.0f);
+                textZelensky.update(&allocFrame, zelya, uiScale - zelya.size*2, uiScale - 2.0f);
             }
 
             textZelensky.draw();
