@@ -117,6 +117,8 @@ Window::init()
     windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     windowClass.lpszClassName = L"opengl_window_class";
 
+    input::initRawDevices(this);
+
     ATOM atom = RegisterClassExW(&windowClass);
     if (!atom) LOG_FATAL("RegisterClassExW failed\n");
 
@@ -275,9 +277,9 @@ void
 Window::procEvents()
 {
     MSG msg;
-    if (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
+    while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
     {
-        switch(msg.message)
+        switch (msg.message)
         {
             case WM_QUIT:
                 this->bRunning = false;
