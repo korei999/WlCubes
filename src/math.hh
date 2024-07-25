@@ -127,9 +127,9 @@ union qt
 };
 
 #ifdef LOGS
-adt::String m4ToString(adt::Allocator* pAlloc, const m4& m, adt::String prefix);
-adt::String m3ToString(adt::Allocator* pAlloc, const m3& m, adt::String prefix);
-adt::String m4ToString(adt::Allocator* pAlloc, const m4& m, adt::String prefix);
+adt::String m4ToString(adt::VIAllocator* pAlloc, const m4& m, adt::String prefix);
+adt::String m3ToString(adt::VIAllocator* pAlloc, const m3& m, adt::String prefix);
+adt::String m4ToString(adt::VIAllocator* pAlloc, const m4& m, adt::String prefix);
 #endif
 
 constexpr m4

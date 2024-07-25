@@ -9,14 +9,14 @@ namespace parser
 
 struct Binary
 {
-    adt::Allocator* pAlloc;
+    adt::VIAllocator* pAlloc;
     adt::String word;
     adt::String file;
     u32 start;
     u32 end;
 
-    Binary(adt::Allocator* p) : pAlloc(p) {}
-    Binary(adt::Allocator* p, adt::String path) : Binary(p) { this->loadFile(path); }
+    Binary(adt::VIAllocator* p) : pAlloc(p) {}
+    Binary(adt::VIAllocator* p, adt::String path) : Binary(p) { this->loadFile(path); }
 
     char& operator[](u32 i) { return file[i]; };
 

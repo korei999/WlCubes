@@ -1,19 +1,41 @@
 #include "Arena.hh"
-#include "Array.hh"
 #include "frame.hh"
 #include "Text.hh"
 
 void
-Text::genMesh(int xOrigin, int yOrigin, GLint drawMode)
+Text::genMesh(int xOrigin, int yOrigin, GLint drawMode, u32 size)
 {
     adt::Arena allocScope(adt::SIZE_1M);
 
-    struct CharQuad
-    {
-        f32 vs[24];
-    };
+    auto aQuads = this->genBuffer(&allocScope, this->str, xOrigin, yOrigin, size);
 
-    adt::Array<CharQuad> aQuads(&allocScope);
+    glGenVertexArrays(1, &this->vao);
+    glBindVertexArray(this->vao);
+
+    glGenBuffers(1, &this->vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+    glBufferData(GL_ARRAY_BUFFER, aQuads.size * sizeof(f32) * 4 * 6, aQuads.data(), drawMode);
+
+    /* positions */
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(f32), (void*)0);
+    /* texture coords */
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(f32), (void*)(2 * sizeof(f32)));
+
+    this->vboSize = aQuads.size * 6; /* 6 vertices for 1 quad */
+
+    glBindVertexArray(0);
+
+    allocScope.freeAll();
+}
+
+adt::Array<TextCharQuad>
+Text::genBuffer(adt::VIAllocator* pAlloc, adt::String s, int xOrigin, int yOrigin, u32 size)
+{
+    adt::Array<TextCharQuad> aQuads(pAlloc, size);
+    memset(aQuads.pData, 0, sizeof(TextCharQuad) * size);
+
     /* 16/16 bitmap aka extended ascii */
     auto getUV = [](int p) -> f32 {
         return (1.0f / 16.0f) * p;
@@ -21,7 +43,7 @@ Text::genMesh(int xOrigin, int yOrigin, GLint drawMode)
 
     f32 xOff = 0.0f;
     f32 yOff = 0.0f;
-    for (char c : this->str)
+    for (char c : s)
     {
         /* tl */
         f32 x0 = getUV(c % 16);
@@ -59,25 +81,22 @@ Text::genMesh(int xOrigin, int yOrigin, GLint drawMode)
         xOff += 2.0f;
     }
 
-    glGenVertexArrays(1, &this->vao);
-    glBindVertexArray(this->vao);
+    return aQuads;
+}
 
-    glGenBuffers(1, &this->vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, aQuads.size * sizeof(f32) * 4 * 6, aQuads.data(), drawMode);
+void
+Text::update(adt::VIAllocator* pAlloc, adt::String s, int x, int y)
+{
+    u32 oldSize = this->str.size;
 
-    /* positions */
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(f32), (void*)0);
-    /* texture coords */
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(f32), (void*)(2 * sizeof(f32)));
+    this->str = s;
+    auto aQuads = this->genBuffer(pAlloc, s, x, y, oldSize);
 
-    this->vboSize = aQuads.size * 6; /* 6 vertices for 1 quad */
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, adt::max(oldSize, s.size) * sizeof(f32) * 4 * 6, aQuads.data());
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glBindVertexArray(0);
-
-    allocScope.freeAll();
+    aQuads.destroy();
 }
 
 void

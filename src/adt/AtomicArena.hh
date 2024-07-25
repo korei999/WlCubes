@@ -7,7 +7,7 @@
 namespace adt
 {
 
-struct AtomicArena : Allocator
+struct AtomicArena : VIAllocator
 {
     mtx_t mtxA;
     Arena arena; /* compose for 1 mutex instead of second mutex for realloc (or recursive mutex) */

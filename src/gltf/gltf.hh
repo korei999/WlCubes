@@ -93,7 +93,7 @@ struct Node
     v4 rotation = qtIden();
     v3 scale {1, 1, 1};
 
-    Node(adt::Allocator* p) : children(p) {}
+    Node(adt::VIAllocator* p) : children(p) {}
 };
 
 struct CameraPersp
@@ -200,7 +200,7 @@ struct Material
 
 struct Asset
 {
-    adt::Allocator* pAlloc;
+    adt::VIAllocator* pAlloc;
     json::Parser parser;
     adt::String svGenerator;
     adt::String svVersion;
@@ -215,9 +215,9 @@ struct Asset
     adt::Array<Image> aImages;
     adt::Array<Node> aNodes;
 
-    Asset(adt::Allocator* p)
+    Asset(adt::VIAllocator* p)
         : pAlloc(p), parser(p), aScenes(p), aBuffers(p), aBufferViews(p), aAccessors(p), aMeshes(p), aTextures(p), aMaterials(p), aImages(p), aNodes(p) {}
-    Asset(adt::Allocator* p, adt::String path)
+    Asset(adt::VIAllocator* p, adt::String path)
         : pAlloc(p), parser(p), aScenes(p), aBuffers(p), aBufferViews(p), aAccessors(p), aMeshes(p), aTextures(p), aMaterials(p), aImages(p), aNodes(p)
         { this->load(path); }
 

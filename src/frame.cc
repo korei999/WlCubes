@@ -16,6 +16,8 @@ namespace frame
 static f64 _prevTime;
 #endif
 
+static f64 prevTime;
+
 controls::PlayerControls player {
     .pos {0.0, 1.0, 1.0},
     .moveSpeed = 4.0,
@@ -78,8 +80,8 @@ prepareDraw(App* app)
                      "Text\n"
                      "Rendering\n", 0, 0, GL_STATIC_DRAW);
 
-    adt::String helloBiden = "Hello BIDEN";
-    textZelensky = Text(helloBiden, uiScale - helloBiden.size * 2, uiScale - 2.0f, GL_STATIC_DRAW);
+    adt::String helloBiden = " Hello BIDEN";
+    textZelensky = Text(helloBiden, uiScale - helloBiden.size * 2, uiScale - 2.0f, GL_DYNAMIC_DRAW);
 
     tAsciiMap.loadBMP("test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, app);
 
@@ -200,6 +202,19 @@ run(App* app)
 
             shBitMap.setM4("uProj", proj);
             textBiden.draw();
+
+            if (player.currTime >= prevTime + 1.0)
+            {
+                static int toggle = 0;
+                prevTime = player.currTime;
+                adt::String zelya;
+
+                if ((toggle = !toggle)) zelya = "ITS ZELENSKY";
+                else zelya = " HELLO BIDEN";
+
+                textZelensky.update(&allocFrame, zelya, uiScale - zelya.size *2, uiScale - 2.0f);
+            }
+
             textZelensky.draw();
         }
 

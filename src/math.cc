@@ -345,7 +345,7 @@ m3Transpose(const m3& m)
 
 #ifdef LOGS
 adt::String
-m4ToString(adt::Allocator* pAlloc, const m4& m, adt::String prefix)
+m4ToString(adt::VIAllocator* pAlloc, const m4& m, adt::String prefix)
 {
     auto e = m.e;
     auto r = adt::makeString(pAlloc, 128);
@@ -361,7 +361,7 @@ m4ToString(adt::Allocator* pAlloc, const m4& m, adt::String prefix)
 }
 
 adt::String
-m3ToString(adt::Allocator* pAlloc, const m3& m, adt::String prefix)
+m3ToString(adt::VIAllocator* pAlloc, const m3& m, adt::String prefix)
 {
     auto e = m.e;
     auto r = adt::makeString(pAlloc, 128);
@@ -376,7 +376,7 @@ m3ToString(adt::Allocator* pAlloc, const m3& m, adt::String prefix)
 }
 
 adt::String
-v4ToString(adt::Allocator* pAlloc, const v4& v, adt::String prefix)
+v4ToString(adt::VIAllocator* pAlloc, const v4& v, adt::String prefix)
 {
     auto r = adt::makeString(pAlloc, 128);
     snprintf(r.pData, r.size, "%.*s:\n\t%.3f %.3f %.3f %.3f\n", prefix.size, prefix.pData, v.x, v.y, v.z, v.w);

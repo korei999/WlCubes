@@ -29,14 +29,14 @@ struct HashMapRet
 template<typename T>
 struct HashMap
 {
-    Allocator* pAlloc;
+    VIAllocator* pAlloc;
     Array<Bucket<T>> aBuckets;
     f64 maxLoadFactor;
     size_t bucketCount = 0;
 
     HashMap() = default;
-    HashMap(Allocator* pAllocator) : pAlloc(pAllocator), aBuckets(pAllocator, SIZE_MIN), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
-    HashMap(Allocator* pAllocator, size_t prealloc) : pAlloc(pAllocator), aBuckets(pAllocator, prealloc), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
+    HashMap(VIAllocator* pAllocator) : pAlloc(pAllocator), aBuckets(pAllocator, SIZE_MIN), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
+    HashMap(VIAllocator* pAllocator, size_t prealloc) : pAlloc(pAllocator), aBuckets(pAllocator, prealloc), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
 
     Bucket<T>& operator[](size_t i) { return this->aBuckets[i]; }
     const Bucket<T>& operator[](size_t i) const { return this->aBuckets[i]; }

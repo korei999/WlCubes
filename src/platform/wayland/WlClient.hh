@@ -53,8 +53,10 @@ struct WlClient : App
 
     wl_keyboard* keyboard {};
 
-    WlClient(adt::Allocator* _allocator, adt::String name);
+
+    WlClient(adt::VIAllocator* _allocator, adt::String name);
     virtual ~WlClient() override;
+
 
     virtual void init() override;
     virtual void disableRelativeMode() override;

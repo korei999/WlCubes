@@ -5,7 +5,7 @@
 namespace adt
 {
 
-struct DefaultAllocator : Allocator
+struct DefaultAllocator : VIAllocator
 {
     virtual void* alloc(size_t memberCount, size_t memberSize) override { return ::calloc(memberCount, memberSize); }
     virtual void free(void* p) override { ::free(p); }

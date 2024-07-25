@@ -4,7 +4,7 @@
 
 struct App
 {
-    adt::Allocator* pAlloc;
+    adt::VIAllocator* pAlloc;
     adt::String svName;
     int wWidth = 1920;
     int wHeight = 1080;
