@@ -189,13 +189,13 @@ Text::genMesh(int xOrigin, int yOrigin)
         }
 
         aQuads.push({
-            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin,  0.0f,    x0,  y0, /* tl */
-            -0.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin,  0.0f,    x1,  y1, /* bl */
-             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin,  0.0f,    x2,  y2, /* br */
+            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin, 0.0f,    x0,  y0, /* tl */
+            -0.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin, 0.0f,    x1,  y1, /* bl */
+             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin, 0.0f,    x2,  y2, /* br */
 
-            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin,  0.0f,    x0,  y0, /* tl */
-             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin,  0.0f,    x2,  y2, /* br */
-             2.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin,  0.0f,    x3,  y3, /* tr */
+            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin, 0.0f,    x0,  y0, /* tl */
+             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin, 0.0f,    x2,  y2, /* br */
+             2.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin, 0.0f,    x3,  y3, /* tr */
         });
 
         xOff += 2.0f;
