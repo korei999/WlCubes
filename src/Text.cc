@@ -1,6 +1,7 @@
 #include "Arena.hh"
 #include "Array.hh"
 #include "Pair.hh"
+#include "frame.hh"
 #include "Text.hh"
 
 constexpr adt::Pair<u8, u8> asciiToUVMap[255] {
@@ -142,7 +143,7 @@ constexpr adt::Pair<u8, u8> asciiToUVMap[255] {
 };
 
 void
-Text::genMesh()
+Text::genMesh(int xOrigin, int yOrigin)
 {
     adt::Arena allocScope(adt::SIZE_1M);
 
@@ -188,14 +189,13 @@ Text::genMesh()
         }
 
         aQuads.push({
-                                       /* FIXME: magick UI scale? */
-            -0.0f + xOff,  2.0f + yOff + 98.0f,  0.0f,    x0,  y0, /* tl */
-            -0.0f + xOff, -0.0f + yOff + 98.0f,  0.0f,    x1,  y1, /* bl */
-             2.0f + xOff, -0.0f + yOff + 98.0f,  0.0f,    x2,  y2, /* br */
+            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin,  0.0f,    x0,  y0, /* tl */
+            -0.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin,  0.0f,    x1,  y1, /* bl */
+             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin,  0.0f,    x2,  y2, /* br */
 
-            -0.0f + xOff,  2.0f + yOff + 98.0f,  0.0f,    x0,  y0, /* tl */
-             2.0f + xOff, -0.0f + yOff + 98.0f,  0.0f,    x2,  y2, /* br */
-             2.0f + xOff,  2.0f + yOff + 98.0f,  0.0f,    x3,  y3, /* tr */
+            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin,  0.0f,    x0,  y0, /* tl */
+             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin,  0.0f,    x2,  y2, /* br */
+             2.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin,  0.0f,    x3,  y3, /* tr */
         });
 
         xOff += 2.0f;

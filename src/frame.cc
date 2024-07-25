@@ -23,6 +23,7 @@ controls::PlayerControls player {
 };
 
 f32 fov = 90.0f;
+f32 uiScale = 100.0f;
 
 static adt::AtomicArena allocAssets(adt::SIZE_1M * 200);
 
@@ -33,6 +34,7 @@ Model mSponza(&allocAssets);
 Model mBackpack(&allocAssets);
 Texture tAsciiMap(&allocAssets);
 Text textBiden;
+Text textZelensky;
 Quad mQuad;
 Ubo uboProjView;
 
@@ -74,7 +76,10 @@ prepareDraw(App* app)
     mQuad = makeQuad(GL_STATIC_DRAW);
     textBiden = Text("Amazing\n"
                      "Text\n"
-                     "Rendering\n");
+                     "Rendering\n", 0, 0);
+
+    adt::String helloBiden = "Hello BIDEN";
+    textZelensky = Text(helloBiden, uiScale - helloBiden.size * 2, uiScale - 2.0f);
 
     tAsciiMap.loadBMP("test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, app);
 
@@ -188,18 +193,14 @@ run(App* app)
             m = m4RotY(m, toRad(90.0f));
             mBackpack.drawGraph(&allocFrame, DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
 
-            m = m4Iden();
-            /*m = m4Translate(m, {-0.9, 0.9, 0});*/
-            /*m = m4Scale(m, 0.03f);*/
-            /*m = m4RotY(m, player.currTime);*/
-
-            m4 proj = m4Ortho(0.0f, 100.0f, 0.0f, 100.0f, -1.0f, 1.0f);
+            m4 proj = m4Ortho(0.0f, uiScale, 0.0f, uiScale, -1.0f, 1.0f);
 
             shBitMap.use();
             tAsciiMap.bind(GL_TEXTURE0);
 
             shBitMap.setM4("uProj", proj);
             textBiden.draw();
+            textZelensky.draw();
         }
 
         allocFrame.reset();
