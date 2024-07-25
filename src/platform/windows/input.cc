@@ -10,21 +10,19 @@ namespace input
 {
 
 void
-initRawDevices(Window* self)
+registerRawDevices(Window* self)
 {
-    RAWINPUTDEVICE Rid[2];
-
-    Rid[0].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
-    Rid[0].usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
-    Rid[0].dwFlags = RIDEV_NOLEGACY;    // adds mouse and also ignores legacy mouse messages
-    Rid[0].hwndTarget = 0;
+    self->rawInputDevices[0].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+    self->rawInputDevices[0].usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
+    self->rawInputDevices[0].dwFlags = RIDEV_NOLEGACY;    // adds mouse and also ignores legacy mouse messages
+    self->rawInputDevices[0].hwndTarget = 0;
 
     // Rid[1].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
     // Rid[1].usUsage = 0x06;              // HID_USAGE_GENERIC_KEYBOARD
     // Rid[1].dwFlags = RIDEV_NOLEGACY;    // adds keyboard and also ignores legacy keyboard messages
     // Rid[1].hwndTarget = 0;
 
-    if (RegisterRawInputDevices(Rid, 1, sizeof(Rid[0])) == FALSE)
+    if (RegisterRawInputDevices(self->rawInputDevices, 1, sizeof(self->rawInputDevices[0])) == FALSE)
         LOG_FATAL("RegisterRawInputDevices failed: %lu\n", GetLastError());
 }
 
@@ -97,15 +95,12 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             break;
 
-        // case WM_MOUSEMOVE:
-        //     {
-        //         frame::player.mouse.absX = GET_X_LPARAM(lParam);
-        //         frame::player.mouse.absY = GET_Y_LPARAM(lParam);
-
-        //         frame::player.mouse.relX = GET_X_LPARAM(lParam);
-        //         frame::player.mouse.relY = GET_Y_LPARAM(lParam);
-        //     }
-        //     break;
+        case WM_MOUSEMOVE:
+            {
+                frame::player.mouse.absX = GET_X_LPARAM(lParam);
+                frame::player.mouse.absY = GET_Y_LPARAM(lParam);
+            }
+            break;
 
         case WM_INPUT:
             {
@@ -113,12 +108,10 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 static RAWINPUT raw[sizeof(RAWINPUT)];
                 GetRawInputData((HRAWINPUT)lParam, RID_INPUT, raw, &size, sizeof(RAWINPUTHEADER));
 
-                if (raw->header.dwType == RIM_TYPEMOUSE) {
+                if (raw->header.dwType == RIM_TYPEMOUSE)
+                {
                     frame::player.mouse.relX += raw->data.mouse.lLastX;
                     frame::player.mouse.relY += raw->data.mouse.lLastY;
-
-                    // if (raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL)
-                    //     input.mouse.wheel = (*(short*)&raw->data.mouse.usButtonData) / WHEEL_DELTA;
                 }
             }
             break;

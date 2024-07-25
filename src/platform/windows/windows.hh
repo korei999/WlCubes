@@ -13,6 +13,7 @@ struct Window : App
     HDC hDeviceContext;
     HGLRC hGlContext;
     WNDCLASSEXW windowClass;
+    RAWINPUTDEVICE rawInputDevices[2];
 
     Window(adt::Allocator* p, adt::String name, HINSTANCE _instance);
     virtual ~Window() override;

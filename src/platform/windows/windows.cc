@@ -117,7 +117,7 @@ Window::init()
     windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     windowClass.lpszClassName = L"opengl_window_class";
 
-    input::initRawDevices(this);
+    input::registerRawDevices(this);
 
     ATOM atom = RegisterClassExW(&windowClass);
     if (!atom) LOG_FATAL("RegisterClassExW failed\n");
