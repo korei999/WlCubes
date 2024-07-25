@@ -188,13 +188,14 @@ Text::genMesh()
         }
 
         aQuads.push({
-            -1.0f + xOff,  1.0f + yOff,  0.0f,    x0,  y0, /* tl */
-            -1.0f + xOff, -1.0f + yOff,  0.0f,    x1,  y1, /* bl */
-             1.0f + xOff, -1.0f + yOff,  0.0f,    x2,  y2, /* br */
+                                       /* FIXME: magick UI scale? */
+            -0.0f + xOff,  2.0f + yOff + 98.0f,  0.0f,    x0,  y0, /* tl */
+            -0.0f + xOff, -0.0f + yOff + 98.0f,  0.0f,    x1,  y1, /* bl */
+             2.0f + xOff, -0.0f + yOff + 98.0f,  0.0f,    x2,  y2, /* br */
 
-            -1.0f + xOff,  1.0f + yOff,  0.0f,    x0,  y0, /* tl */
-             1.0f + xOff,  1.0f + yOff,  0.0f,    x3,  y3, /* tr */
-             1.0f + xOff, -1.0f + yOff,  0.0f,    x2,  y2, /* br */
+            -0.0f + xOff,  2.0f + yOff + 98.0f,  0.0f,    x0,  y0, /* tl */
+             2.0f + xOff, -0.0f + yOff + 98.0f,  0.0f,    x2,  y2, /* br */
+             2.0f + xOff,  2.0f + yOff + 98.0f,  0.0f,    x3,  y3, /* tr */
         });
 
         xOff += 2.0f;

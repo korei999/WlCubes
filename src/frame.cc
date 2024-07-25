@@ -158,6 +158,8 @@ run(App* app)
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            constexpr f32 nearPlane = 0.01f, farPlane = 25.0f;
+
             player.updateProj(toRad(fov), aspect, 0.01f, 100.0f);
             player.updateView();
             /* copy both proj and view in one go */
@@ -165,7 +167,6 @@ run(App* app)
 
             v3 lightPos {cosf((f32)player.currTime) * 6.0f, 3.0f, sinf((f32)player.currTime) * 1.1f};
             constexpr v3 lightColor(colors::aqua);
-            f32 nearPlane = 0.01f, farPlane = 25.0f;
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             /* reset viewport */
@@ -188,23 +189,17 @@ run(App* app)
             mBackpack.drawGraph(&allocFrame, DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
 
             m = m4Iden();
-            m = m4Translate(m, {-0.9, 0.9, 0});
-            m = m4Scale(m, 0.03f);
+            /*m = m4Translate(m, {-0.9, 0.9, 0});*/
+            /*m = m4Scale(m, 0.03f);*/
+            /*m = m4RotY(m, player.currTime);*/
+
+            m4 proj = m4Ortho(0.0f, 100.0f, 0.0f, 100.0f, -1.0f, 1.0f);
 
             shBitMap.use();
             tAsciiMap.bind(GL_TEXTURE0);
-            shBitMap.setM4("uModel", m);
 
-            glDisable(GL_CULL_FACE);
+            shBitMap.setM4("uProj", proj);
             textBiden.draw();
-
-            m = m4Iden();
-            m = m4Translate(m, {0.3, -0.8, 0});
-            m = m4Scale(m, 0.03f);
-            shBitMap.setM4("uModel", m);
-            textBiden.draw();
-
-            glEnable(GL_CULL_FACE);
         }
 
         allocFrame.reset();
