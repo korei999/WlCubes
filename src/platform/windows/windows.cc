@@ -117,8 +117,6 @@ Window::init()
     windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     windowClass.lpszClassName = L"opengl_window_class";
 
-    input::registerRawDevices(this);
-
     ATOM atom = RegisterClassExW(&windowClass);
     if (!atom) LOG_FATAL("RegisterClassExW failed\n");
 
@@ -149,6 +147,9 @@ Window::init()
 
     hDeviceContext = GetDC(hWindow);
     if (!hDeviceContext) LOG_FATAL("GetDC failed\n");
+
+    /* FIXME: find better way to toggle this on startup */
+    input::registerRawMouseDevice(this, true);
 
     int attrib[] {
         WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -204,21 +205,25 @@ Window::init()
 void
 Window::disableRelativeMode()
 {
-    ReleaseCapture();
+    this->bRelativeMode = false;
+    input::registerRawMouseDevice(this, false);
+    ShowCursor(true);
 }
 
 void
 Window::enableRelativeMode()
 {
-    SetCapture(this->hWindow);
+    this->bRelativeMode = true;
+    input::registerRawMouseDevice(this, true);
+    ShowCursor(false);
 }
 
 void
 Window::togglePointerRelativeMode()
 {
     this->bRelativeMode = !this->bRelativeMode;
-    // this->bRelativeMode ? this->enableRelativeMode() : this->disableRelativeMode();
-    LOG_FATAL("relative mode: %d\n", this->bRelativeMode);
+    this->bRelativeMode ? this->enableRelativeMode() : this->disableRelativeMode();
+    LOG_OK("relative mode: %d\n", this->bRelativeMode);
 }
 
 void

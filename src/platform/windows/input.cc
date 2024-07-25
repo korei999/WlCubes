@@ -9,18 +9,31 @@ namespace win32
 namespace input
 {
 
+/* https://gist.github.com/luluco250/ac79d72a734295f167851ffdb36d77ee */
+
 void
-registerRawDevices(Window* self)
+registerRawMouseDevice(Window* self, bool on)
 {
-    self->rawInputDevices[0].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
-    self->rawInputDevices[0].usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
-    self->rawInputDevices[0].dwFlags = RIDEV_NOLEGACY;    // adds mouse and also ignores legacy mouse messages
+    DWORD flag = on ? RIDEV_NOLEGACY : RIDEV_REMOVE;
+
+    self->rawInputDevices[0].usUsagePage = 0x01; /* HID_USAGE_PAGE_GENERIC */
+    self->rawInputDevices[0].usUsage = 0x02;     /* HID_USAGE_GENERIC_MOUSE */
+    self->rawInputDevices[0].dwFlags = flag;     /* adds mouse and also ignores legacy mouse messages */
     self->rawInputDevices[0].hwndTarget = 0;
 
-    // Rid[1].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
-    // Rid[1].usUsage = 0x06;              // HID_USAGE_GENERIC_KEYBOARD
-    // Rid[1].dwFlags = RIDEV_NOLEGACY;    // adds keyboard and also ignores legacy keyboard messages
-    // Rid[1].hwndTarget = 0;
+    if (RegisterRawInputDevices(self->rawInputDevices, 1, sizeof(self->rawInputDevices[0])) == FALSE)
+        LOG_FATAL("RegisterRawInputDevices failed: %lu\n", GetLastError());
+}
+
+void
+registerRawKBDevice(Window* self, bool on)
+{
+    DWORD flag = on ? RIDEV_NOLEGACY : RIDEV_REMOVE;
+
+    self->rawInputDevices[1].usUsagePage = 0x01;       /* HID_USAGE_PAGE_GENERIC */
+    self->rawInputDevices[1].usUsage = 0x06;           /* HID_USAGE_GENERIC_KEYBOARD */
+    self->rawInputDevices[1].dwFlags = RIDEV_NOLEGACY; /* adds keyboard and also ignores legacy keyboard messages */
+    self->rawInputDevices[1].hwndTarget = 0;
 
     if (RegisterRawInputDevices(self->rawInputDevices, 1, sizeof(self->rawInputDevices[0])) == FALSE)
         LOG_FATAL("RegisterRawInputDevices failed: %lu\n", GetLastError());
@@ -120,7 +133,7 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
     }
 
-    // detectInput(self);
+    if (self && self->bRelativeMode) SetCursorPos(self->wWidth / 2, self->wHeight / 2);
 
     return DefWindowProcW(hwnd, msg, wParam, lParam);
 }

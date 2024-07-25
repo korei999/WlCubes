@@ -126,6 +126,7 @@ run(App* app)
     adt::Arena allocFrame(adt::SIZE_8M);
 
     app->bRunning = true;
+    /* FIXME: find better way to toggle this on startup */
     app->bRelativeMode = true;
     app->bPaused = false;
     app->setCursorImage("default");
