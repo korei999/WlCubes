@@ -15,7 +15,7 @@ struct Window : App
     WNDCLASSEXW windowClass;
     RAWINPUTDEVICE rawInputDevices[2];
 
-    Window(adt::Allocator* p, adt::String name, HINSTANCE _instance);
+    Window(adt::VIAllocator* p, adt::String name, HINSTANCE _instance);
     virtual ~Window() override;
 
     virtual void init() override;

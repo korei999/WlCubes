@@ -9,6 +9,9 @@ namespace win32
 namespace input
 {
 
+int asciiToLinuxKeyCodes[] {
+};
+
 /* https://gist.github.com/luluco250/ac79d72a734295f167851ffdb36d77ee */
 
 void
@@ -20,6 +23,11 @@ registerRawMouseDevice(Window* self, bool on)
     self->rawInputDevices[0].usUsage = 0x02;     /* HID_USAGE_GENERIC_MOUSE */
     self->rawInputDevices[0].dwFlags = flag;     /* adds mouse and also ignores legacy mouse messages */
     self->rawInputDevices[0].hwndTarget = 0;
+
+    // self->rawInputDevices[1].usUsagePage = 0x01;       /* HID_USAGE_PAGE_GENERIC */
+    // self->rawInputDevices[1].usUsage = 0x06;           /* HID_USAGE_GENERIC_KEYBOARD */
+    // self->rawInputDevices[1].dwFlags = RIDEV_NOLEGACY; /* adds keyboard and also ignores legacy keyboard messages */
+    // self->rawInputDevices[1].hwndTarget = 0;
 
     if (RegisterRawInputDevices(self->rawInputDevices, 1, sizeof(self->rawInputDevices[0])) == FALSE)
         LOG_FATAL("RegisterRawInputDevices failed: %lu\n", GetLastError());
@@ -35,8 +43,48 @@ registerRawKBDevice(Window* self, bool on)
     self->rawInputDevices[1].dwFlags = RIDEV_NOLEGACY; /* adds keyboard and also ignores legacy keyboard messages */
     self->rawInputDevices[1].hwndTarget = 0;
 
-    if (RegisterRawInputDevices(self->rawInputDevices, 1, sizeof(self->rawInputDevices[0])) == FALSE)
+    if (RegisterRawInputDevices(self->rawInputDevices, 1, sizeof(self->rawInputDevices[1])) == FALSE)
         LOG_FATAL("RegisterRawInputDevices failed: %lu\n", GetLastError());
+}
+
+bool
+enterFullscreen(HWND hwnd, int fullscreenWidth, int fullscreenHeight, int colourBits, int refreshRate)
+{
+    DEVMODE fullscreenSettings;
+    bool isChangeSuccessful;
+    RECT windowBoundary;
+
+    EnumDisplaySettings(NULL, 0, &fullscreenSettings);
+    fullscreenSettings.dmPelsWidth        = fullscreenWidth;
+    fullscreenSettings.dmPelsHeight       = fullscreenHeight;
+    fullscreenSettings.dmBitsPerPel       = colourBits;
+    fullscreenSettings.dmDisplayFrequency = refreshRate;
+    fullscreenSettings.dmFields           = DM_PELSWIDTH |
+                                            DM_PELSHEIGHT |
+                                            DM_BITSPERPEL |
+                                            DM_DISPLAYFREQUENCY;
+
+    SetWindowLongPtr(hwnd, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_TOPMOST);
+    SetWindowLongPtr(hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, fullscreenWidth, fullscreenHeight, SWP_SHOWWINDOW);
+    isChangeSuccessful = ChangeDisplaySettings(&fullscreenSettings, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL;
+    ShowWindow(hwnd, SW_MAXIMIZE);
+
+    return isChangeSuccessful;
+}
+
+bool
+exitFullscreen(HWND hwnd, int windowX, int windowY, int windowedWidth, int windowedHeight, int windowedPaddingX, int windowedPaddingY)
+{
+    bool isChangeSuccessful;
+
+    SetWindowLongPtr(hwnd, GWL_EXSTYLE, WS_EX_LEFT);
+    SetWindowLongPtr(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+    isChangeSuccessful = ChangeDisplaySettings(NULL, CDS_RESET) == DISP_CHANGE_SUCCESSFUL;
+    SetWindowPos(hwnd, HWND_NOTOPMOST, windowX, windowY, windowedWidth + windowedPaddingX, windowedHeight + windowedPaddingY, SWP_SHOWWINDOW);
+    ShowWindow(hwnd, SW_RESTORE);
+
+    return isChangeSuccessful;
 }
 
 LRESULT CALLBACK
@@ -67,6 +115,7 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 WPARAM keyCode = wParam;
                 bool isUp = !((lParam >> 31) & 1);
+                COUT("keycode: %llu, up: %d\n", keyCode, isUp);
                 switch (keyCode)
                 {
                     case 'W':
@@ -98,6 +147,11 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                         controls::procKeysOnce(self, KEY_Q, isUp);
                         break;
 
+                    case 'F':
+                        controls::pressedKeys[KEY_F] = isUp;
+                        controls::procKeysOnce(self, KEY_F, isUp);
+                        break;
+
                     case 27: /* esc */
                         self->bRunning = false;
                         break;
@@ -126,6 +180,18 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     frame::player.mouse.relX += raw->data.mouse.lLastX;
                     frame::player.mouse.relY += raw->data.mouse.lLastY;
                 }
+                // if (raw->header.dwType == RIM_TYPEKEYBOARD)
+                // {
+                //     auto key = raw->data.keyboard.VKey;
+                //     /* 0 == down, 1 == up */
+                //     auto flags = raw->data.keyboard.Flags;
+                //     COUT("key: %u, flags: %u\n", key, flags);
+
+                //     if (key < 300)
+                //     {
+                //         controls::pressedKeys[key - 35] = !flags;
+                //     }
+                // }
             }
             break;
 
@@ -133,7 +199,11 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
     }
 
-    if (self && self->bRelativeMode) SetCursorPos(self->wWidth / 2, self->wHeight / 2);
+    if (self && self->bRelativeMode)
+    {
+        SetCursorPos(self->wWidth / 2, self->wHeight / 2);
+        SetCursor(nullptr);
+    }
 
     return DefWindowProcW(hwnd, msg, wParam, lParam);
 }

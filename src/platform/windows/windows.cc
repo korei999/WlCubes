@@ -92,7 +92,7 @@ GetWglFunctions(void)
     DestroyWindow(dummy);
 }
 
-Window::Window(adt::Allocator* p, adt::String name, HINSTANCE _instance)
+Window::Window(adt::VIAllocator* p, adt::String name, HINSTANCE _instance)
 {
     this->pAlloc = p;
     this->svName = name;
@@ -150,6 +150,7 @@ Window::init()
 
     /* FIXME: find better way to toggle this on startup */
     input::registerRawMouseDevice(this, true);
+    /*input::registerRawKBDevice(this, true);*/
 
     int attrib[] {
         WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -207,7 +208,6 @@ Window::disableRelativeMode()
 {
     this->bRelativeMode = false;
     input::registerRawMouseDevice(this, false);
-    ShowCursor(true);
 }
 
 void
@@ -215,7 +215,6 @@ Window::enableRelativeMode()
 {
     this->bRelativeMode = true;
     input::registerRawMouseDevice(this, true);
-    ShowCursor(false);
 }
 
 void
@@ -229,6 +228,9 @@ Window::togglePointerRelativeMode()
 void
 Window::toggleFullscreen()
 {
+    this->bFullscreen = !this->bFullscreen;
+    this->bFullscreen ? this->setFullscreen() : this->unsetFullscreen();
+    LOG_OK("fullscreen: %d\n", this->bRelativeMode);
 }
 
 void 
@@ -239,11 +241,17 @@ Window::setCursorImage(adt::String cursorType)
 void 
 Window::setFullscreen() 
 {
+    input::enterFullscreen(this->hWindow,
+                           GetDeviceCaps(this->hDeviceContext, 0),
+                           GetDeviceCaps(this->hDeviceContext, 0),
+                           GetDeviceCaps(this->hDeviceContext, 0),
+                           GetDeviceCaps(this->hDeviceContext, 0));
 }
 
 void
 Window::unsetFullscreen()
 {
+    input::exitFullscreen(this->hWindow, 0, 0, 800, 600, 0, 0);
 }
 
 void 
