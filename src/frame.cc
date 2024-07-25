@@ -12,6 +12,8 @@
 namespace frame
 {
 
+void mainLoop(App* self);
+
 #ifdef FPS_COUNTER
 static f64 _prevTime;
 #endif
@@ -39,17 +41,17 @@ Quad mQuad;
 Ubo uboProjView;
 
 void
-prepareDraw(App* app)
+prepareDraw(App* self)
 {
-    app->bindGlContext();
-    app->showWindow();
-    app->setSwapInterval(1);
-    app->toggleFullscreen();
+    self->bindGlContext();
+    self->showWindow();
+    self->setSwapInterval(1);
+    self->toggleFullscreen();
 
 #ifdef DEBUG
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(gl::debugCallback, app);
+    glDebugMessageCallback(gl::debugCallback, self);
 #endif
 
     glEnable(GL_CULL_FACE);
@@ -79,14 +81,14 @@ prepareDraw(App* app)
     adt::String helloBiden = " Hello BIDEN";
     textZelensky = Text(helloBiden, helloBiden.size, uiScale - helloBiden.size * 2, uiScale - 2.0f, GL_DYNAMIC_DRAW);
 
-    tAsciiMap.loadBMP("test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, app);
+    tAsciiMap.loadBMP("test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, self);
 
     adt::Arena allocScope(adt::SIZE_1K);
     adt::ThreadPool tp(&allocScope);
     tp.start();
 
     /* unbind before creating threads */
-    app->unbindGlContext();
+    self->unbindGlContext();
 
     struct ModelLoadArg
     {
@@ -97,8 +99,8 @@ prepareDraw(App* app)
         App* c;
     };
 
-    ModelLoadArg sponza {&mSponza, "test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, app};
-    ModelLoadArg backpack {&mBackpack, "test-assets/models/backpack/scene.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, app};
+    ModelLoadArg sponza {&mSponza, "test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, self};
+    ModelLoadArg backpack {&mBackpack, "test-assets/models/backpack/scene.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, self};
 
     auto load = [](void* p) -> int {
         auto a = *(ModelLoadArg*)p;
@@ -111,7 +113,7 @@ prepareDraw(App* app)
 
     tp.wait();
     /* restore context after assets are loaded */
-    app->bindGlContext();
+    self->bindGlContext();
 
     tp.stop();
     tp.destroy();
@@ -121,25 +123,55 @@ prepareDraw(App* app)
 }
 
 void
-run(App* app)
+run(App* self)
 {
-    adt::Arena allocFrame(adt::SIZE_8M);
-
-    app->bRunning = true;
+    self->bRunning = true;
     /* FIXME: find better way to toggle this on startup */
-    app->bRelativeMode = true;
-    app->bPaused = false;
-    app->setCursorImage("default");
+    self->bRelativeMode = true;
+    self->bPaused = false;
+    self->setCursorImage("default");
 
 #ifdef FPS_COUNTER
     _prevTime = adt::timeNowS();
 #endif
 
-    prepareDraw(app);
+    prepareDraw(self);
     player.updateDeltaTime(); /* reset delta time before drawing */
     player.updateDeltaTime();
 
-    while (app->bRunning)
+    self->unbindGlContext();
+
+    thrd_t mailLoopThread;
+    thrd_create(
+        &mailLoopThread,
+        [](void* pArg) -> int { mainLoop((App*)pArg); return 0; },
+        self
+    );
+
+#ifdef _WIN32
+    while (self->bRunning)
+    {
+        self->procEvents();
+
+        struct timespec ts {
+            .tv_sec = 0,
+            .tv_nsec = 100000
+        };
+        thrd_sleep(&ts, nullptr); // sleep 1 sec
+    }
+#endif
+
+    thrd_join(mailLoopThread, nullptr);
+}
+
+void
+mainLoop(App* self)
+{
+    adt::Arena allocFrame(adt::SIZE_8M);
+
+    self->bindGlContext();
+
+    while (self->bRunning)
     {
 #ifdef FPS_COUNTER
     static int _fpsCount = 0;
@@ -151,14 +183,12 @@ run(App* app)
         _prevTime = _currTime;
     }
 #endif
-        app->procEvents();
-
         {
             player.updateDeltaTime();
             player.procMouse();
-            player.procKeys(app);
+            player.procKeys(self);
 
-            f32 aspect = f32(app->wWidth) / f32(app->wHeight);
+            f32 aspect = f32(self->wWidth) / f32(self->wHeight);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -174,7 +204,7 @@ run(App* app)
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             /* reset viewport */
-            glViewport(0, 0, app->wWidth, app->wHeight);
+            glViewport(0, 0, self->wWidth, self->wHeight);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             shTex.use();
@@ -217,7 +247,7 @@ run(App* app)
         }
 
         allocFrame.reset();
-        app->swapBuffers();
+        self->swapBuffers();
 
 #ifdef FPS_COUNTER
         _fpsCount++;
@@ -225,7 +255,6 @@ run(App* app)
     }
 
     allocFrame.freeAll();
-    allocFrame.destroy();
     allocAssets.freeAll();
     allocAssets.destroy();
 }

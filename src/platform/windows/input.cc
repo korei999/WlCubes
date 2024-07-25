@@ -10,134 +10,134 @@ namespace input
 {
 
 int asciiToLinuxKeyCodes[300] {
-    [0] = 0,
-    [1] = 0,
-    [2] = 0,
-    [3] = 0,
-    [4] = 0,
-    [5] = 0,
-    [6] = 0,
-    [7] = 0,
-    [8] = 0,
-    [9] = 0,
-    [10] = 0,
-    [11] = KEY_TAB,
-    [12] = 0,
-    [13] = 0,
-    [14] = 0,
-    [15] = 0,
-    [16] = KEY_LEFTSHIFT,
-    [17] = KEY_LEFTCTRL,
-    [18] = 0,
-    [19] = 0,
-    [20] = 0,
-    [21] = 0,
-    [22] = 0,
-    [23] = 0,
-    [24] = 0,
-    [25] = 0,
-    [26] = 0,
-    [27] = KEY_ESC,
-    [28] = 0,
-    [29] = 0,
-    [30] = 0,
-    [31] = 0,
-    [32] = KEY_SPACE,
-    ['!'] = KEY_1,
-    ['"'] = KEY_APOSTROPHE,
-    ['#'] = KEY_3,
-    ['$'] = KEY_4,
-    ['%'] = KEY_5,
-    ['&'] = KEY_7,
-    ['\''] = KEY_APOSTROPHE,
-    ['('] = KEY_9,
-    [')'] = KEY_0,
-    ['*'] = KEY_8,
-    ['+'] = KEY_EQUAL,
-    [','] = KEY_COMMA,
-    ['-'] = KEY_MINUS,
-    ['.'] = KEY_DOT,
-    ['/'] = KEY_SLASH,
-    ['0'] = KEY_0,
-    ['1'] = KEY_1,
-    ['2'] = KEY_2,
-    ['3'] = KEY_3,
-    ['4'] = KEY_4,
-    ['5'] = KEY_5,
-    ['6'] = KEY_6,
-    ['7'] = KEY_7,
-    ['8'] = KEY_8,
-    ['9'] = KEY_9,
-    [':'] = KEY_SEMICOLON,
-    [';'] = KEY_SEMICOLON,
-    ['<'] = KEY_COMMA,
-    ['='] = KEY_EQUAL,
-    ['>'] = KEY_DOT,
-    ['?'] = KEY_SLASH,
-    ['@'] = KEY_2,
-    ['A'] = KEY_A,
-    ['B'] = KEY_B,
-    ['C'] = KEY_C,
-    ['D'] = KEY_D,
-    ['E'] = KEY_E,
-    ['F'] = KEY_F,
-    ['G'] = KEY_G,
-    ['H'] = KEY_H,
-    ['I'] = KEY_I,
-    ['J'] = KEY_J,
-    ['K'] = KEY_K,
-    ['L'] = KEY_L,
-    ['M'] = KEY_M,
-    ['N'] = KEY_N,
-    ['O'] = KEY_O,
-    ['P'] = KEY_O,
-    ['Q'] = KEY_Q,
-    ['R'] = KEY_R,
-    ['S'] = KEY_S,
-    ['T'] = KEY_T,
-    ['U'] = KEY_U,
-    ['V'] = KEY_V,
-    ['W'] = KEY_W,
-    ['X'] = KEY_X,
-    ['Y'] = KEY_Y,
-    ['Z'] = KEY_Z,
-    ['['] = KEY_LEFTBRACE,
-    ['\\'] = KEY_BACKSLASH,
-    [']'] = KEY_RIGHTBRACE,
-    ['^'] = KEY_6,
-    ['_'] = KEY_MINUS,
-    ['`'] = KEY_GRAVE,
-    ['a'] = KEY_A,
-    ['b'] = KEY_B,
-    ['c'] = KEY_C,
-    ['d'] = KEY_D,
-    ['e'] = KEY_E,
-    ['f'] = KEY_F,
-    ['g'] = KEY_G,
-    ['h'] = KEY_H,
-    ['i'] = KEY_I,
-    ['j'] = KEY_J,
-    ['k'] = KEY_K,
-    ['l'] = KEY_L,
-    ['m'] = KEY_M,
-    ['n'] = KEY_N,
-    ['o'] = KEY_O,
-    ['p'] = KEY_O,
-    ['q'] = KEY_Q,
-    ['r'] = KEY_R,
-    ['s'] = KEY_S,
-    ['t'] = KEY_T,
-    ['u'] = KEY_U,
-    ['v'] = KEY_V,
-    ['w'] = KEY_W,
-    ['x'] = KEY_X,
-    ['y'] = KEY_Y,
-    ['z'] = KEY_Z,
-    ['{'] = KEY_LEFTBRACE,
-    ['|'] = KEY_BACKSLASH,
-    ['}'] = KEY_RIGHTBRACE,
-    ['~'] = KEY_GRAVE,
-    [127] = KEY_DELETE,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    KEY_TAB,
+    0,
+    0,
+    0,
+    0,
+    KEY_LEFTSHIFT,
+    KEY_LEFTCTRL,
+    KEY_LEFTALT,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    KEY_ESC,
+    0,
+    0,
+    0,
+    0,
+    KEY_SPACE,
+    KEY_1,
+    KEY_APOSTROPHE,
+    KEY_3,
+    KEY_4,
+    KEY_5,
+    KEY_7,
+    KEY_APOSTROPHE,
+    KEY_9,
+    KEY_0,
+    KEY_8,
+    KEY_EQUAL,
+    KEY_COMMA,
+    KEY_MINUS,
+    KEY_DOT,
+    KEY_SLASH,
+    KEY_0,
+    KEY_1,
+    KEY_2,
+    KEY_3,
+    KEY_4,
+    KEY_5,
+    KEY_6,
+    KEY_7,
+    KEY_8,
+    KEY_9,
+    KEY_SEMICOLON,
+    KEY_SEMICOLON,
+    KEY_COMMA,
+    KEY_EQUAL,
+    KEY_DOT,
+    KEY_SLASH,
+    KEY_2,
+    KEY_A,
+    KEY_B,
+    KEY_C,
+    KEY_D,
+    KEY_E,
+    KEY_F,
+    KEY_G,
+    KEY_H,
+    KEY_I,
+    KEY_J,
+    KEY_K,
+    KEY_L,
+    KEY_M,
+    KEY_N,
+    KEY_O,
+    KEY_O,
+    KEY_Q,
+    KEY_R,
+    KEY_S,
+    KEY_T,
+    KEY_U,
+    KEY_V,
+    KEY_W,
+    KEY_X,
+    KEY_Y,
+    KEY_Z,
+    KEY_LEFTBRACE,
+    KEY_BACKSLASH,
+    KEY_RIGHTBRACE,
+    KEY_6,
+    KEY_MINUS,
+    KEY_GRAVE,
+    KEY_A,
+    KEY_B,
+    KEY_C,
+    KEY_D,
+    KEY_E,
+    KEY_F,
+    KEY_G,
+    KEY_H,
+    KEY_I,
+    KEY_J,
+    KEY_K,
+    KEY_L,
+    KEY_M,
+    KEY_N,
+    KEY_O,
+    KEY_O,
+    KEY_Q,
+    KEY_R,
+    KEY_S,
+    KEY_T,
+    KEY_U,
+    KEY_V,
+    KEY_W,
+    KEY_X,
+    KEY_Y,
+    KEY_Z,
+    KEY_LEFTBRACE,
+    KEY_BACKSLASH,
+    KEY_RIGHTBRACE,
+    KEY_GRAVE,
+    KEY_DELETE,
 };
 
 /* https://gist.github.com/luluco250/ac79d72a734295f167851ffdb36d77ee */
@@ -179,7 +179,7 @@ bool
 enterFullscreen(HWND hwnd, int fullscreenWidth, int fullscreenHeight, int colourBits, int refreshRate)
 {
     DEVMODE fullscreenSettings;
-    bool isChangeSuccessful;
+    bool bSucces;
     RECT windowBoundary;
 
     EnumDisplaySettings(NULL, 0, &fullscreenSettings);
@@ -195,24 +195,24 @@ enterFullscreen(HWND hwnd, int fullscreenWidth, int fullscreenHeight, int colour
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_TOPMOST);
     SetWindowLongPtr(hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
     SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, fullscreenWidth, fullscreenHeight, SWP_SHOWWINDOW);
-    isChangeSuccessful = ChangeDisplaySettings(&fullscreenSettings, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL;
+    bSucces = ChangeDisplaySettings(&fullscreenSettings, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL;
     ShowWindow(hwnd, SW_MAXIMIZE);
 
-    return isChangeSuccessful;
+    return bSucces;
 }
 
 bool
 exitFullscreen(HWND hwnd, int windowX, int windowY, int windowedWidth, int windowedHeight, int windowedPaddingX, int windowedPaddingY)
 {
-    bool isChangeSuccessful;
+    bool bSucces;
 
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, WS_EX_LEFT);
     SetWindowLongPtr(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
-    isChangeSuccessful = ChangeDisplaySettings(NULL, CDS_RESET) == DISP_CHANGE_SUCCESSFUL;
+    bSucces = ChangeDisplaySettings(NULL, CDS_RESET) == DISP_CHANGE_SUCCESSFUL;
     SetWindowPos(hwnd, HWND_NOTOPMOST, windowX, windowY, windowedWidth + windowedPaddingX, windowedHeight + windowedPaddingY, SWP_SHOWWINDOW);
     ShowWindow(hwnd, SW_RESTORE);
 
-    return isChangeSuccessful;
+    return bSucces;
 }
 
 LRESULT CALLBACK
@@ -231,6 +231,10 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             self->wHeight = HIWORD(lParam);
             break;
 
+        case WM_KILLFOCUS:
+            memset(controls::pressedKeys, 0, sizeof(controls::pressedKeys));
+            break;
+
         case WM_NCCREATE:
             SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)((CREATESTRUCT*)lParam)->lpCreateParams);
             break;
@@ -238,6 +242,8 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_LBUTTONDOWN:
             break;
 
+        case WM_SYSKEYUP:
+        case WM_SYSKEYDOWN:
         case WM_KEYUP:
         case WM_KEYDOWN:
             {
@@ -272,12 +278,9 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 //     auto key = raw->data.keyboard.VKey;
                 //     /* 0 == down, 1 == up */
                 //     auto flags = raw->data.keyboard.Flags;
-                //     COUT("key: %u, flags: %u\n", key, flags);
 
-                //     if (key < 300)
-                //     {
-                //         controls::pressedKeys[key - 35] = !flags;
-                //     }
+                //     COUT("%d, %d\n", key, asciiToLinuxKeyCodes[key]);
+                //     controls::pressedKeys[ asciiToLinuxKeyCodes[key] ] = !flags;
                 // }
             }
             break;

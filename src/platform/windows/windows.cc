@@ -290,7 +290,7 @@ void
 Window::procEvents()
 {
     MSG msg;
-    while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
+    while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE) > 0)
     {
         switch (msg.message)
         {
