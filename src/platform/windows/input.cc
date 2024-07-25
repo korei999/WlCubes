@@ -9,7 +9,135 @@ namespace win32
 namespace input
 {
 
-int asciiToLinuxKeyCodes[] {
+int asciiToLinuxKeyCodes[300] {
+    [0] = 0,
+    [1] = 0,
+    [2] = 0,
+    [3] = 0,
+    [4] = 0,
+    [5] = 0,
+    [6] = 0,
+    [7] = 0,
+    [8] = 0,
+    [9] = 0,
+    [10] = 0,
+    [11] = KEY_TAB,
+    [12] = 0,
+    [13] = 0,
+    [14] = 0,
+    [15] = 0,
+    [16] = KEY_LEFTSHIFT,
+    [17] = KEY_LEFTCTRL,
+    [18] = 0,
+    [19] = 0,
+    [20] = 0,
+    [21] = 0,
+    [22] = 0,
+    [23] = 0,
+    [24] = 0,
+    [25] = 0,
+    [26] = 0,
+    [27] = KEY_ESC,
+    [28] = 0,
+    [29] = 0,
+    [30] = 0,
+    [31] = 0,
+    [32] = KEY_SPACE,
+    ['!'] = KEY_1,
+    ['"'] = KEY_APOSTROPHE,
+    ['#'] = KEY_3,
+    ['$'] = KEY_4,
+    ['%'] = KEY_5,
+    ['&'] = KEY_7,
+    ['\''] = KEY_APOSTROPHE,
+    ['('] = KEY_9,
+    [')'] = KEY_0,
+    ['*'] = KEY_8,
+    ['+'] = KEY_EQUAL,
+    [','] = KEY_COMMA,
+    ['-'] = KEY_MINUS,
+    ['.'] = KEY_DOT,
+    ['/'] = KEY_SLASH,
+    ['0'] = KEY_0,
+    ['1'] = KEY_1,
+    ['2'] = KEY_2,
+    ['3'] = KEY_3,
+    ['4'] = KEY_4,
+    ['5'] = KEY_5,
+    ['6'] = KEY_6,
+    ['7'] = KEY_7,
+    ['8'] = KEY_8,
+    ['9'] = KEY_9,
+    [':'] = KEY_SEMICOLON,
+    [';'] = KEY_SEMICOLON,
+    ['<'] = KEY_COMMA,
+    ['='] = KEY_EQUAL,
+    ['>'] = KEY_DOT,
+    ['?'] = KEY_SLASH,
+    ['@'] = KEY_2,
+    ['A'] = KEY_A,
+    ['B'] = KEY_B,
+    ['C'] = KEY_C,
+    ['D'] = KEY_D,
+    ['E'] = KEY_E,
+    ['F'] = KEY_F,
+    ['G'] = KEY_G,
+    ['H'] = KEY_H,
+    ['I'] = KEY_I,
+    ['J'] = KEY_J,
+    ['K'] = KEY_K,
+    ['L'] = KEY_L,
+    ['M'] = KEY_M,
+    ['N'] = KEY_N,
+    ['O'] = KEY_O,
+    ['P'] = KEY_O,
+    ['Q'] = KEY_Q,
+    ['R'] = KEY_R,
+    ['S'] = KEY_S,
+    ['T'] = KEY_T,
+    ['U'] = KEY_U,
+    ['V'] = KEY_V,
+    ['W'] = KEY_W,
+    ['X'] = KEY_X,
+    ['Y'] = KEY_Y,
+    ['Z'] = KEY_Z,
+    ['['] = KEY_LEFTBRACE,
+    ['\\'] = KEY_BACKSLASH,
+    [']'] = KEY_RIGHTBRACE,
+    ['^'] = KEY_6,
+    ['_'] = KEY_MINUS,
+    ['`'] = KEY_GRAVE,
+    ['a'] = KEY_A,
+    ['b'] = KEY_B,
+    ['c'] = KEY_C,
+    ['d'] = KEY_D,
+    ['e'] = KEY_E,
+    ['f'] = KEY_F,
+    ['g'] = KEY_G,
+    ['h'] = KEY_H,
+    ['i'] = KEY_I,
+    ['j'] = KEY_J,
+    ['k'] = KEY_K,
+    ['l'] = KEY_L,
+    ['m'] = KEY_M,
+    ['n'] = KEY_N,
+    ['o'] = KEY_O,
+    ['p'] = KEY_O,
+    ['q'] = KEY_Q,
+    ['r'] = KEY_R,
+    ['s'] = KEY_S,
+    ['t'] = KEY_T,
+    ['u'] = KEY_U,
+    ['v'] = KEY_V,
+    ['w'] = KEY_W,
+    ['x'] = KEY_X,
+    ['y'] = KEY_Y,
+    ['z'] = KEY_Z,
+    ['{'] = KEY_LEFTBRACE,
+    ['|'] = KEY_BACKSLASH,
+    ['}'] = KEY_RIGHTBRACE,
+    ['~'] = KEY_GRAVE,
+    [127] = KEY_DELETE,
 };
 
 /* https://gist.github.com/luluco250/ac79d72a734295f167851ffdb36d77ee */
@@ -115,50 +243,9 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 WPARAM keyCode = wParam;
                 bool isUp = !((lParam >> 31) & 1);
-                COUT("keycode: %llu, up: %d\n", keyCode, isUp);
-                switch (keyCode)
-                {
-                    case 'W':
-                        controls::pressedKeys[KEY_W] = isUp;
-                        break;
 
-                    case 'A':
-                        controls::pressedKeys[KEY_A] = isUp;
-                        break;
-
-                    case 'S':
-                        controls::pressedKeys[KEY_S] = isUp;
-                        break;
-
-                    case 'D':
-                        controls::pressedKeys[KEY_D] = isUp;
-                        break;
-
-                    case ' ':
-                        controls::pressedKeys[KEY_SPACE] = isUp;
-                        break;
-
-                    case VK_CONTROL:
-                        controls::pressedKeys[KEY_LEFTCTRL] = isUp;
-                        break;
-
-                    case 'Q':
-                        controls::pressedKeys[KEY_Q] = isUp;
-                        controls::procKeysOnce(self, KEY_Q, isUp);
-                        break;
-
-                    case 'F':
-                        controls::pressedKeys[KEY_F] = isUp;
-                        controls::procKeysOnce(self, KEY_F, isUp);
-                        break;
-
-                    case 27: /* esc */
-                        self->bRunning = false;
-                        break;
-
-                    default:
-                        break;
-                };
+                controls::pressedKeys[ asciiToLinuxKeyCodes[keyCode] ] = isUp;
+                controls::procKeysOnce(self, asciiToLinuxKeyCodes[keyCode], isUp);
             }
             break;
 
