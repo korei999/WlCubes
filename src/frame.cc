@@ -76,12 +76,10 @@ prepareDraw(App* app)
     uboProjView.bindBlock(&shColor, "ubProjView", 0);
 
     mQuad = makeQuad(GL_STATIC_DRAW);
-    textBiden = Text("Amazing\n"
-                     "Text\n"
-                     "Rendering\n", 0, 0, GL_STATIC_DRAW);
+    textBiden = Text("Amazing\nText\nRendering\n", 24, 0, 0, GL_STATIC_DRAW);
 
     adt::String helloBiden = " Hello BIDEN";
-    textZelensky = Text(helloBiden, uiScale - helloBiden.size * 2, uiScale - 2.0f, GL_DYNAMIC_DRAW);
+    textZelensky = Text(helloBiden, helloBiden.size, uiScale - helloBiden.size * 2, uiScale - 2.0f, GL_DYNAMIC_DRAW);
 
     tAsciiMap.loadBMP("test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, app);
 

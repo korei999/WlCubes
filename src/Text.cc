@@ -3,11 +3,11 @@
 #include "Text.hh"
 
 void
-Text::genMesh(int xOrigin, int yOrigin, GLint drawMode, u32 size)
+Text::genMesh(u32 size, int xOrigin, int yOrigin, GLint drawMode)
 {
     adt::Arena allocScope(adt::SIZE_1M);
 
-    auto aQuads = this->genBuffer(&allocScope, this->str, xOrigin, yOrigin, size);
+    auto aQuads = this->genBuffer(&allocScope, this->str, this->maxSize, xOrigin, yOrigin);
 
     glGenVertexArrays(1, &this->vao);
     glBindVertexArray(this->vao);
@@ -31,7 +31,7 @@ Text::genMesh(int xOrigin, int yOrigin, GLint drawMode, u32 size)
 }
 
 adt::Array<TextCharQuad>
-Text::genBuffer(adt::VIAllocator* pAlloc, adt::String s, int xOrigin, int yOrigin, u32 size)
+Text::genBuffer(adt::VIAllocator* pAlloc, adt::String s, u32 size, int xOrigin, int yOrigin)
 {
     adt::Array<TextCharQuad> aQuads(pAlloc, size);
     memset(aQuads.pData, 0, sizeof(TextCharQuad) * size);
@@ -87,13 +87,11 @@ Text::genBuffer(adt::VIAllocator* pAlloc, adt::String s, int xOrigin, int yOrigi
 void
 Text::update(adt::VIAllocator* pAlloc, adt::String s, int x, int y)
 {
-    u32 oldSize = this->str.size;
-
     this->str = s;
-    auto aQuads = this->genBuffer(pAlloc, s, x, y, oldSize);
+    auto aQuads = this->genBuffer(pAlloc, s, this->maxSize, x, y);
 
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, adt::max(oldSize, s.size) * sizeof(f32) * 4 * 6, aQuads.data());
+    glBufferSubData(GL_ARRAY_BUFFER, 0, this->maxSize * sizeof(f32) * 4 * 6, aQuads.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     aQuads.destroy();

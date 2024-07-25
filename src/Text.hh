@@ -12,18 +12,21 @@ struct TextCharQuad
 struct Text
 {
     adt::String str;
+    u32 maxSize;
     GLuint vao;
     GLuint vbo;
     GLuint vboSize;
 
     Text() = default;
-    Text(adt::String s, int x, int y, GLint drawMode) : str(s) { this->genMesh(x, y, drawMode, s.size); }
+    Text(adt::String s, u32 size, int x, int y, GLint drawMode) : str(s), maxSize(size) {
+        this->genMesh(size, x, y, drawMode);
+    }
 
     void draw();
     void update(adt::VIAllocator* pAlloc, adt::String s, int x, int y);
 
 private:
 
-    void genMesh(int x, int y, GLint drawMode, u32 size);
-    adt::Array<TextCharQuad> genBuffer(adt::VIAllocator* pAlloc, adt::String s, int x, int y, u32 size);
+    void genMesh(u32 size, int x, int y, GLint drawMode);
+    adt::Array<TextCharQuad> genBuffer(adt::VIAllocator* pAlloc, adt::String s, u32 size, int x, int y);
 };
