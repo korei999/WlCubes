@@ -9,7 +9,7 @@ namespace adt
 template<typename T>
 struct Queue
 {
-    VIAllocator* pAlloc {};
+    Allocator* pAlloc {};
     T* pData {};
     int size {};
     int capacity {};
@@ -17,8 +17,8 @@ struct Queue
     int last {};
 
     Queue() = default;
-    Queue(VIAllocator* p) : Queue(p, SIZE_MIN) {}
-    Queue(VIAllocator* p, u32 prealloc);
+    Queue(Allocator* p) : Queue(p, SIZE_MIN) {}
+    Queue(Allocator* p, u32 prealloc);
 
     T* pushBack(const T& val);
     T* popFront();
@@ -77,7 +77,7 @@ struct Queue
 
 template<typename T>
 inline
-Queue<T>::Queue(VIAllocator* p, u32 prealloc)
+Queue<T>::Queue(Allocator* p, u32 prealloc)
     : pAlloc(p), capacity(prealloc)
 {
     this->pData = (T*)this->pAlloc->alloc(prealloc, sizeof(T));

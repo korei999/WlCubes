@@ -17,7 +17,8 @@ constexpr size_t SIZE_1M = SIZE_1K * SIZE_1K;
 constexpr size_t SIZE_8M = 8 * SIZE_1M; 
 constexpr size_t SIZE_1G = SIZE_1M * SIZE_1K; 
 
-struct VIAllocator
+/* Base allocator interface */
+struct Allocator
 {
     virtual void* alloc(size_t memberCount, size_t memberSize) = 0;
     virtual void free(void* p) = 0;

@@ -110,7 +110,7 @@ findLastOf(String sv, char c)
 }
 
 constexpr String
-makeString(VIAllocator* p, const char* str, u32 size)
+makeString(Allocator* p, const char* str, u32 size)
 {
     char* pData = static_cast<char*>(p->alloc(size + 1, sizeof(char)));
     for (u32 i = 0; i < size; i++)
@@ -120,20 +120,20 @@ makeString(VIAllocator* p, const char* str, u32 size)
 }
 
 constexpr String
-makeString(VIAllocator* p, u32 size)
+makeString(Allocator* p, u32 size)
 {
     char* pData = static_cast<char*>(p->alloc(size + 1, sizeof(char)));
     return {pData, size};
 }
 
 constexpr String
-makeString(VIAllocator* p, const char* str)
+makeString(Allocator* p, const char* str)
 {
     return makeString(p, str, nullTermStringSize(str));
 }
 
 constexpr String
-makeString(VIAllocator* p, String s)
+makeString(Allocator* p, String s)
 {
     return makeString(p, s.pData, s.size);
 }
@@ -159,7 +159,7 @@ hashFNV(String str)
 }
 
 constexpr String
-concat(VIAllocator* p, String l, String r)
+concat(Allocator* p, String l, String r)
 {
     u32 len = l.size + r.size;
     char* ret = (char*)p->alloc(len + 1, sizeof(char));

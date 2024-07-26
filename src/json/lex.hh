@@ -31,11 +31,11 @@ struct Token
 
 struct Lexer
 {
-    adt::VIAllocator* pArena {};
+    adt::Allocator* pArena {};
     adt::String sFile;
     u32 pos = 0;
 
-    Lexer(adt::VIAllocator* p) : pArena(p) {}
+    Lexer(adt::Allocator* p) : pArena(p) {}
 
     void loadFile(adt::String path);
     void skipWhiteSpace();

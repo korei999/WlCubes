@@ -23,10 +23,10 @@ struct Text
     }
 
     void draw();
-    void update(adt::VIAllocator* pAlloc, adt::String s, int x, int y);
+    void update(adt::Allocator* pAlloc, adt::String s, int x, int y);
 
 private:
 
     void genMesh(u32 size, int x, int y, GLint drawMode);
-    adt::Array<TextCharQuad> genBuffer(adt::VIAllocator* pAlloc, adt::String s, u32 size, int x, int y);
+    adt::Array<TextCharQuad> genBuffer(adt::Allocator* pAlloc, adt::String s, u32 size, int x, int y);
 };

@@ -31,7 +31,7 @@ struct ArenaNode
     u8 pData[];
 };
 
-struct Arena : VIAllocator
+struct Arena : Allocator
 {
     ArenaBlock* pBlocks = nullptr;
     size_t blockSize = 0;

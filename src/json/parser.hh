@@ -8,11 +8,11 @@ namespace json
 
 struct Parser
 {
-    adt::VIAllocator* pArena;
+    adt::Allocator* pArena;
     adt::String sName;
     Object* pHead;
 
-    Parser(adt::VIAllocator* p) : pArena(p), l(p) {}
+    Parser(adt::Allocator* p) : pArena(p), l(p) {}
 
     void load(adt::String path);
     void parse();

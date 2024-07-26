@@ -31,7 +31,7 @@ Text::genMesh(u32 size, int xOrigin, int yOrigin, GLint drawMode)
 }
 
 adt::Array<TextCharQuad>
-Text::genBuffer(adt::VIAllocator* pAlloc, adt::String s, u32 size, int xOrigin, int yOrigin)
+Text::genBuffer(adt::Allocator* pAlloc, adt::String s, u32 size, int xOrigin, int yOrigin)
 {
     adt::Array<TextCharQuad> aQuads(pAlloc, size);
     memset(aQuads.pData, 0, sizeof(TextCharQuad) * size);
@@ -85,7 +85,7 @@ Text::genBuffer(adt::VIAllocator* pAlloc, adt::String s, u32 size, int xOrigin, 
 }
 
 void
-Text::update(adt::VIAllocator* pAlloc, adt::String s, int x, int y)
+Text::update(adt::Allocator* pAlloc, adt::String s, int x, int y)
 {
     this->str = s;
     auto aQuads = this->genBuffer(pAlloc, s, this->maxSize, x, y);

@@ -14,7 +14,7 @@ enum TEX_TYPE : int
 
 struct Texture
 {
-    adt::VIAllocator* pAlloc;
+    adt::Allocator* pAlloc;
     adt::String texPath;
     u32 width;
     u32 height;
@@ -22,8 +22,8 @@ struct Texture
     enum TEX_TYPE type;
 
     Texture() = default;
-    Texture(adt::VIAllocator* p) : pAlloc(p) {}
-    Texture(adt::VIAllocator* p, adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c) : pAlloc(p) {
+    Texture(adt::Allocator* p) : pAlloc(p) {}
+    Texture(adt::Allocator* p, adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c) : pAlloc(p) {
         this->loadBMP(path, type, flip, texMode, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, c);
     }
 

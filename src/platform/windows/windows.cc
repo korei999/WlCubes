@@ -92,7 +92,7 @@ GetWglFunctions(void)
     DestroyWindow(dummy);
 }
 
-Window::Window(adt::VIAllocator* p, adt::String name, HINSTANCE _instance)
+Window::Window(adt::Allocator* p, adt::String name, HINSTANCE _instance)
 {
     this->pAlloc = p;
     this->svName = name;

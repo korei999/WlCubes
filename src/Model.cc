@@ -57,7 +57,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 
         struct args {
             Texture* p;
-            adt::VIAllocator* pAlloc;
+            adt::Allocator* pAlloc;
             adt::String path;
             TEX_TYPE type;
             bool flip;
@@ -271,7 +271,7 @@ Model::draw(enum DRAW flags, Shader* sh, adt::String svUniform, adt::String svUn
 }
 
 void
-Model::drawGraph(adt::VIAllocator* pFrameAlloc,
+Model::drawGraph(adt::Allocator* pFrameAlloc,
                  enum DRAW flags,
                  Shader* sh,
                  adt::String svUniform,

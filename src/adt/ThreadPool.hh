@@ -34,7 +34,7 @@ struct TaskNode
 
 struct ThreadPool
 {
-    VIAllocator* pAlloc {};
+    Allocator* pAlloc {};
     Queue<TaskNode> qTasks;
     thrd_t* pThreads {};
     u32 threadCount {};
@@ -44,8 +44,8 @@ struct ThreadPool
     bool bDone {};
 
     ThreadPool() = default;
-    ThreadPool(VIAllocator* p, u32 _threadCount);
-    ThreadPool(VIAllocator* p);
+    ThreadPool(Allocator* p, u32 _threadCount);
+    ThreadPool(Allocator* p);
 
     void start();
     bool busy();
@@ -60,7 +60,7 @@ private:
 };
 
 inline
-ThreadPool::ThreadPool(VIAllocator* p, u32 _threadCount)
+ThreadPool::ThreadPool(Allocator* p, u32 _threadCount)
     : pAlloc(p), qTasks(p, _threadCount), threadCount(_threadCount), activeTaskCount(0), bDone(false)
 {
     this->pThreads = (thrd_t*)p->alloc(_threadCount, sizeof(thrd_t));
@@ -71,7 +71,7 @@ ThreadPool::ThreadPool(VIAllocator* p, u32 _threadCount)
 }
 
 inline
-ThreadPool::ThreadPool(VIAllocator* p)
+ThreadPool::ThreadPool(Allocator* p)
     : ThreadPool(p, getLogicalCoresCount()) {}
 
 inline void

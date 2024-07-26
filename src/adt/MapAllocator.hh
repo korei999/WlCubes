@@ -8,7 +8,7 @@
 namespace adt
 {
 
-struct MapAllocator : VIAllocator
+struct MapAllocator : Allocator
 {
     mtx_t mtxA;
     HashMap<void*> mPMap;

@@ -7,7 +7,7 @@ namespace adt
 {
 
 inline String
-loadFile(VIAllocator* pAlloc, String path)
+loadFile(Allocator* pAlloc, String path)
 {
     String ret;
 
@@ -31,7 +31,7 @@ loadFile(VIAllocator* pAlloc, String path)
 }
 
 inline Array<u8>
-loadFileToCharArray(VIAllocator* pAlloc, String path)
+loadFileToCharArray(Allocator* pAlloc, String path)
 {
     Array<u8> ret(pAlloc);
 
@@ -53,7 +53,7 @@ loadFileToCharArray(VIAllocator* pAlloc, String path)
 }
 
 inline String
-replacePathSuffix(VIAllocator* pAlloc, adt::String path, adt::String suffix)
+replacePathSuffix(Allocator* pAlloc, adt::String path, adt::String suffix)
 {
     auto lastSlash = adt::findLastOf(path, '/') + 1;
     adt::String pathToMtl = {&path[0], lastSlash};

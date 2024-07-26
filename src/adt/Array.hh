@@ -8,14 +8,14 @@ namespace adt
 template<typename T>
 struct Array
 {
-    VIAllocator* pAlloc = nullptr;
+    Allocator* pAlloc = nullptr;
     T* pData = nullptr;
     u32 size = 0;
     u32 capacity = 0;
 
     Array() = default;
-    Array(VIAllocator* _allocator);
-    Array(VIAllocator* _allocator, u32 _capacity);
+    Array(Allocator* _allocator);
+    Array(Allocator* _allocator, u32 _capacity);
 
     T& operator[](u32 i) { return this->pData[i]; }
     const T& operator[](u32 i) const { return this->pData[i]; }
@@ -52,11 +52,11 @@ struct Array
 };
 
 template<typename T>
-Array<T>::Array(VIAllocator* _allocator)
+Array<T>::Array(Allocator* _allocator)
     : Array<T>(_allocator, SIZE_MIN) {}
 
 template<typename T>
-Array<T>::Array(VIAllocator* _allocator, u32 _capacity)
+Array<T>::Array(Allocator* _allocator, u32 _capacity)
     : pAlloc(_allocator), capacity(_capacity)
 {
     pData = static_cast<T*>(this->pAlloc->alloc(this->capacity, sizeof(T)));
