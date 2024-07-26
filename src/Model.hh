@@ -124,6 +124,14 @@ struct ModelLoadArg
     App* c;
 };
 
+inline int
+ModelSubmit(void* p)
+{
+    auto a = *(ModelLoadArg*)p;
+    a.p->load(a.path, a.drawMode, a.texMode, a.c);
+    return 0;
+};
+
 Quad makeQuad(GLint drawMode);
 // Model getPlane(GLint drawMode = GL_STATIC_DRAW);
 // Model getCube(GLint drawMode = GL_STATIC_DRAW);

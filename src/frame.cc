@@ -88,24 +88,12 @@ prepareDraw(App* self)
 
     TexLoadArg bitMap {&tAsciiMap, "test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, self};
 
-    auto loadTex = [](void* p) -> int {
-        auto a = *(TexLoadArg*)p;
-        a.self->loadBMP(a.path, a.type, a.flip, a.texMode, a.magFilter, a.minFilter, a.c);
-        return 0;
-    };
-
     ModelLoadArg sponza {&mSponza, "test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, self};
     ModelLoadArg backpack {&mBackpack, "test-assets/models/backpack/scene.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, self};
 
-    auto loadModel = [](void* p) -> int {
-        auto a = *(ModelLoadArg*)p;
-        a.p->load(a.path, a.drawMode, a.texMode, a.c);
-        return 0;
-    };
-
-    tp.submit(loadTex, &bitMap);
-    tp.submit(loadModel, &sponza);
-    tp.submit(loadModel, &backpack);
+    tp.submit(TextureSubmit, &bitMap);
+    tp.submit(ModelSubmit, &sponza);
+    tp.submit(ModelSubmit, &backpack);
 
     tp.wait();
     /* restore context after assets are loaded */

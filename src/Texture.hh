@@ -46,6 +46,14 @@ struct TexLoadArg
     App* c;
 };
 
+inline int
+TextureSubmit(void* p)
+{
+    auto a = *(TexLoadArg*)p;
+    a.self->loadBMP(a.path, a.type, a.flip, a.texMode, a.magFilter, a.minFilter, a.c);
+    return 0;
+}
+
 struct ShadowMap
 {
     GLuint fbo;
