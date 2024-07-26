@@ -14,7 +14,7 @@ Text::genMesh(u32 size, int xOrigin, int yOrigin, GLint drawMode)
 
     glGenBuffers(1, &this->vbo);
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-    glBufferData(GL_ARRAY_BUFFER, aQuads.size * sizeof(f32) * 4 * 6, aQuads.data(), drawMode);
+    glBufferData(GL_ARRAY_BUFFER, this->maxSize * sizeof(f32) * 4 * 6, aQuads.data(), drawMode);
 
     /* positions */
     glEnableVertexAttribArray(0);
@@ -22,8 +22,6 @@ Text::genMesh(u32 size, int xOrigin, int yOrigin, GLint drawMode)
     /* texture coords */
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(f32), (void*)(2 * sizeof(f32)));
-
-    this->vboSize = aQuads.size * 6; /* 6 vertices for 1 quad */
 
     glBindVertexArray(0);
 
@@ -69,17 +67,19 @@ Text::genBuffer(adt::Allocator* pAlloc, adt::String s, u32 size, int xOrigin, in
         }
 
         aQuads.push({
-            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin,     x0, y0, /* tl */
-            -0.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin,     x1, y1, /* bl */
-             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin,     x2, y2, /* br */
+            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x0, y0, /* tl */
+            -0.0f + xOff + xOrigin, -0.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x1, y1, /* bl */
+             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x2, y2, /* br */
 
-            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin,     x0, y0, /* tl */
-             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiScale - 2.0f - yOrigin,     x2, y2, /* br */
-             2.0f + xOff + xOrigin,  2.0f + yOff + frame::uiScale - 2.0f - yOrigin,     x3, y3, /* tr */
+            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x0, y0, /* tl */
+             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x2, y2, /* br */
+             2.0f + xOff + xOrigin,  2.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x3, y3, /* tr */
         });
 
         xOff += 2.0f;
     }
+
+    this->vboSize = aQuads.size * 6; /* 6 vertices for 1 quad */
 
     return aQuads;
 }

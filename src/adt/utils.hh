@@ -64,14 +64,11 @@ timeNowMS()
     micros += ts.tv_nsec;
     return micros / 1000000.0;
 #elif _WIN32
-    LARGE_INTEGER time;
-    LARGE_INTEGER freq;
-
+    LARGE_INTEGER count, freq;
     QueryPerformanceFrequency(&freq);
-    QueryPerformanceCounter(&time);
+    QueryPerformanceCounter(&count);
 
-    time.QuadPart *= 1000000;
-    auto ret = time.QuadPart / freq.QuadPart;
+    auto ret = (count.QuadPart * 1000000) / freq.QuadPart;
 
     return f64(ret) / 1000.0;
 #endif

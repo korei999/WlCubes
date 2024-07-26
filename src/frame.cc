@@ -14,9 +14,9 @@ namespace frame
 
 void mainLoop(App* self);
 
-#ifdef FPS_COUNTER
 static f64 _prevTime;
-#endif
+static int _fpsCount = 0;
+static char _fpsStrBuff[40] {};
 
 controls::PlayerControls player {
     .pos {0.0, 1.0, 1.0},
@@ -25,7 +25,8 @@ controls::PlayerControls player {
 };
 
 f32 fov = 90.0f;
-f32 uiScale = 100.0f;
+f32 uiWidth = 177.0f;
+f32 uiHeight = 100.0f;
 
 static adt::AtomicArena allocAssets(adt::SIZE_1M * 200);
 
@@ -35,8 +36,7 @@ Shader shColor;
 Model mSponza(&allocAssets);
 Model mBackpack(&allocAssets);
 Texture tAsciiMap(&allocAssets);
-Text textBiden;
-Text textZelensky;
+Text textFPS;
 Quad mQuad;
 Ubo uboProjView;
 
@@ -76,10 +76,8 @@ prepareDraw(App* self)
     uboProjView.bindBlock(&shColor, "ubProjView", 0);
 
     mQuad = makeQuad(GL_STATIC_DRAW);
-    textBiden = Text("Amazing\nText\nRendering\n", 24, 0, 0, GL_STATIC_DRAW);
 
-    adt::String helloBiden = " Hello BIDEN";
-    textZelensky = Text(helloBiden, helloBiden.size, int(uiScale - helloBiden.size*2), int(uiScale - 2.0f), GL_DYNAMIC_DRAW);
+    textFPS = Text("", adt::size(_fpsStrBuff), 0, 0, GL_DYNAMIC_DRAW);
 
     tAsciiMap.loadBMP("test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, self);
 
@@ -131,39 +129,13 @@ run(App* self)
     self->bPaused = false;
     self->setCursorImage("default");
 
-#ifdef FPS_COUNTER
     _prevTime = adt::timeNowS();
-#endif
 
     prepareDraw(self);
     player.updateDeltaTime(); /* reset delta time before drawing */
     player.updateDeltaTime();
 
     mainLoop(self);
-
-/*    self->unbindGlContext();*/
-/**/
-/*    thrd_t mailLoopThread;*/
-/*    thrd_create(*/
-/*        &mailLoopThread,*/
-/*        [](void* pArg) -> int { mainLoop((App*)pArg); return 0; },*/
-/*        self*/
-/*    );*/
-/**/
-/*#ifdef _WIN32*/
-/*    while (self->bRunning)*/
-/*    {*/
-/*        self->procEvents();*/
-/**/
-/*        struct timespec ts {*/
-/*            .tv_sec = 0,*/
-/*            .tv_nsec = 100000*/
-/*        };*/
-/*        thrd_sleep(&ts, nullptr); // sleep 1 sec*/
-/*    }*/
-/*#endif*/
-/**/
-/*    thrd_join(mailLoopThread, nullptr);*/
 }
 
 void
@@ -171,20 +143,8 @@ mainLoop(App* self)
 {
     adt::Arena allocFrame(adt::SIZE_8M);
 
-    /*self->bindGlContext();*/
-
     while (self->bRunning)
     {
-#ifdef FPS_COUNTER
-    static int _fpsCount = 0;
-    f64 _currTime = adt::timeNowS();
-    if (_currTime >= _prevTime + 1.0)
-    {
-        CERR("fps: %d, ms: %.3f\n", _fpsCount, player.deltaTime);
-        _fpsCount = 0;
-        _prevTime = _currTime;
-    }
-#endif
         {
             player.updateDeltaTime();
             player.procMouse();
@@ -226,36 +186,32 @@ mainLoop(App* self)
             m = m4RotY(m, toRad(90.0f));
             mBackpack.drawGraph(&allocFrame, DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, &shTex, "uModel", "uNormalMatrix", m);
 
-            m4 proj = m4Ortho(0.0f, uiScale, 0.0f, uiScale, -1.0f, 1.0f);
 
+            /* fps counter */
+            m4 proj = m4Ortho(0.0f, uiWidth, 0.0f, uiHeight, -1.0f, 1.0f);
             shBitMap.use();
             tAsciiMap.bind(GL_TEXTURE0);
-
             shBitMap.setM4("uProj", proj);
-            textBiden.draw();
 
-            static f64 prevTime = 0.0;
-            if (player.currTime >= prevTime + 1.0)
+            f64 _currTime = adt::timeNowS();
+            if (_currTime >= _prevTime + 1.0)
             {
-                static int toggle = 0;
-                prevTime = player.currTime;
-                adt::String zelya;
+                memset(_fpsStrBuff, 0, adt::size(_fpsStrBuff));
+                snprintf(_fpsStrBuff, adt::size(_fpsStrBuff), "FPS: %u\nFRAME TIME: %.3fMS", _fpsCount, player.deltaTime);
 
-                if ((toggle = !toggle)) zelya = "ITS ZELENSKY";
-                else zelya = "HELLO BIDEN";
+                _fpsCount = 0;
+                _prevTime = _currTime;
 
-                textZelensky.update(&allocFrame, zelya, uiScale - zelya.size*2, uiScale - 2.0f);
+                textFPS.update(&allocFrame, _fpsStrBuff, 0, 0);
             }
 
-            textZelensky.draw();
+            textFPS.draw();
         }
 
         allocFrame.reset();
         self->swapBuffers();
 
-#ifdef FPS_COUNTER
         _fpsCount++;
-#endif
     }
 
     allocFrame.freeAll();
