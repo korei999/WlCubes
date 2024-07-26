@@ -168,7 +168,7 @@ registerRawKBDevice(Window* self, bool on)
 
     self->rawInputDevices[1].usUsagePage = 0x01;       /* HID_USAGE_PAGE_GENERIC */
     self->rawInputDevices[1].usUsage = 0x06;           /* HID_USAGE_GENERIC_KEYBOARD */
-    self->rawInputDevices[1].dwFlags = RIDEV_NOLEGACY; /* adds keyboard and also ignores legacy keyboard messages */
+    self->rawInputDevices[1].dwFlags = flag; /* adds keyboard and also ignores legacy keyboard messages */
     self->rawInputDevices[1].hwndTarget = 0;
 
     if (RegisterRawInputDevices(self->rawInputDevices, 1, sizeof(self->rawInputDevices[1])) == FALSE)
@@ -180,7 +180,6 @@ enterFullscreen(HWND hwnd, int fullscreenWidth, int fullscreenHeight, int colour
 {
     DEVMODE fullscreenSettings;
     bool bSucces;
-    RECT windowBoundary;
 
     EnumDisplaySettings(NULL, 0, &fullscreenSettings);
     fullscreenSettings.dmPelsWidth        = fullscreenWidth;
@@ -248,10 +247,14 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_KEYDOWN:
             {
                 WPARAM keyCode = wParam;
-                bool isUp = !((lParam >> 31) & 1);
+                bool bWasDown = ((lParam & (1 << 30)) != 0);
+                bool bDown = ((lParam >> 31) & 1) == 0;
 
-                controls::pressedKeys[ asciiToLinuxKeyCodes[keyCode] ] = isUp;
-                controls::procKeysOnce(self, asciiToLinuxKeyCodes[keyCode], isUp);
+                if (bWasDown == bDown)
+                    break;
+
+                controls::pressedKeys[ asciiToLinuxKeyCodes[keyCode] ] = bDown;
+                controls::procKeysOnce(self, asciiToLinuxKeyCodes[keyCode], bDown);
             }
             break;
 
