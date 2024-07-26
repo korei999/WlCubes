@@ -171,7 +171,7 @@ mainLoop(App* self)
 {
     adt::Arena allocFrame(adt::SIZE_8M);
 
-    self->bindGlContext();
+    /*self->bindGlContext();*/
 
     while (self->bRunning)
     {
