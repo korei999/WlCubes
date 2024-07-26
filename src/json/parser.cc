@@ -20,7 +20,7 @@ Parser::load(adt::String path)
         exit(2);
     }
 
-    this->pHead = static_cast<Object*>(this->pArena->alloc(1, sizeof(Object)));
+    this->pHead = (Object*)(this->pArena->alloc(1, sizeof(Object)));
 }
 
 void
@@ -35,7 +35,7 @@ Parser::expect(enum Token::TYPE t, adt::String svFile, int line)
     if (this->tCurr.type != t)
     {
         CERR("('%.*s', at %d): (%.*s): unexpected token: expected: '%c', got '%c'\n",
-             (int)svFile.size, svFile.pData, line, (int)this->sName.size, this->sName.pData, static_cast<char>(t), static_cast<char>(this->tCurr.type));
+             svFile.size, svFile.pData, line, this->sName.size, this->sName.pData, char(t), char(this->tCurr.type));
         exit(2);
     }
 }
@@ -233,13 +233,13 @@ Parser::printNode(Object* pNode, adt::String svEnd)
                     q1 = q0 = "\"";
                 }
 
-                COUT("%.*s%.*s%.*s%.*s{\n", q0.size, q0.pData, objName0.size, objName0.pData, (int)q1.size, q1.pData, (int)objName1.size, objName1.pData);
-                for (size_t i = 0; i < obj.size; i++)
+                COUT("%.*s%.*s%.*s%.*s{\n", q0.size, q0.pData, objName0.size, objName0.pData, q1.size, q1.pData, objName1.size, objName1.pData);
+                for (u32 i = 0; i < obj.size; i++)
                 {
                     adt::String slE = (i == obj.size - 1) ? "\n" : ",\n";
                     this->printNode(&obj[i], slE);
                 }
-                COUT("}%.*s", (int)svEnd.size, svEnd.pData);
+                COUT("}%.*s", svEnd.size, svEnd.pData);
             }
             break;
 
@@ -259,8 +259,8 @@ Parser::printNode(Object* pNode, adt::String svEnd)
                     q1 = q0 = "\"";
                 }
 
-                COUT("%.*s%.*s%.*s%.*s[", (int)q0.size, q0.pData, (int)arrName0.size, arrName0.pData, (int)q1.size, q1.pData, (int)arrName1.size, arrName1.pData);
-                for (size_t i = 0; i < arr.size; i++)
+                COUT("%.*s%.*s%.*s%.*s[", q0.size, q0.pData, arrName0.size, arrName0.pData, q1.size, q1.pData, arrName1.size, arrName1.pData);
+                for (u32 i = 0; i < arr.size; i++)
                 {
                     adt::String slE = (i == arr.size - 1) ? "\n" : ",\n";
 
@@ -270,32 +270,32 @@ Parser::printNode(Object* pNode, adt::String svEnd)
                         case TAG::STRING:
                             {
                                 adt::String sl = getString(&arr[i]);
-                                COUT("\"%.*s\"%.*s", (int)sl.size, sl.pData, (int)slE.size, slE.pData);
+                                COUT("\"%.*s\"%.*s", sl.size, sl.pData, slE.size, slE.pData);
                             }
                             break;
 
                         case TAG::NULL_:
-                                COUT("%s%.*s", "null", (int)slE.size, slE.pData);
+                                COUT("%s%.*s", "null", slE.size, slE.pData);
                             break;
 
                         case TAG::LONG:
                             {
                                 long num = getLong(&arr[i]);
-                                COUT("%ld%.*s", num, (int)slE.size, slE.pData);
+                                COUT("%ld%.*s", num, slE.size, slE.pData);
                             }
                             break;
 
                         case TAG::DOUBLE:
                             {
                                 double dnum = getDouble(&arr[i]);
-                                COUT("%lf%.*s", dnum, (int)slE.size, slE.pData);
+                                COUT("%lf%.*s", dnum, slE.size, slE.pData);
                             }
                             break;
 
                         case TAG::BOOL:
                             {
                                 bool b = getBool(&arr[i]);
-                                COUT("%s%.*s", b ? "true" : "false", (int)slE.size, slE.pData);
+                                COUT("%s%.*s", b ? "true" : "false", slE.size, slE.pData);
                             }
                             break;
 
@@ -312,32 +312,32 @@ Parser::printNode(Object* pNode, adt::String svEnd)
             {
                 /* TODO: add some sort formatting for floats */
                 double f = getDouble(pNode);
-                COUT("\"%.*s\": %lf%.*s", (int)key.size, key.pData, f, (int)svEnd.size, svEnd.pData);
+                COUT("\"%.*s\": %lf%.*s", key.size, key.pData, f, svEnd.size, svEnd.pData);
             }
             break;
 
         case TAG::LONG:
             {
                 long i = getLong(pNode);
-                COUT("\"%.*s\": %ld%.*s", (int)key.size, key.pData, i, (int)svEnd.size, svEnd.pData);
+                COUT("\"%.*s\": %ld%.*s", key.size, key.pData, i, svEnd.size, svEnd.pData);
             }
             break;
 
         case TAG::NULL_:
-                COUT("\"%.*s\": %s%.*s", (int)key.size, key.pData, "null", (int)svEnd.size, svEnd.pData);
+                COUT("\"%.*s\": %s%.*s", key.size, key.pData, "null", svEnd.size, svEnd.pData);
             break;
 
         case TAG::STRING:
             {
                 adt::String sl = getString(pNode);
-                COUT("\"%.*s\": \"%.*s\"%.*s", (int)key.size, key.pData, (int)sl.size, sl.pData, (int)svEnd.size, svEnd.pData);
+                COUT("\"%.*s\": \"%.*s\"%.*s", key.size, key.pData, sl.size, sl.pData, svEnd.size, svEnd.pData);
             }
             break;
 
         case TAG::BOOL:
             {
                 bool b = getBool(pNode);
-                COUT("\"%.*s\": %s%.*s", (int)key.size, key.pData, b ? "true" : "false", (int)svEnd.size, svEnd.pData);
+                COUT("\"%.*s\": %s%.*s", key.size, key.pData, b ? "true" : "false", svEnd.size, svEnd.pData);
             }
             break;
     }

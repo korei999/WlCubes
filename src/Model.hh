@@ -115,6 +115,15 @@ struct Quad
     }
 };
 
+struct ModelLoadArg
+{
+    Model* p;
+    adt::String path;
+    GLint drawMode;
+    GLint texMode;
+    App* c;
+};
+
 Quad makeQuad(GLint drawMode);
 // Model getPlane(GLint drawMode = GL_STATIC_DRAW);
 // Model getCube(GLint drawMode = GL_STATIC_DRAW);

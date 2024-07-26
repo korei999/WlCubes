@@ -34,7 +34,7 @@ min(A& l, B& r)
 }
 
 template<typename T>
-constexpr size_t
+constexpr u32
 size(const T& a)
 {
     return sizeof(a) / sizeof(a[0]);

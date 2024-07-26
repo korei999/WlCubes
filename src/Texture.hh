@@ -34,6 +34,18 @@ private:
     void setTexture(u8* data, GLint texMode, GLint format, GLsizei width, GLsizei height, GLint magFilter, GLint minFilter, App* c);
 };
 
+struct TexLoadArg
+{
+    Texture* self;
+    adt::String path;
+    TEX_TYPE type;
+    bool flip;
+    GLint texMode;
+    GLint magFilter;
+    GLint minFilter;
+    App* c;
+};
+
 struct ShadowMap
 {
     GLuint fbo;

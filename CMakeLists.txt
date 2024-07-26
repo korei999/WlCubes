@@ -24,7 +24,7 @@ endif()
 if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     add_compile_options(-Wall -Wextra -fms-extensions)
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4146")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4146 /wd4200 /wd4312")
 endif()
 
 include_directories(BEFORE "src/adt")
@@ -94,7 +94,7 @@ if (CMAKE_BUILD_TYPE MATCHES "Debug")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmissing-field-initializers")
         target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function)
     else()
-        target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /wd4312 /wd4267 /wd4101 /wd4200)
+        target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /wd4267 /wd4101 /wd4200)
     endif()
 
     add_definitions("-DLOGS") # used for LOG_* macros

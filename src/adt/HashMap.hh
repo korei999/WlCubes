@@ -21,7 +21,7 @@ struct HashMapRet
 {
     T* pData;
     size_t hash;
-    size_t idx;
+    u32 idx;
     bool bInserted;
 };
 
@@ -32,21 +32,21 @@ struct HashMap
     Allocator* pAlloc;
     Array<Bucket<T>> aBuckets;
     f64 maxLoadFactor;
-    size_t bucketCount = 0;
+    u32 bucketCount = 0;
 
     HashMap() = default;
     HashMap(Allocator* pAllocator) : pAlloc(pAllocator), aBuckets(pAllocator, SIZE_MIN), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
-    HashMap(Allocator* pAllocator, size_t prealloc) : pAlloc(pAllocator), aBuckets(pAllocator, prealloc), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
+    HashMap(Allocator* pAllocator, u32 prealloc) : pAlloc(pAllocator), aBuckets(pAllocator, prealloc), maxLoadFactor(HASHMAP_DEFAULT_LOAD_FACTOR) {}
 
-    Bucket<T>& operator[](size_t i) { return this->aBuckets[i]; }
-    const Bucket<T>& operator[](size_t i) const { return this->aBuckets[i]; }
+    Bucket<T>& operator[](u32 i) { return this->aBuckets[i]; }
+    const Bucket<T>& operator[](u32 i) const { return this->aBuckets[i]; }
 
     f64 loadFactor() const { return static_cast<f64>(this->bucketCount) / static_cast<f64>(this->aBuckets.capacity); }
-    size_t capacity() const { return this->aBuckets.capacity; }
+    u32 capacity() const { return this->aBuckets.capacity; }
     HashMapRet<T> insert(const T& value);
     HashMapRet<T> search(const T& value);
-    void remove(size_t i);
-    void rehash(size_t _size);
+    void remove(u32 i);
+    void rehash(u32 _size);
     HashMapRet<T> tryInsert(const T& value);
     void destroy() { this->aBuckets.destroy(); }
 };
@@ -59,7 +59,7 @@ HashMap<T>::insert(const T& value)
         this->rehash(this->capacity() * 2);
 
     size_t hash = fnHash(value);
-    size_t idx = hash % this->capacity();
+    u32 idx = u32(hash % this->capacity());
 
     while (this->aBuckets[idx].bOccupied)
     {
@@ -86,7 +86,7 @@ inline HashMapRet<T>
 HashMap<T>::search(const T& value)
 {
     size_t hash = fnHash(value);
-    size_t idx = hash % this->capacity();
+    u32 idx = u32(hash % this->capacity());
 
     HashMapRet<T> ret;
     ret.hash = hash;
@@ -112,7 +112,7 @@ HashMap<T>::search(const T& value)
 
 template<typename T>
 inline void
-HashMap<T>::remove(size_t i)
+HashMap<T>::remove(u32 i)
 {
     this->aBuckets[i].bDeleted = true;
     this->aBuckets[i].bOccupied = false;
@@ -120,11 +120,11 @@ HashMap<T>::remove(size_t i)
 
 template<typename T>
 inline void
-HashMap<T>::rehash(size_t _size)
+HashMap<T>::rehash(u32 _size)
 {
     auto mNew = HashMap<T>(this->aBuckets.pAlloc, _size);
 
-    for (size_t i = 0; i < this->aBuckets.capacity; i++)
+    for (u32 i = 0; i < this->aBuckets.capacity; i++)
         if (this->aBuckets[i].bOccupied)
             mNew.insert(this->aBuckets[i].data);
 

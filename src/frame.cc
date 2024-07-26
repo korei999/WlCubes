@@ -79,8 +79,6 @@ prepareDraw(App* self)
 
     textFPS = Text("", adt::size(_fpsStrBuff), 0, 0, GL_DYNAMIC_DRAW);
 
-    tAsciiMap.loadBMP("test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, self);
-
     adt::Arena allocScope(adt::SIZE_1K);
     adt::ThreadPool tp(&allocScope);
     tp.start();
@@ -88,26 +86,26 @@ prepareDraw(App* self)
     /* unbind before creating threads */
     self->unbindGlContext();
 
-    struct ModelLoadArg
-    {
-        Model* p;
-        adt::String path;
-        GLint drawMode;
-        GLint texMode;
-        App* c;
+    TexLoadArg bitMap {&tAsciiMap, "test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, self};
+
+    auto loadTex = [](void* p) -> int {
+        auto a = *(TexLoadArg*)p;
+        a.self->loadBMP(a.path, a.type, a.flip, a.texMode, a.magFilter, a.minFilter, a.c);
+        return 0;
     };
 
     ModelLoadArg sponza {&mSponza, "test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, self};
     ModelLoadArg backpack {&mBackpack, "test-assets/models/backpack/scene.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, self};
 
-    auto load = [](void* p) -> int {
+    auto loadModel = [](void* p) -> int {
         auto a = *(ModelLoadArg*)p;
         a.p->load(a.path, a.drawMode, a.texMode, a.c);
         return 0;
     };
 
-    tp.submit(load, &sponza);
-    tp.submit(load, &backpack);
+    tp.submit(loadTex, &bitMap);
+    tp.submit(loadModel, &sponza);
+    tp.submit(loadModel, &backpack);
 
     tp.wait();
     /* restore context after assets are loaded */

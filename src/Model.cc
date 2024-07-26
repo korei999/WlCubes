@@ -148,12 +148,12 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             /* positions */
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(0, v3Size, static_cast<GLenum>(accPos.componentType), GL_FALSE,
-                                  bvPos.byteStride, reinterpret_cast<void*>(bvPos.byteOffset + accPos.byteOffset));
+                                  bvPos.byteStride, (void*)(bvPos.byteOffset + accPos.byteOffset));
 
             /* texture coords */
             glEnableVertexAttribArray(1);
             glVertexAttribPointer(1, v2Size, static_cast<GLenum>(accTex.componentType), GL_FALSE,
-                                  bvTex.byteStride, reinterpret_cast<void*>(bvTex.byteOffset + accTex.byteOffset));
+                                  bvTex.byteStride, (void*)(bvTex.byteOffset + accTex.byteOffset));
 
              /*normals */
             if (accNormIdx != adt::NPOS)
@@ -163,7 +163,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 
                 glEnableVertexAttribArray(2);
                 glVertexAttribPointer(2, v3Size, static_cast<GLenum>(accNorm.componentType), GL_FALSE,
-                                      bvNorm.byteStride, reinterpret_cast<void*>(accNorm.byteOffset + bvNorm.byteOffset));
+                                      bvNorm.byteStride, (void*)(accNorm.byteOffset + bvNorm.byteOffset));
             }
 
             /* tangents */

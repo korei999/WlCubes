@@ -7,9 +7,9 @@ namespace adt
 
 struct DefaultAllocator : Allocator
 {
-    virtual void* alloc(size_t memberCount, size_t memberSize) override { return ::calloc(memberCount, memberSize); }
+    virtual void* alloc(u32 memberCount, u32 memberSize) override { return ::calloc(memberCount, memberSize); }
     virtual void free(void* p) override { ::free(p); }
-    virtual void* realloc(void* p, size_t size) override { return ::realloc(p, size); }
+    virtual void* realloc(void* p, u32 size) override { return ::realloc(p, size); }
 };
 
 inline DefaultAllocator StdAllocator {};

@@ -14,17 +14,17 @@ struct MapAllocator : Allocator
     HashMap<void*> mPMap;
 
     MapAllocator() : mPMap(&StdAllocator, adt::SIZE_MIN) { mtx_init(&mtxA, mtx_plain); }
-    MapAllocator(size_t prealloc) : mPMap(&StdAllocator, prealloc) {}
+    MapAllocator(u32 prealloc) : mPMap(&StdAllocator, prealloc) {}
 
-    virtual void* alloc(size_t memberCount, size_t memberSize) override;
+    virtual void* alloc(u32 memberCount, u32 memberSize) override;
     virtual void free(void* p) override;
-    virtual void* realloc(void* p, size_t size) override;
+    virtual void* realloc(void* p, u32 size) override;
     void freeAll();
     void destroy() { mtx_destroy(&this->mtxA); }
 };
 
 inline void*
-MapAllocator::alloc(size_t memberCount, size_t memberSize)
+MapAllocator::alloc(u32 memberCount, u32 memberSize)
 {
     mtx_lock(&this->mtxA);
     void* pr = ::calloc(memberCount, memberSize);
@@ -45,7 +45,7 @@ MapAllocator::free(void* p)
 };
 
 inline void*
-MapAllocator::realloc(void* p, size_t size)
+MapAllocator::realloc(void* p, u32 size)
 {
     auto f = this->mPMap.search(p);
     mtx_lock(&this->mtxA);
@@ -61,7 +61,7 @@ MapAllocator::realloc(void* p, size_t size)
 inline void
 MapAllocator::freeAll()
 {
-    for (size_t i = 0; i < this->mPMap.capacity(); i++)
+    for (u32 i = 0; i < this->mPMap.capacity(); i++)
         if (this->mPMap[i].bOccupied)
         {
             ::free(this->mPMap[i].data);
