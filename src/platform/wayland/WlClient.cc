@@ -220,7 +220,7 @@ static const wl_registry_listener registryListener {
     .global_remove = registryGlobalRemoveHandler
 };
 
-WlClient::WlClient(adt::VIAllocator* _allocator, adt::String name)
+WlClient::WlClient(adt::Allocator* _allocator, adt::String name)
 {
     this->pAlloc = _allocator;
     this->svName = name;
