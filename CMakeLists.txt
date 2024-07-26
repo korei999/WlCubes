@@ -94,7 +94,7 @@ if (CMAKE_BUILD_TYPE MATCHES "Debug")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmissing-field-initializers")
         target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function)
     else()
-        target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /wd4312 /wd4267)
+        target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /wd4312 /wd4267 /wd4101 /wd4200)
     endif()
 
     add_definitions("-DLOGS") # used for LOG_* macros

@@ -279,7 +279,7 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 //     /* 0 == down, 1 == up */
                 //     auto flags = raw->data.keyboard.Flags;
 
-                //     COUT("%d, %d\n", key, asciiToLinuxKeyCodes[key]);
+                //     /*COUT("%d, %d\n", key, asciiToLinuxKeyCodes[key]);*/
                 //     controls::pressedKeys[ asciiToLinuxKeyCodes[key] ] = !flags;
                 // }
             }

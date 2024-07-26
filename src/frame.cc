@@ -79,7 +79,7 @@ prepareDraw(App* self)
     textBiden = Text("Amazing\nText\nRendering\n", 24, 0, 0, GL_STATIC_DRAW);
 
     adt::String helloBiden = " Hello BIDEN";
-    textZelensky = Text(helloBiden, helloBiden.size, uiScale - helloBiden.size * 2, uiScale - 2.0f, GL_DYNAMIC_DRAW);
+    textZelensky = Text(helloBiden, helloBiden.size, int(uiScale - helloBiden.size*2), int(uiScale - 2.0f), GL_DYNAMIC_DRAW);
 
     tAsciiMap.loadBMP("test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, self);
 
@@ -139,29 +139,31 @@ run(App* self)
     player.updateDeltaTime(); /* reset delta time before drawing */
     player.updateDeltaTime();
 
-    self->unbindGlContext();
+    mainLoop(self);
 
-    thrd_t mailLoopThread;
-    thrd_create(
-        &mailLoopThread,
-        [](void* pArg) -> int { mainLoop((App*)pArg); return 0; },
-        self
-    );
-
-#ifdef _WIN32
-    while (self->bRunning)
-    {
-        self->procEvents();
-
-        struct timespec ts {
-            .tv_sec = 0,
-            .tv_nsec = 100000
-        };
-        thrd_sleep(&ts, nullptr); // sleep 1 sec
-    }
-#endif
-
-    thrd_join(mailLoopThread, nullptr);
+/*    self->unbindGlContext();*/
+/**/
+/*    thrd_t mailLoopThread;*/
+/*    thrd_create(*/
+/*        &mailLoopThread,*/
+/*        [](void* pArg) -> int { mainLoop((App*)pArg); return 0; },*/
+/*        self*/
+/*    );*/
+/**/
+/*#ifdef _WIN32*/
+/*    while (self->bRunning)*/
+/*    {*/
+/*        self->procEvents();*/
+/**/
+/*        struct timespec ts {*/
+/*            .tv_sec = 0,*/
+/*            .tv_nsec = 100000*/
+/*        };*/
+/*        thrd_sleep(&ts, nullptr); // sleep 1 sec*/
+/*    }*/
+/*#endif*/
+/**/
+/*    thrd_join(mailLoopThread, nullptr);*/
 }
 
 void
@@ -188,11 +190,13 @@ mainLoop(App* self)
             player.procMouse();
             player.procKeys(self);
 
+            self->procEvents();
+
             f32 aspect = f32(self->wWidth) / f32(self->wHeight);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            constexpr f32 nearPlane = 0.01f, farPlane = 25.0f;
+            [[maybe_unused]] constexpr f32 nearPlane = 0.01f, farPlane = 25.0f;
 
             player.updateProj(toRad(fov), aspect, 0.01f, 100.0f);
             player.updateView();
