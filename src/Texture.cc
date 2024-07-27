@@ -225,8 +225,8 @@ TextureData
 loadBMP(adt::Allocator* pAlloc, adt::String path, bool flip)
 {
     u32 imageDataAddress;
-    s32 width;
-    s32 height;
+    u32 width;
+    u32 height;
     u32 nPixels;
     u16 bitDepth;
     u8 byteDepth;
