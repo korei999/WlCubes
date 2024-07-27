@@ -67,12 +67,12 @@ Text::genBuffer(adt::Allocator* pAlloc, adt::String s, u32 size, int xOrigin, in
         }
 
         aQuads.push({
-            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x0, y0, /* tl */
-            -0.0f + xOff + xOrigin, -0.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x1, y1, /* bl */
-             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x2, y2, /* br */
+             0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x0, y0, /* tl */
+             0.0f + xOff + xOrigin,  0.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x1, y1, /* bl */
+             2.0f + xOff + xOrigin,  0.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x2, y2, /* br */
 
-            -0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x0, y0, /* tl */
-             2.0f + xOff + xOrigin, -0.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x2, y2, /* br */
+             0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x0, y0, /* tl */
+             2.0f + xOff + xOrigin,  0.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x2, y2, /* br */
              2.0f + xOff + xOrigin,  2.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x3, y3, /* tr */
         });
 
