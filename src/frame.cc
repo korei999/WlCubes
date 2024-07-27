@@ -136,6 +136,30 @@ run(App* self)
 }
 
 void
+renderFPSCounter(adt::Allocator* pAlloc)
+{
+    m4 proj = m4Ortho(0.0f, uiWidth, 0.0f, uiHeight, -1.0f, 1.0f);
+    shBitMap.use();
+    tAsciiMap.bind(GL_TEXTURE0);
+    shBitMap.setM4("uProj", proj);
+
+    f64 _currTime = adt::timeNowS();
+    if (_currTime >= _prevTime + 1.0)
+    {
+        memset(_fpsStrBuff, 0, adt::size(_fpsStrBuff));
+        snprintf(_fpsStrBuff, adt::size(_fpsStrBuff),
+                "FPS: %u\nFrame time: %.3f ms", _fpsCount, player.deltaTime);
+
+        _fpsCount = 0;
+        _prevTime = _currTime;
+
+        textFPS.update(pAlloc, _fpsStrBuff, 0, 0);
+    }
+
+    textFPS.draw();
+}
+
+void
 renderScene(adt::Allocator* pAlloc, Shader* sh)
 {
     m4 m = m4Iden();
@@ -219,26 +243,7 @@ mainLoop(App* self)
             shColor.setV3("uColor", lightColor);
             mSphere.drawGraph(&allocFrame, DRAW::APPLY_TM, &shColor, "uModel", "", m);
 
-            /* fps counter */
-            m4 proj = m4Ortho(0.0f, uiWidth, 0.0f, uiHeight, -1.0f, 1.0f);
-            shBitMap.use();
-            tAsciiMap.bind(GL_TEXTURE0);
-            shBitMap.setM4("uProj", proj);
-
-            f64 _currTime = adt::timeNowS();
-            if (_currTime >= _prevTime + 1.0)
-            {
-                memset(_fpsStrBuff, 0, adt::size(_fpsStrBuff));
-                snprintf(_fpsStrBuff, adt::size(_fpsStrBuff),
-                         "FPS: %u\nFrame time: %.3f ms", _fpsCount, player.deltaTime);
-
-                _fpsCount = 0;
-                _prevTime = _currTime;
-
-                textFPS.update(&allocFrame, _fpsStrBuff, 0, 0);
-            }
-
-            textFPS.draw();
+            renderFPSCounter(&allocFrame);
         }
 
         allocFrame.reset();
