@@ -33,8 +33,7 @@ inline void
 MapAllocator::free(void* p)
 {
     auto f = this->mPMap.search(p);
-    if (f.pData) ::free(*f.pData);
-
+    ::free(*f.pData);
     this->mPMap.remove(f.idx);
 };
 
@@ -42,9 +41,8 @@ inline void*
 MapAllocator::realloc(void* p, u32 size)
 {
     auto f = this->mPMap.search(p);
-    if (f.pData) this->mPMap.remove(f.idx);
-
-    auto pr = ::realloc(p, size);
+    this->mPMap.remove(f.idx);
+    void* pr = ::realloc(p, size);
     this->mPMap.insert(pr);
 
     return pr;
