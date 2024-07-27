@@ -5,7 +5,6 @@
 #include "colors.hh"
 #include "frame.hh"
 #include "gl/gl.hh"
-#include "logs.hh"
 #include "math.hh"
 #include "Text.hh"
 
@@ -25,20 +24,20 @@ controls::PlayerControls player {
 };
 
 f32 fov = 90.0f;
-f32 uiWidth = 177.0f;
-f32 uiHeight = 100.0f;
+f32 uiWidth = 150.0f;
+f32 uiHeight = (uiWidth * 9.0f) / 16.0f;
 
 static adt::AtomicArena allocAssets(adt::SIZE_1M * 200);
 
-Shader shTex;
-Shader shBitMap;
-Shader shColor;
-Model mSponza(&allocAssets);
-Model mBackpack(&allocAssets);
-Texture tAsciiMap(&allocAssets);
-Text textFPS;
-Quad mQuad;
-Ubo uboProjView;
+static Shader shTex;
+static Shader shBitMap;
+static Shader shColor;
+static Model mSponza(&allocAssets);
+static Model mBackpack(&allocAssets);
+static Texture tAsciiMap(&allocAssets);
+static Text textFPS;
+static Quad mQuad;
+static Ubo uboProjView;
 
 void
 prepareDraw(App* self)
@@ -183,7 +182,8 @@ mainLoop(App* self)
             if (_currTime >= _prevTime + 1.0)
             {
                 memset(_fpsStrBuff, 0, adt::size(_fpsStrBuff));
-                snprintf(_fpsStrBuff, adt::size(_fpsStrBuff), "FPS: %u\nFRAME TIME: %.3fMS", _fpsCount, player.deltaTime);
+                snprintf(_fpsStrBuff, adt::size(_fpsStrBuff),
+                         "FPS: %u\nFrame time: %.3f ms", _fpsCount, player.deltaTime);
 
                 _fpsCount = 0;
                 _prevTime = _currTime;
