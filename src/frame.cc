@@ -27,7 +27,7 @@ f32 fov = 90.0f;
 f32 uiWidth = 150.0f;
 f32 uiHeight = (uiWidth * 9.0f) / 16.0f;
 
-static adt::AtomicArena allocAssets(adt::SIZE_1M * 200);
+static adt::AtomicArena allocAssets(adt::SIZE_1M * 50);
 
 static Shader shTex;
 static Shader shBitMap;
@@ -107,7 +107,7 @@ prepareDraw(App* self)
 
     textFPS = Text("", adt::size(_fpsStrBuff), 0, 0, GL_DYNAMIC_DRAW);
 
-    adt::Arena allocScope(adt::SIZE_1K);
+    adt::Arena allocScope(512);
     adt::ThreadPool tp(&allocScope);
     tp.start();
 
@@ -236,7 +236,7 @@ mainLoop(App* self)
             uboProjView.bufferData(&player, 0, sizeof(m4) * 2);
 
             v3 lightPos {cosf((f32)player.currTime) * 6.0f, 3.0f, sinf((f32)player.currTime) * 1.1f};
-            constexpr v3 lightColor(colors::snow);
+            constexpr v3 lightColor(colors::whiteSmoke);
             constexpr f32 nearPlane = 0.01f, farPlane = 25.0f;
             m4 shadowProj = m4Pers(toRad(90), shadowAspect, nearPlane, farPlane);
             CubeMapProjections tmShadows(shadowProj, lightPos);

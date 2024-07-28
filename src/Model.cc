@@ -1,8 +1,8 @@
 #include "Model.hh"
+#include "AtomicArena.hh"
 #include "logs.hh"
 #include "file.hh"
 #include "ThreadPool.hh"
-#include "MapAllocator.hh"
 
 void
 Model::load(adt::String path, GLint drawMode, GLint texMode, App* c)
@@ -39,7 +39,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
         mtx_unlock(&gl::mtxGlContext);
     }
 
-    adt::MapAllocator aAlloc;
+    adt::AtomicArena aAlloc(adt::SIZE_1M * 10);
 
     adt::ThreadPool tp(&aAlloc);
     tp.start();
@@ -233,6 +233,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 
     tp.stop();
     aAlloc.freeAll();
+    aAlloc.destroy();
 }
 
 void
@@ -271,7 +272,7 @@ Model::draw(enum DRAW flags, Shader* sh, adt::String svUniform, adt::String svUn
 }
 
 void
-Model::drawGraph(adt::Allocator* pFrameAlloc,
+Model::drawGraph([[maybe_unused]] adt::Allocator* pFrameAlloc,
                  enum DRAW flags,
                  Shader* sh,
                  adt::String svUniform,

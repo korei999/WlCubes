@@ -6,6 +6,10 @@
 
 #include "Allocator.hh"
 
+#ifdef DEBUG
+#include "logs.hh"
+#endif
+
 #define ARENA_FIRST(A) ((A)->pBlocks)
 #define ARENA_NEXT(AB) ((AB)->pNext)
 #define ARENA_FOREACH(A, IT) for (ArenaBlock* IT = ARENA_FIRST(A); IT; IT = ARENA_NEXT(IT))
@@ -82,7 +86,7 @@ Arena::newBlock()
     ArenaBlock** ppLastBlock = &this->pBlocks;
     while (*ppLastBlock) ppLastBlock = &((*ppLastBlock)->pNext);
 
-    *ppLastBlock = reinterpret_cast<ArenaBlock*>(malloc(sizeof(ArenaBlock) + this->blockSize));
+    *ppLastBlock = (ArenaBlock*)(malloc(sizeof(ArenaBlock) + this->blockSize));
     memset(*ppLastBlock, 0, sizeof(ArenaBlock) + this->blockSize);
 
     auto* pNode = ARENA_NODE_GET_FROM_BLOCK(*ppLastBlock);
@@ -116,23 +120,29 @@ Arena::alignedBytes(u32 bytes)
 inline void*
 Arena::alloc(u32 memberCount, u32 memberSize)
 {
-    auto* pFreeBlock = this->pLatestBlock;
+    ArenaBlock* pFreeBlock = this->pLatestBlock;
+    u32 requested = memberCount * memberSize;
+    size_t aligned = this->alignedBytes(requested + sizeof(ArenaNode));
 
-    auto requested = memberCount * memberSize;
-    auto aligned = this->alignedBytes(requested + sizeof(ArenaNode));
-    assert(aligned <= this->blockSize && "requested size is > than one block");
+#ifdef DEBUG
+    if (aligned >= this->blockSize)
+        LOG_FATAL("requested size is > than one block\n"
+                  "aligned: %zu, blockSize: %zu, requested: %u\n", aligned, this->blockSize, requested);
+#endif
 
 repeat:
     /* skip pNext */
-    auto* pFreeBlockOff = ARENA_NODE_GET_FROM_BLOCK(pFreeBlock);
-
+    ArenaNode* pFreeBlockOff = ARENA_NODE_GET_FROM_BLOCK(pFreeBlock);
     ArenaNode* pNode = this->pLatest->pNext;
-
     size_t nextAligned = ((u8*)pNode + aligned) - (u8*)pFreeBlockOff;
 
     /* heap overflow */
     if (nextAligned >= this->blockSize)
     {
+#ifdef DEBUG
+        LOG_WARN("heap overflow\n");
+#endif
+
         pFreeBlock = pFreeBlock->pNext;
         if (!pFreeBlock) pFreeBlock = this->newBlock();
         goto repeat;

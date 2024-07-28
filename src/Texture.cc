@@ -3,7 +3,6 @@
 #include "Texture.hh"
 #include "Arena.hh"
 #include "parser/Binary.hh"
-#include "MapAllocator.hh"
 #include "logs.hh"
 
 // Texture::~Texture()
@@ -50,8 +49,8 @@ Texture::load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint m
         return;
     }
 
-    adt::MapAllocator maAlloc;
-    TextureData img = loadBMP(&maAlloc, path, flip);
+    adt::Arena aAlloc(adt::SIZE_1M * 5);
+    TextureData img = loadBMP(&aAlloc, path, flip);
 
     this->texPath = path;
     this->type = type;
@@ -66,7 +65,8 @@ Texture::load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint m
     LOG(OK, "%.*s: id: %d, texMode: %d\n", (int)path.size, path.pData, this->id, format);
 #endif
 
-    maAlloc.freeAll();
+    aAlloc.freeAll();
+    aAlloc.destroy();
 }
 
 void
