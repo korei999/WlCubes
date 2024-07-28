@@ -310,6 +310,7 @@ loadBMP(adt::Allocator* pAlloc, adt::String path, bool flip)
     };
 }
 
+#ifdef DEBUG
 static void
 printPack(adt::String s, __m128i m)
 {
@@ -317,8 +318,9 @@ printPack(adt::String s, __m128i m)
     memcpy(f, &m, sizeof(f));
     COUT("'%.*s': %08x, %08x, %08x, %08x\n", s.size, s.data(), f[0], f[1], f[2], f[3]);
 };
+#endif
 
-static u32
+[[maybe_unused]] static u32
 swapRedBlueBits(u32 col)
 {
     u32 r = col & 0x00'ff'00'00;
@@ -342,12 +344,11 @@ flipCpyBGRAtoRGBA(u8* dest, u8* src, int width, int height, bool vertFlip)
             __m128i pack = _mm_loadu_si128((__m128i_u*)(&s[y*width + x]));
             __m128i redBits = _mm_and_si128(pack, _mm_set1_epi32(0x00'ff'00'00));
             __m128i blueBits = _mm_and_si128(pack, _mm_set1_epi32(0x00'00'00'ff));
-            __m128i alphaGreenBits = _mm_and_si128(pack, _mm_set1_epi32(0xff'00'ff'00));
+            pack = _mm_and_si128(pack, _mm_set1_epi32(0xff'00'ff'00));
 
             /* https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#techs=SSE_ALL&ig_expand=3975,627,305,2929,627&cats=Shift */
             redBits = _mm_bsrli_si128(redBits, 2); /* shift 2 because: 'dst[127:0] := a[127:0] << (tmp*8)' */
             blueBits = _mm_bslli_si128(blueBits, 2);
-            pack = _mm_and_si128(pack, alphaGreenBits);
 
             pack = _mm_or_si128(pack, redBits);
             pack = _mm_or_si128(pack, blueBits);
