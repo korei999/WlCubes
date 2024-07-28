@@ -64,7 +64,7 @@ main()
     vec3 normal = normalize(vIn.norm);
     vec3 lightColor = uLightColor;
     /* ambient */
-    vec3 ambient = 0.15 * color.rgb;
+    vec3 ambient = 0.55 * color.rgb;
     /* diffuse */
     vec3 lightDir = normalize(uLightPos - vIn.fragPos);
     float diff = max(dot(lightDir, normal), 0.0);

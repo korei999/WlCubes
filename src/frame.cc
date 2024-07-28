@@ -34,13 +34,16 @@ static Shader shBitMap;
 static Shader shColor;
 static Shader shCubeDepth;
 static Shader shOmniDirShadow;
+static Shader shSkyBox;
 static Model mSphere(&allocAssets);
 static Model mSponza(&allocAssets);
 static Model mBackpack(&allocAssets);
+static Model mCube(&allocAssets);
 static Texture tAsciiMap(&allocAssets);
 static Text textFPS;
 static Ubo uboProjView;
 static CubeMap cmCubeMap;
+static CubeMap cmSkyBox;
 
 void
 prepareDraw(App* self)
@@ -68,6 +71,7 @@ prepareDraw(App* self)
     shBitMap.loadShaders("shaders/font/font.vert", "shaders/font/font.frag");
     shCubeDepth.loadShaders("shaders/shadows/cubeMap/cubeMapDepth.vert", "shaders/shadows/cubeMap/cubeMapDepth.geom", "shaders/shadows/cubeMap/cubeMapDepth.frag");
     shOmniDirShadow.loadShaders("shaders/shadows/cubeMap/omniDirShadow.vert", "shaders/shadows/cubeMap/omniDirShadow.frag");
+    shSkyBox.loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 
     shTex.use();
     shTex.setI("tex0", 0);
@@ -79,12 +83,27 @@ prepareDraw(App* self)
     shOmniDirShadow.setI("uDiffuseTexture", 0);
     shOmniDirShadow.setI("uDepthMap", 1);
 
+    shSkyBox.use();
+    shSkyBox.setI("uSkyBox", 0);
+
     uboProjView.createBuffer(sizeof(m4) * 2, GL_DYNAMIC_DRAW);
     uboProjView.bindBlock(&shTex, "ubProjView", 0);
     uboProjView.bindBlock(&shColor, "ubProjView", 0);
     uboProjView.bindBlock(&shOmniDirShadow, "ubProjView", 0);
+    uboProjView.bindBlock(&shSkyBox, "ubProjView", 0);
 
     cmCubeMap = makeCubeShadowMap(1024, 1024);
+
+    adt::String skyboxImgs[6] {
+        "test-assets/skybox/right.bmp",
+        "test-assets/skybox/left.bmp",
+        "test-assets/skybox/top.bmp",
+        "test-assets/skybox/bottom.bmp",
+        "test-assets/skybox/front.bmp",
+        "test-assets/skybox/back.bmp"
+    };
+
+    cmSkyBox = makeSkyBox(skyboxImgs, self);
 
     textFPS = Text("", adt::size(_fpsStrBuff), 0, 0, GL_DYNAMIC_DRAW);
 
@@ -100,11 +119,13 @@ prepareDraw(App* self)
     ModelLoadArg sphere {&mSphere, "test-assets/models/icosphere/gltf/untitled.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, self};
     ModelLoadArg sponza {&mSponza, "test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, self};
     ModelLoadArg backpack {&mBackpack, "test-assets/models/backpack/scene.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, self};
+    ModelLoadArg cube {&mCube, "test-assets/models/cube/gltf/cube.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, self};
 
     tp.submit(TextureSubmit, &bitMap);
     tp.submit(ModelSubmit, &sphere);
     tp.submit(ModelSubmit, &sponza);
     tp.submit(ModelSubmit, &backpack);
+    tp.submit(ModelSubmit, &cube);
 
     tp.wait();
     /* restore context after assets are loaded */
@@ -157,6 +178,23 @@ renderFPSCounter(adt::Allocator* pAlloc)
     }
 
     textFPS.draw();
+}
+
+void
+renderSkyBox(adt::Allocator* pAlloc)
+{
+    m4 view = m3(player.view); /* remove translation */
+
+    glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
+
+    shSkyBox.use();
+    shSkyBox.setM4("uViewNoTranslate", view);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cmSkyBox.tex);
+    mCube.draw(DRAW::NONE);
+
+    glDepthMask(GL_TRUE);
+    glEnable(GL_CULL_FACE);
 }
 
 void
@@ -228,6 +266,9 @@ mainLoop(App* self)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             /*render scene as normal using the denerated depth map */
+
+            renderSkyBox(&allocFrame);
+
             shOmniDirShadow.use();
             shOmniDirShadow.setV3("uLightPos", lightPos);
             shOmniDirShadow.setV3("uLightColor", lightColor);

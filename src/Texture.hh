@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Array.hh"
 #include "math.hh"
 #include "ultratypes.h"
 #include "App.hh"
@@ -10,6 +11,15 @@ enum TEX_TYPE : int
 {
     DIFFUSE = 0,
     NORMAL
+};
+
+struct TextureData
+{
+    adt::Array<u8> aData;
+    u32 width;
+    u32 height;
+    u16 bitDepth;
+    GLint format;
 };
 
 struct Texture
@@ -24,10 +34,10 @@ struct Texture
     Texture() = default;
     Texture(adt::Allocator* p) : pAlloc(p) {}
     Texture(adt::Allocator* p, adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c) : pAlloc(p) {
-        this->loadBMP(path, type, flip, texMode, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, c);
+        this->load(path, type, flip, texMode, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, c);
     }
 
-    void loadBMP(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint magFilter, GLint minFilter, App* c);
+    void load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint magFilter, GLint minFilter, App* c);
     void bind(GLint glTexture);
 
 private:
@@ -50,7 +60,7 @@ inline int
 TextureSubmit(void* p)
 {
     auto a = *(TexLoadArg*)p;
-    a.self->loadBMP(a.path, a.type, a.flip, a.texMode, a.magFilter, a.minFilter, a.c);
+    a.self->load(a.path, a.type, a.flip, a.texMode, a.magFilter, a.minFilter, a.c);
     return 0;
 }
 
@@ -77,6 +87,8 @@ struct CubeMapProjections
 
 ShadowMap makeShadowMap(const int width, const int height);
 CubeMap makeCubeShadowMap(const int width, const int height);
+CubeMap makeSkyBox(adt::String sFaces[6], App* c);
+TextureData loadBMP(adt::Allocator* pAlloc, adt::String path, bool flip);
 void flipCpyBGRAtoRGBA(u8* dest, u8* src, int width, int height, bool vertFlip);
 void flipCpyBGRtoRGB(u8* dest, u8* src, int width, int height, bool vertFlip);
 void flipCpyBGRtoRGBA(u8* dest, u8* src, int width, int height, bool vertFlip);

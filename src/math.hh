@@ -40,6 +40,7 @@ union v2;
 union v3;
 union v4;
 union qt;
+union m3;
 
 union v2
 {
@@ -98,6 +99,11 @@ union m4
     f32 e[4][4];
     f32 p[16];
 
+    m4() = default;
+    constexpr m4(f32 _0, f32 _1, f32 _2, f32 _3, f32 _4, f32 _5, f32 _6, f32 _7, f32 _8, f32 _9, f32 _10, f32 _11, f32 _12, f32 _13, f32 _14, f32 _15)
+        : p{_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15} {}
+    m4(const m3& m);
+
     m4& operator*=(const m4& other);
 };
 
@@ -135,12 +141,12 @@ adt::String m4ToString(adt::Allocator* pAlloc, const m4& m, adt::String prefix);
 constexpr m4
 m4Iden()
 {
-    return m4 {.e {
-        {1, 0, 0, 0},
-        {0, 1, 0, 0},
-        {0, 0, 1, 0},
-        {0, 0, 0, 1}
-    }};
+    return m4 {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    };
 }
 
 constexpr m3

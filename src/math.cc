@@ -14,6 +14,12 @@ v3::v3(const v4& v)
 v4::v4(const qt& q)
     : x(q.x), y(q.y), z(q.z), w(q.s) {}
 
+m4::m4(const m3& m)
+    : p{m.p[0], m.p[1], m.p[2], 0,
+        m.p[3], m.p[4], m.p[5], 0,
+        m.p[6], m.p[7], m.p[8], 0,
+        0,      0,      0,      1} {}
+
 f32
 v3Length(const v3& v)
 {
@@ -183,12 +189,12 @@ m4Rot(const m4& m, const f32 th, const v3& ax)
     const f32 y = ax.y;
     const f32 z = ax.z;
 
-    m4 r {.e {
-        {((1 - c)*sq(x)) + c, ((1 - c)*x*y) - s*z, ((1 - c)*x*z) + s*y, 0},
-        {((1 - c)*x*y) + s*z, ((1 - c)*sq(y)) + c, ((1 - c)*y*z) - s*x, 0},
-        {((1 - c)*x*z) - s*y, ((1 - c)*y*z) + s*x, ((1 - c)*sq(z)) + c, 0},
-        {0,                   0,                   0,                   1}
-    }};
+    m4 r {
+        ((1 - c)*sq(x)) + c, ((1 - c)*x*y) - s*z, ((1 - c)*x*z) + s*y, 0,
+        ((1 - c)*x*y) + s*z, ((1 - c)*sq(y)) + c, ((1 - c)*y*z) - s*x, 0,
+        ((1 - c)*x*z) - s*y, ((1 - c)*y*z) + s*x, ((1 - c)*sq(z)) + c, 0,
+        0,                   0,                   0,                   1
+    };
 
     return m * r;
 }
@@ -196,12 +202,12 @@ m4Rot(const m4& m, const f32 th, const v3& ax)
 m4
 m4RotX(const m4& m, const f32 angle)
 {
-    m4 axisX {.e {
-        {1, 0,            0,           0},
-        {0, cosf(angle),  sinf(angle), 0},
-        {0, -sinf(angle), cosf(angle), 0},
-        {0, 0,            0,           1}
-    }};
+    m4 axisX {
+        1, 0,            0,           0,
+        0, cosf(angle),  sinf(angle), 0,
+        0, -sinf(angle), cosf(angle), 0,
+        0, 0,            0,           1
+    };
 
     return m * axisX;
 }
@@ -209,12 +215,12 @@ m4RotX(const m4& m, const f32 angle)
 m4
 m4RotY(const m4& m, const f32 angle)
 {
-    m4 axisY {.e {
-        {cosf(angle), 0,  -sinf(angle), 0},
-        {0,               1, 0,         0},
-        {sinf(angle), 0,  cosf(angle),  0},
-        {0,               0, 0,         1}
-    }};
+    m4 axisY {
+        cosf(angle), 0,  -sinf(angle), 0,
+        0,               1, 0,         0,
+        sinf(angle), 0,  cosf(angle),  0,
+        0,               0, 0,         1
+    };
 
     return m * axisY;
 }
@@ -222,12 +228,12 @@ m4RotY(const m4& m, const f32 angle)
 m4
 m4RotZ(const m4& m, const f32 angle)
 {
-    m4 axisZ {.e {
-        {cosf(angle),  sinf(angle), 0, 0},
-        {-sinf(angle), cosf(angle), 0, 0},
-        {0,            0,           1, 0},
-        {0,            0,           0, 1}
-    }};
+    m4 axisZ {
+        cosf(angle),  sinf(angle), 0, 0,
+        -sinf(angle), cosf(angle), 0, 0,
+        0,            0,           1, 0,
+        0,            0,           0, 1
+    };
 
     return m * axisZ;
 }
@@ -235,12 +241,12 @@ m4RotZ(const m4& m, const f32 angle)
 m4
 m4Scale(const m4& m, const f32 s)
 {
-    m4 sm {.e {
-        {s, 0, 0, 0},
-        {0, s, 0, 0},
-        {0, 0, s, 0},
-        {0, 0, 0, 1}
-    }};
+    m4 sm {
+        s, 0, 0, 0,
+        0, s, 0, 0,
+        0, 0, s, 0,
+        0, 0, 0, 1
+    };
 
     return m * sm;
 }
@@ -248,12 +254,12 @@ m4Scale(const m4& m, const f32 s)
 m4
 m4Scale(const m4& m, const v3& s)
 {
-    m4 sm {.e {
-        {s.x, 0,   0,   0},
-        {0,   s.y, 0,   0},
-        {0,   0,   s.z, 0},
-        {0,   0,   0,   1}
-    }};
+    m4 sm {
+        s.x, 0,   0,   0,
+        0,   s.y, 0,   0,
+        0,   0,   s.z, 0,
+        0,   0,   0,   1
+    };
 
     return m * sm;
 }
@@ -261,12 +267,12 @@ m4Scale(const m4& m, const v3& s)
 m4
 m4Translate(const m4& m, const v3& tv)
 {
-    m4 tm {.e {
-        {1,    0,    0,    0},
-        {0,    1,    0,    0},
-        {0,    0,    1,    0},
-        {tv.x, tv.y, tv.z, 1}
-    }};
+    m4 tm {
+        1,    0,    0,    0,
+        0,    1,    0,    0,
+        0,    0,    1,    0,
+        tv.x, tv.y, tv.z, 1
+    };
 
     return m * tm;
 }
@@ -278,34 +284,34 @@ m4Pers(const f32 fov, const f32 asp, const f32 n, const f32 f)
     f32 t = n * tanf(fov / 2);
     f32 r = t * asp;
 
-    return m4 {.e {
-        {n / r, 0,     0,                  0},
-        {0,     n / t, 0,                  0},
-        {0,     0,    -(f + n) / (f - n), -1},
-        {0,     0,    -(2*f*n) / (f - n),  0}
-    }};
+    return m4 {
+        n / r, 0,     0,                  0,
+        0,     n / t, 0,                  0,
+        0,     0,    -(f + n) / (f - n), -1,
+        0,     0,    -(2*f*n) / (f - n),  0
+    };
 }
 
 m4
 m4Ortho(const f32 l, const f32 r, const f32 b, const f32 t, const f32 n, const f32 f)
 {
-    return m4 {.e {
-        {2/(r-l),       0,            0,           0},
-        {0,             2/(t-b),      0,           0},
-        {0,             0,           -2/(f-n),     0},
-        {-(r+l)/(r-l), -(t+b)/(t-b), -(f+n)/(f-n), 1}
-    }};
+    return m4 {
+        2/(r-l),       0,            0,           0,
+        0,             2/(t-b),      0,           0,
+        0,             0,           -2/(f-n),     0,
+        -(r+l)/(r-l), -(t+b)/(t-b), -(f+n)/(f-n), 1
+    };
 }
 
 static m4
 m4LookAtInternal(const v3& R, const v3& U, const v3& D, const v3& P)
 {
-    m4 m0 {.e {
-        {R.x,  U.x,  D.x,  0},
-        {R.y,  U.y,  D.y,  0},
-        {R.z,  U.z,  D.z,  0},
-        {0,    0,    0,    1}
-    }};
+    m4 m0 {
+        R.x,  U.x,  D.x,  0,
+        R.y,  U.y,  D.y,  0,
+        R.z,  U.z,  D.z,  0,
+        0,    0,    0,    1
+    };
 
     return (m4Translate(m0, {-P.x, -P.y, -P.z}));
 }
@@ -324,12 +330,12 @@ m4
 m4Transpose(const m4& m)
 {
     auto e = m.e;
-    return {.e {
-        {e[0][0], e[1][0], e[2][0], e[3][0]},
-        {e[0][1], e[1][1], e[2][1], e[3][1]},
-        {e[0][2], e[1][2], e[2][2], e[3][2]},
-        {e[0][3], e[1][3], e[2][3], e[3][3]}
-    }};
+    return {
+        e[0][0], e[1][0], e[2][0], e[3][0],
+        e[0][1], e[1][1], e[2][1], e[3][1],
+        e[0][2], e[1][2], e[2][2], e[3][2],
+        e[0][3], e[1][3], e[2][3], e[3][3]
+    };
 }
 
 m3
@@ -450,12 +456,12 @@ qtRot(const qt& q)
     auto& z = q.z;
     auto& s = q.s;
 
-    return {.e {
-        {1 - 2*y*y - 2*z*z, 2*x*y - 2*s*z,     2*x*z + 2*s*y,     0},
-        {2*x*y + 2*s*z,     1 - 2*x*x - 2*z*z, 2*y*z - 2*s*x,     0},
-        {2*x*z - 2*s*y,     2*y*z + 2*s*x,     1 - 2*x*x - 2*y*y, 0},
-        {0,                 0,                 0,                 1}
-    }};
+    return {
+        1 - 2*y*y - 2*z*z, 2*x*y - 2*s*z,     2*x*z + 2*s*y,     0,
+        2*x*y + 2*s*z,     1 - 2*x*x - 2*z*z, 2*y*z - 2*s*x,     0,
+        2*x*z - 2*s*y,     2*y*z + 2*s*x,     1 - 2*x*x - 2*y*y, 0,
+        0,                 0,                 0,                 1
+    };
 }
 
 qt

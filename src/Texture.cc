@@ -37,7 +37,7 @@
  */
 
 void
-Texture::loadBMP(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint magFilter, GLint minFilter, App* c)
+Texture::load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint magFilter, GLint minFilter, App* c)
 {
 #ifdef TEXTURE
     LOG_OK("loading '%.*s' texture...\n", (int)path.size, path.pData);
@@ -50,89 +50,16 @@ Texture::loadBMP(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLin
     }
 
     adt::MapAllocator maAlloc;
+    TextureData img = loadBMP(&maAlloc, path, flip);
 
     this->texPath = path;
     this->type = type;
 
-    u32 imageDataAddress;
-    s32 width;
-    s32 height;
-    u32 nPixels;
-    u16 bitDepth;
-    u8 byteDepth;
+    adt::Array<u8> pixels = img.aData;
 
-    parser::Binary p(&maAlloc, path);
-    auto BM = p.readString(2);
-
-    if (BM != "BM")
-        LOG_FATAL("BM: %.*s, bmp file should have 'BM' as first 2 bytes\n", (int)BM.size, BM.pData);
-
-    p.skipBytes(8);
-    imageDataAddress = p.read32();
-
-#ifdef TEXTURE
-    LOG_OK("imageDataAddress: %u\n", imageDataAddress);
-#endif
-
-    p.skipBytes(4);
-    width = p.read32();
-    height = p.read32();
-#ifdef TEXTURE
-    LOG_OK("width: %d, height: %d\n", width, height);
-#endif
-
-    [[maybe_unused]] auto colorPlane = p.read16();
-#ifdef TEXTURE
-    LOG_OK("colorPlane: %d\n", colorPlane);
-#endif
-
-    GLint format = GL_RGB;
-    bitDepth = p.read16();
-#ifdef TEXTURE
-    LOG_OK("bitDepth: %u\n", bitDepth);
-#endif
-
-    switch (bitDepth)
-    {
-        case 24:
-            format = GL_RGB;
-            break;
-
-        case 32:
-            format = GL_RGBA;
-            break;
-
-        default:
-            LOG_WARN("support only for 32 and 24 bit bmp's, read '%u', setting to GL_RGB\n", bitDepth);
-            break;
-    }
-
-    bitDepth = 32; /* use RGBA anyway */
-    nPixels = width * height;
-    byteDepth = bitDepth / 8;
-#ifdef TEXTURE
-    LOG_OK("nPixels: %lu, byteDepth: %u\n", nPixels, byteDepth);
-#endif
-    adt::Array<u8> pixels(&maAlloc, nPixels * byteDepth);
-
-    p.setPos(imageDataAddress);
-
-    switch (format)
-    {
-        default:
-        case GL_RGB:
-            flipCpyBGRtoRGBA(pixels.data(), (u8*)(&p[p.start]), width, height, flip);
-            format = GL_RGBA;
-            break;
-
-        case GL_RGBA:
-            flipCpyBGRAtoRGBA(pixels.data(), (u8*)(&p[p.start]), width, height, flip);
-            break;
-    }
-
-    setTexture(pixels.data(), texMode, format, width, height, magFilter, minFilter, c);
-    this->width = width;
-    this->height = height;
+    setTexture(pixels.data(), texMode, img.format, img.width, img.height, magFilter, minFilter, c);
+    this->width = img.width;
+    this->height = img.height;
 
 #ifdef TEXTURE
     LOG(OK, "%.*s: id: %d, texMode: %d\n", (int)path.size, path.pData, this->id, format);
@@ -237,14 +164,8 @@ makeCubeShadowMap(const int width, const int height)
 
     for (GLuint i = 0; i < 6; i++)
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                     0,
-                     GL_DEPTH_COMPONENT,
-                     width,
-                     height,
-                     0,
-                     GL_DEPTH_COMPONENT,
-                     GL_FLOAT,
-                     nullptr);
+                     0, GL_DEPTH_COMPONENT, width, height,
+                     0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -268,6 +189,124 @@ makeCubeShadowMap(const int width, const int height)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     return {fbo, depthCubeMap, width, height};
+}
+
+CubeMap
+makeSkyBox(adt::String sFaces[6], App* c)
+{
+    adt::MapAllocator alloc(adt::SIZE_MIN);
+    CubeMap cmNew {};
+
+    glGenTextures(1, &cmNew.tex);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cmNew.tex);
+
+    int width, height, nrChannels;
+    for (u32 i = 0; i < 6; i++)
+    {
+        TextureData tex = loadBMP(&alloc, sFaces[i], true);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                     0, tex.format, tex.width, tex.height,
+                     0, tex.format, GL_UNSIGNED_BYTE, tex.aData.data());
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    alloc.freeAll();
+    alloc.destroy();
+
+    return cmNew;
+}
+
+TextureData
+loadBMP(adt::Allocator* pAlloc, adt::String path, bool flip)
+{
+    u32 imageDataAddress;
+    s32 width;
+    s32 height;
+    u32 nPixels;
+    u16 bitDepth;
+    u8 byteDepth;
+
+    parser::Binary p(pAlloc, path);
+    auto BM = p.readString(2);
+
+    if (BM != "BM")
+        LOG_FATAL("BM: %.*s, bmp file should have 'BM' as first 2 bytes\n", (int)BM.size, BM.pData);
+
+    p.skipBytes(8);
+    imageDataAddress = p.read32();
+
+#ifdef TEXTURE
+    LOG_OK("imageDataAddress: %u\n", imageDataAddress);
+#endif
+
+    p.skipBytes(4);
+    width = p.read32();
+    height = p.read32();
+#ifdef TEXTURE
+    LOG_OK("width: %d, height: %d\n", width, height);
+#endif
+
+    [[maybe_unused]] auto colorPlane = p.read16();
+#ifdef TEXTURE
+    LOG_OK("colorPlane: %d\n", colorPlane);
+#endif
+
+    GLint format = GL_RGB;
+    bitDepth = p.read16();
+#ifdef TEXTURE
+    LOG_OK("bitDepth: %u\n", bitDepth);
+#endif
+
+    switch (bitDepth)
+    {
+        case 24:
+            format = GL_RGB;
+            break;
+
+        case 32:
+            format = GL_RGBA;
+            break;
+
+        default:
+            LOG_WARN("support only for 32 and 24 bit bmp's, read '%u', setting to GL_RGB\n", bitDepth);
+            break;
+    }
+
+    bitDepth = 32; /* use RGBA anyway */
+    nPixels = width * height;
+    byteDepth = bitDepth / 8;
+#ifdef TEXTURE
+    LOG_OK("nPixels: %lu, byteDepth: %u\n", nPixels, byteDepth);
+#endif
+    adt::Array<u8> pixels(pAlloc, nPixels * byteDepth);
+
+    p.setPos(imageDataAddress);
+
+    switch (format)
+    {
+        default:
+        case GL_RGB:
+            flipCpyBGRtoRGBA(pixels.data(), (u8*)(&p[p.start]), width, height, flip);
+            format = GL_RGBA;
+            break;
+
+        case GL_RGBA:
+            flipCpyBGRAtoRGBA(pixels.data(), (u8*)(&p[p.start]), width, height, flip);
+            break;
+    }
+
+    return {
+        .aData = pixels,
+        .width = width,
+        .height = height,
+        .bitDepth = bitDepth,
+        .format = format
+    };
 }
 
 /* complains about unaligned address */
