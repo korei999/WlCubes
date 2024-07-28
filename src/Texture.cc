@@ -1,6 +1,7 @@
 #include <emmintrin.h>
 
 #include "Texture.hh"
+#include "Arena.hh"
 #include "parser/Binary.hh"
 #include "MapAllocator.hh"
 #include "logs.hh"
@@ -192,15 +193,14 @@ makeCubeShadowMap(const int width, const int height)
 }
 
 CubeMap
-makeSkyBox(adt::String sFaces[6], App* c)
+makeSkyBox(adt::String sFaces[6])
 {
-    adt::MapAllocator alloc(adt::SIZE_MIN);
+    adt::Arena alloc(adt::SIZE_1M * 6);
     CubeMap cmNew {};
 
     glGenTextures(1, &cmNew.tex);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cmNew.tex);
 
-    int width, height, nrChannels;
     for (u32 i = 0; i < 6; i++)
     {
         TextureData tex = loadBMP(&alloc, sFaces[i], true);

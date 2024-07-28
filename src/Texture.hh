@@ -87,7 +87,7 @@ struct CubeMapProjections
 
 ShadowMap makeShadowMap(const int width, const int height);
 CubeMap makeCubeShadowMap(const int width, const int height);
-CubeMap makeSkyBox(adt::String sFaces[6], App* c);
+CubeMap makeSkyBox(adt::String sFaces[6]);
 TextureData loadBMP(adt::Allocator* pAlloc, adt::String path, bool flip);
 void flipCpyBGRAtoRGBA(u8* dest, u8* src, int width, int height, bool vertFlip);
 void flipCpyBGRtoRGB(u8* dest, u8* src, int width, int height, bool vertFlip);

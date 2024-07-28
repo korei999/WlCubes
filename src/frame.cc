@@ -103,7 +103,7 @@ prepareDraw(App* self)
         "test-assets/skybox/back.bmp"
     };
 
-    cmSkyBox = makeSkyBox(skyboxImgs, self);
+    cmSkyBox = makeSkyBox(skyboxImgs);
 
     textFPS = Text("", adt::size(_fpsStrBuff), 0, 0, GL_DYNAMIC_DRAW);
 
@@ -181,7 +181,7 @@ renderFPSCounter(adt::Allocator* pAlloc)
 }
 
 void
-renderSkyBox(adt::Allocator* pAlloc)
+renderSkyBox()
 {
     m4 view = m3(player.view); /* remove translation */
 
@@ -267,7 +267,7 @@ mainLoop(App* self)
 
             /*render scene as normal using the denerated depth map */
 
-            renderSkyBox(&allocFrame);
+            renderSkyBox();
 
             shOmniDirShadow.use();
             shOmniDirShadow.setV3("uLightPos", lightPos);
