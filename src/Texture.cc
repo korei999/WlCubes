@@ -341,7 +341,7 @@ flipCpyBGRAtoRGBA(u8* dest, u8* src, int width, int height, bool vertFlip)
     {
         for (int x = 0; x < width; x += 4)
         {
-            __m128i pack = _mm_loadu_si128((__m128i_u*)(&s[y*width + x]));
+            __m128i pack = _mm_load_si128((__m128i*)(&s[y*width + x]));
             __m128i redBits = _mm_and_si128(pack, _mm_set1_epi32(0x00'ff'00'00));
             __m128i blueBits = _mm_and_si128(pack, _mm_set1_epi32(0x00'00'00'ff));
             pack = _mm_and_si128(pack, _mm_set1_epi32(0xff'00'ff'00));
