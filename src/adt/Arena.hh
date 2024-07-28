@@ -169,7 +169,6 @@ Arena::realloc(void* p, u32 size)
     }
     else
     {
-        /* alloc locks again */
         void* pR = this->alloc(size, 1);
         memcpy(pR, p, pNode->size);
 

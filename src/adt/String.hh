@@ -112,7 +112,7 @@ findLastOf(String sv, char c)
 constexpr String
 makeString(Allocator* p, const char* str, u32 size)
 {
-    char* pData = static_cast<char*>(p->alloc(size + 1, sizeof(char)));
+    char* pData = (char*)(p->alloc(size + 1, sizeof(char)));
     for (u32 i = 0; i < size; i++)
         pData[i] = str[i];
 
@@ -122,7 +122,7 @@ makeString(Allocator* p, const char* str, u32 size)
 constexpr String
 makeString(Allocator* p, u32 size)
 {
-    char* pData = static_cast<char*>(p->alloc(size + 1, sizeof(char)));
+    char* pData = (char*)(p->alloc(size + 1, sizeof(char)));
     return {pData, size};
 }
 

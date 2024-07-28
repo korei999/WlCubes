@@ -8,6 +8,7 @@
 namespace adt
 {
 
+/* FIXME: `MapAllocator` causes deadlock (sometimes idk) */
 struct MapAllocator : Allocator
 {
     mtx_t mtxA;
@@ -38,8 +39,10 @@ inline void
 MapAllocator::free(void* p)
 {
     mtx_lock(&this->mtxA);
+
     auto f = this->mPMap.search(p);
     if (f.pData) ::free(*f.pData);
+
     this->mPMap.remove(f.idx);
     mtx_unlock(&this->mtxA);
 };
@@ -47,12 +50,14 @@ MapAllocator::free(void* p)
 inline void*
 MapAllocator::realloc(void* p, u32 size)
 {
-    auto f = this->mPMap.search(p);
     mtx_lock(&this->mtxA);
+
+    auto f = this->mPMap.search(p);
     if (f.pData) this->mPMap.remove(f.idx);
 
     auto pr = ::realloc(p, size);
     this->mPMap.insert(pr);
+
     mtx_unlock(&this->mtxA);
 
     return pr;
@@ -61,12 +66,16 @@ MapAllocator::realloc(void* p, u32 size)
 inline void
 MapAllocator::freeAll()
 {
+    mtx_lock(&this->mtxA);
+
     for (u32 i = 0; i < this->mPMap.capacity(); i++)
         if (this->mPMap[i].bOccupied)
         {
             ::free(this->mPMap[i].data);
             this->mPMap.remove(i);
         }
+
+    mtx_unlock(&this->mtxA);
 
     this->mPMap.destroy();
 }
