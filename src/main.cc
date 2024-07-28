@@ -15,7 +15,6 @@ main()
     frame::run(&app);
 
     allocator.freeAll();
-    allocator.destroy();
 }
 
 #elif _WIN32
@@ -33,7 +32,6 @@ WinMain([[maybe_unused]] HINSTANCE instance,
     frame::run(&app);
 
     allocator.freeAll();
-    allocator.destroy();
 }
 
     #ifdef DEBUG
