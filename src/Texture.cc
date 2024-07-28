@@ -337,7 +337,7 @@ flipCpyBGRAtoRGBA(u8* dest, u8* src, int width, int height, bool vertFlip)
     u32* d = (u32*)(dest);
     u32* s = (u32*)(src);
 
-    for (int y = 0; y < height; y++)
+    for (int y = 0; y < height; y++, f += inc)
     {
         for (int x = 0; x < width; x += 4)
         {
@@ -350,14 +350,9 @@ flipCpyBGRAtoRGBA(u8* dest, u8* src, int width, int height, bool vertFlip)
             redBits = _mm_bsrli_si128(redBits, 2); /* shift 2 because: 'dst[127:0] := a[127:0] << (tmp*8)' */
             blueBits = _mm_bslli_si128(blueBits, 2);
 
-            pack = _mm_or_si128(pack, redBits);
-            pack = _mm_or_si128(pack, blueBits);
-
-            auto _dest = (__m128i*)(&d[(y-f)*width + x]);
-            _mm_storeu_si128(_dest, pack);
+            pack = _mm_or_si128(_mm_or_si128(pack, redBits), blueBits);
+            _mm_storeu_si128((__m128i*)(&d[(y-f)*width + x]), pack);
         }
-
-        f += inc;
     }
 };
 
