@@ -265,10 +265,10 @@ mainLoop(App* self)
             glViewport(0, 0, self->wWidth, self->wHeight);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            /*render scene as normal using the denerated depth map */
-
+            /* draw skybox prior to everything else */
             renderSkyBox();
 
+            /*render scene as normal using the generated depth map */
             shOmniDirShadow.use();
             shOmniDirShadow.setV3("uLightPos", lightPos);
             shOmniDirShadow.setV3("uLightColor", lightColor);
