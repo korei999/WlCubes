@@ -9,18 +9,18 @@
 namespace adt
 {
 
-struct ListAllocatorNode
+struct ArrayAllocatorNode
 {
     u64 selfIdx; /* 8 byte alignment for allocators */
     u8 pData[];
 };
 
-struct ListAllocator : Allocator
+struct ArrayAllocator : Allocator
 {
     Array<void*> aFreeList;
 
-    ListAllocator() : aFreeList(&StdAllocator) {}
-    ListAllocator(u32 prealloc) : aFreeList(&StdAllocator, prealloc) {}
+    ArrayAllocator() : aFreeList(&StdAllocator) {}
+    ArrayAllocator(u32 prealloc) : aFreeList(&StdAllocator, prealloc) {}
 
     virtual void* alloc(u32 memberCount, u32 memberSize) override;
     virtual void free(void* p) override;
@@ -28,16 +28,16 @@ struct ListAllocator : Allocator
     void freeAll();
 
 private:
-    static ListAllocatorNode* ptrToNode(void* p) { return (ListAllocatorNode*)((u8*)p - sizeof(ListAllocatorNode)); }
+    static ArrayAllocatorNode* ptrToNode(void* p) { return (ArrayAllocatorNode*)((u8*)p - sizeof(ArrayAllocatorNode)); }
 };
 
 inline void*
-ListAllocator::alloc(u32 memberCount, u32 memberSize)
+ArrayAllocator::alloc(u32 memberCount, u32 memberSize)
 {
-    void* r = ::malloc(memberCount*memberSize + sizeof(ListAllocatorNode));
-    memset(r, 0, memberCount*memberSize + sizeof(ListAllocatorNode));
+    void* r = ::malloc(memberCount*memberSize + sizeof(ArrayAllocatorNode));
+    memset(r, 0, memberCount*memberSize + sizeof(ArrayAllocatorNode));
 
-    auto* pNode = (ListAllocatorNode*)r;
+    auto* pNode = (ArrayAllocatorNode*)r;
     this->aFreeList.push(pNode);
     pNode->selfIdx = this->aFreeList.size - 1; /* keep idx of this allocation in array to free later */
 
@@ -45,7 +45,7 @@ ListAllocator::alloc(u32 memberCount, u32 memberSize)
 }
 
 inline void
-ListAllocator::free(void* p)
+ArrayAllocator::free(void* p)
 {
     auto node = *ptrToNode(p);
     ::free(node.pData);
@@ -55,13 +55,13 @@ ListAllocator::free(void* p)
 }
 
 inline void*
-ListAllocator::realloc(void* p, u32 size)
+ArrayAllocator::realloc(void* p, u32 size)
 {
     auto* pNode = ptrToNode(p);
     this->aFreeList[pNode->selfIdx] = nullptr;
 
-    void* r = ::realloc(pNode, size + sizeof(ListAllocatorNode));
-    auto pNew = (ListAllocatorNode*)r;
+    void* r = ::realloc(pNode, size + sizeof(ArrayAllocatorNode));
+    auto pNew = (ArrayAllocatorNode*)r;
     this->aFreeList.push(pNew);
     pNew->selfIdx = this->aFreeList.size - 1;
 
@@ -69,7 +69,7 @@ ListAllocator::realloc(void* p, u32 size)
 }
 
 inline void
-ListAllocator::freeAll()
+ArrayAllocator::freeAll()
 {
     for (void* e : this->aFreeList)
         if (e)

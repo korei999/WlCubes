@@ -2,18 +2,18 @@
 
 #include <threads.h>
 
-#include "ListAllocator.hh"
+#include "ArrayAllocator.hh"
 
 namespace adt
 {
 
-struct AtomicListAllocator : Allocator
+struct AtomicArrayAllocator : Allocator
 {
     mtx_t mtx;
-    ListAllocator lAlloc;
+    ArrayAllocator lAlloc;
 
-    AtomicListAllocator() { mtx_init(&this->mtx, mtx_plain); }
-    AtomicListAllocator(u32 prealloc) : lAlloc(prealloc) { mtx_init(&this->mtx, mtx_plain); }
+    AtomicArrayAllocator() { mtx_init(&this->mtx, mtx_plain); }
+    AtomicArrayAllocator(u32 prealloc) : lAlloc(prealloc) { mtx_init(&this->mtx, mtx_plain); }
 
     virtual void* alloc(u32 memberCount, u32 memberSize) override;
     virtual void free(void* p) override;
@@ -22,7 +22,7 @@ struct AtomicListAllocator : Allocator
 };
 
 inline void*
-AtomicListAllocator::alloc(u32 memberCount, u32 memberSize)
+AtomicArrayAllocator::alloc(u32 memberCount, u32 memberSize)
 {
     mtx_lock(&this->mtx);
     void* r = this->lAlloc.alloc(memberCount, memberSize);
@@ -32,7 +32,7 @@ AtomicListAllocator::alloc(u32 memberCount, u32 memberSize)
 }
 
 inline void
-AtomicListAllocator::free(void* p)
+AtomicArrayAllocator::free(void* p)
 {
     mtx_lock(&this->mtx);
     this->lAlloc.free(p);
@@ -40,7 +40,7 @@ AtomicListAllocator::free(void* p)
 }
 
 inline void*
-AtomicListAllocator::realloc(void* p, u32 size)
+AtomicArrayAllocator::realloc(void* p, u32 size)
 {
     mtx_lock(&this->mtx);
     void* r = this->lAlloc.realloc(p, size);
@@ -50,7 +50,7 @@ AtomicListAllocator::realloc(void* p, u32 size)
 }
 
 inline void
-AtomicListAllocator::freeAll()
+AtomicArrayAllocator::freeAll()
 {
      this->lAlloc.freeAll();
      mtx_destroy(&this->mtx);

@@ -1,4 +1,4 @@
-#include "ListAllocator.hh"
+#include "ArrayAllocator.hh"
 #include "frame.hh"
 
 #ifdef __linux__
@@ -7,7 +7,7 @@
 int
 main()
 {
-    adt::ListAllocator allocator;
+    adt::ArrayAllocator allocator;
 
     wayland::WlClient app(&allocator, "WlCubes");
     frame::run(&app);
@@ -24,7 +24,7 @@ WinMain([[maybe_unused]] HINSTANCE instance,
         [[maybe_unused]] LPSTR cmdline,
         [[maybe_unused]] int cmdshow)
 {
-    adt::ListAllocator allocator;
+    adt::ArrayAllocator allocator;
 
     win32::Window app(&allocator, "wl-cube", instance);
     frame::run(&app);
