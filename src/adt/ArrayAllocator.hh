@@ -4,7 +4,6 @@
 
 #include "Array.hh"
 #include "DefaultAllocator.hh"
-#include "logs.hh"
 
 namespace adt
 {
@@ -51,7 +50,6 @@ ArrayAllocator::free(void* p)
     ::free(node.pData);
     assert(this->aFreeList[node.selfIdx] != nullptr && "double free");
     this->aFreeList[node.selfIdx] = nullptr;
-    COUT("idx: '%zu' freed\n", node.selfIdx);
 }
 
 inline void*
