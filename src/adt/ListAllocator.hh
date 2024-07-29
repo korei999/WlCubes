@@ -39,7 +39,7 @@ ListAllocator::alloc(u32 memberCount, u32 memberSize)
     memset(r, 0, memberCount*memberSize + sizeof(ListAllocatorNode));
 
     auto* pNode = (ListAllocatorNode*)r;
-    this->aFreeList.push(pNode->pData);
+    this->aFreeList.push(pNode);
     pNode->selfIdx = this->aFreeList.size - 1; /* keep idx of this allocation in array to free later */
 
     return pNode->pData;
@@ -63,7 +63,7 @@ ListAllocator::realloc(void* p, u32 size)
 
     void* r = ::realloc(pNode, size + sizeof(ListAllocatorNode));
     auto pNew = (ListAllocatorNode*)r;
-    this->aFreeList.push(pNew->pData);
+    this->aFreeList.push(pNew);
     pNew->selfIdx = this->aFreeList.size - 1;
 
     return pNew->pData;
@@ -72,23 +72,12 @@ ListAllocator::realloc(void* p, u32 size)
 inline void
 ListAllocator::freeAll()
 {
-    /*for (void* e : this->aFreeList)*/
-    /*    if (e)*/
-    /*    {*/
-    /*        ::free(e);*/
-    /*        e = nullptr;*/
-    /*    }*/
-
-    for (u32 i = 0; i < this->aFreeList.size; i++)
-    {
-        COUT("%u: %p\n", i, this->aFreeList[i]);
-        if (i > 99) break;
-        /*if (this->aFreeList[i])*/
-        /*{*/
-        /*    COUT("freeing: '%u'\n", i);*/
-        /*    ::free(this->aFreeList[i]);*/
-        /*}*/
-    }
+    for (void* e : this->aFreeList)
+        if (e)
+        {
+            ::free(e);
+            e = nullptr;
+        }
 }
 
 } /* namespace adt */
