@@ -252,7 +252,7 @@ private:
     void processNodes();
 };
 
-static inline adt::String
+inline adt::String
 getComponentTypeString(enum COMPONENT_TYPE t)
 {
     switch (t)
@@ -273,7 +273,7 @@ getComponentTypeString(enum COMPONENT_TYPE t)
     }
 }
 
-static inline adt::String
+inline adt::String
 getPrimitiveModeString(enum PRIMITIVES pm)
 {
     const char* ss[] {

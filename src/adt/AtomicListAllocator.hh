@@ -18,8 +18,7 @@ struct AtomicListAllocator : Allocator
     virtual void* alloc(u32 memberCount, u32 memberSize) override;
     virtual void free(void* p) override;
     virtual void* realloc(void* p, u32 size) override;
-    void freeAll() { this->lAlloc.freeAll(); }
-    void destroy() { this->lAlloc.destroy(); mtx_destroy(&this->mtx); }
+    void freeAll();
 };
 
 inline void*
@@ -48,6 +47,13 @@ AtomicListAllocator::realloc(void* p, u32 size)
     mtx_unlock(&this->mtx);
 
     return r;
+}
+
+inline void
+AtomicListAllocator::freeAll()
+{
+     this->lAlloc.freeAll();
+     mtx_destroy(&this->mtx);
 }
 
 } /* namespace adt */

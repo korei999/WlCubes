@@ -13,14 +13,16 @@
     #include <sysinfoapi.h>
 
 inline DWORD
-_getLogicalCoresCountWIN32()
+getLogicalCoresCountWIN32()
 {
     SYSTEM_INFO info;
     GetSystemInfo(&info);
     return info.dwNumberOfProcessors;
 }
 
-    #define getLogicalCoresCount() _getLogicalCoresCountWIN32()
+    #define getLogicalCoresCount() getLogicalCoresCountWIN32()
+#else
+    #define getLogicalCoresCount() 4
 #endif
 
 namespace adt
@@ -52,10 +54,10 @@ struct ThreadPool
     void submit(thrd_start_t pfnTask, void* pArgs) { submit({pfnTask, pArgs}); }
     void submit(TaskNode task);
     void wait();
-    void stop();
     void destroy();
 
 private:
+    void stop();
     static int loop(void* _self);
 };
 
@@ -160,6 +162,8 @@ ThreadPool::stop()
 inline void
 ThreadPool::destroy()
 {
+    this->stop();
+
     this->pAlloc->free(this->pThreads);
     this->qTasks.destroy();
     cnd_destroy(&this->cndQ);

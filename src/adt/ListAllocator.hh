@@ -11,7 +11,7 @@ namespace adt
 
 struct ListAllocatorNode
 {
-    size_t selfIdx; /* 8 byte alignment for allocators */
+    u64 selfIdx; /* 8 byte alignment for allocators */
     u8 pData[];
 };
 
@@ -26,7 +26,6 @@ struct ListAllocator : Allocator
     virtual void free(void* p) override;
     virtual void* realloc(void* p, u32 size) override;
     void freeAll();
-    void destroy() { this->aFreeList.destroy(); }
 
 private:
     static ListAllocatorNode* ptrToNode(void* p) { return (ListAllocatorNode*)((u8*)p - sizeof(ListAllocatorNode)); }
@@ -78,6 +77,8 @@ ListAllocator::freeAll()
             ::free(e);
             e = nullptr;
         }
+
+    this->aFreeList.destroy();
 }
 
 } /* namespace adt */

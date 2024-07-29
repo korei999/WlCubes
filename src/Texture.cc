@@ -1,7 +1,7 @@
 #include <immintrin.h>
 
 #include "Texture.hh"
-#include "Arena.hh"
+#include "ArenaAllocator.hh"
 #include "parser/Binary.hh"
 #include "logs.hh"
 
@@ -49,7 +49,7 @@ Texture::load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint m
         return;
     }
 
-    adt::Arena aAlloc(adt::SIZE_1M * 5);
+    adt::ArenaAllocator aAlloc(adt::SIZE_1M * 5);
     TextureData img = loadBMP(&aAlloc, path, flip);
 
     this->texPath = path;
@@ -66,7 +66,6 @@ Texture::load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint m
 #endif
 
     aAlloc.freeAll();
-    aAlloc.destroy();
 }
 
 void
@@ -195,7 +194,7 @@ makeCubeShadowMap(const int width, const int height)
 CubeMap
 makeSkyBox(adt::String sFaces[6])
 {
-    adt::Arena alloc(adt::SIZE_1M * 6);
+    adt::ArenaAllocator alloc(adt::SIZE_1M * 6);
     CubeMap cmNew {};
 
     glGenTextures(1, &cmNew.tex);
@@ -216,7 +215,6 @@ makeSkyBox(adt::String sFaces[6])
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     alloc.freeAll();
-    alloc.destroy();
 
     return cmNew;
 }

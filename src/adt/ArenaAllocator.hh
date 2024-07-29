@@ -31,19 +31,19 @@ struct ArenaNode
 {
     ArenaNode* pNext = nullptr;
     ArenaBlock* pBlock;
-    size_t size = 0;
+    u64 size = 0;
     u8 pData[];
 };
 
-struct Arena : Allocator
+struct ArenaAllocator : Allocator
 {
     ArenaBlock* pBlocks = nullptr;
     size_t blockSize = 0;
     ArenaNode* pLatest = nullptr;
     ArenaBlock* pLatestBlock = nullptr;
 
-    Arena() = default;
-    Arena(u32 cap);
+    ArenaAllocator() = default;
+    ArenaAllocator(u32 cap);
 
     void reset();
     size_t alignedBytes(u32 bytes);
@@ -51,7 +51,6 @@ struct Arena : Allocator
     virtual void free(void* p) override;
     virtual void* realloc(void* p, u32 size) override;
     void freeAll();
-    void destroy();
 
 private:
     ArenaBlock* newBlock();
@@ -59,14 +58,14 @@ private:
 };
 
 inline 
-Arena::Arena(u32 cap)
+ArenaAllocator::ArenaAllocator(u32 cap)
     : blockSize(alignedBytes(cap + sizeof(ArenaNode))) /* preventively align */
 {
     this->newBlock();
 }
 
 inline void
-Arena::reset()
+ArenaAllocator::reset()
 {
     ARENA_FOREACH(this, pB)
     {
@@ -81,7 +80,7 @@ Arena::reset()
 }
 
 inline ArenaBlock*
-Arena::newBlock()
+ArenaAllocator::newBlock()
 {
     ArenaBlock** ppLastBlock = &this->pBlocks;
     while (*ppLastBlock) ppLastBlock = &((*ppLastBlock)->pNext);
@@ -98,7 +97,7 @@ Arena::newBlock()
 }
 
 inline ArenaBlock*
-Arena::getFreeBlock()
+ArenaAllocator::getFreeBlock()
 {
     ArenaBlock* pCurrBlock = this->pBlocks, * pFreeBlock = this->pBlocks;
     while (pCurrBlock)
@@ -111,14 +110,14 @@ Arena::getFreeBlock()
 }
 
 inline size_t
-Arena::alignedBytes(u32 bytes)
+ArenaAllocator::alignedBytes(u32 bytes)
 {
     f64 mulOf = f64(bytes) / f64(sizeof(size_t));
     return u32(sizeof(size_t) * ceil(mulOf));
 }
 
 inline void*
-Arena::alloc(u32 memberCount, u32 memberSize)
+ArenaAllocator::alloc(u32 memberCount, u32 memberSize)
 {
     ArenaBlock* pFreeBlock = this->pLatestBlock;
     u32 requested = memberCount * memberSize;
@@ -157,13 +156,13 @@ repeat:
 }
 
 inline void
-Arena::free([[maybe_unused]] void* p)
+ArenaAllocator::free([[maybe_unused]] void* p)
 {
     /* no individual frees */
 }
 
 inline void*
-Arena::realloc(void* p, u32 size)
+ArenaAllocator::realloc(void* p, u32 size)
 {
     ArenaNode* pNode = ARENA_NODE_GET_FROM_DATA(p);
     auto* pBlockOff = ARENA_NODE_GET_FROM_BLOCK(pNode->pBlock);
@@ -187,16 +186,10 @@ Arena::realloc(void* p, u32 size)
 }
 
 inline void
-Arena::freeAll()
+ArenaAllocator::freeAll()
 {
     ARENA_FOREACH_SAFE(this, it, tmp)
         ::free(it);
-}
-
-inline void
-Arena::destroy()
-{
-    //
 }
 
 } /* namespace adt */

@@ -1,5 +1,5 @@
 #include "Model.hh"
-#include "AtomicArena.hh"
+#include "AtomicArenaAllocator.hh"
 #include "logs.hh"
 #include "file.hh"
 #include "ThreadPool.hh"
@@ -39,7 +39,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
         mtx_unlock(&gl::mtxGlContext);
     }
 
-    adt::AtomicArena aAlloc(adt::SIZE_1M * 10);
+    adt::AtomicArenaAllocator aAlloc(adt::SIZE_1M * 10);
 
     adt::ThreadPool tp(&aAlloc);
     tp.start();
@@ -231,9 +231,8 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             this->aTmIdxs[at(ch, this->aTmCounters[ch]++)] = i; /* give each children it's parent's idx's */
     }
 
-    tp.stop();
+    tp.destroy();
     aAlloc.freeAll();
-    aAlloc.destroy();
 }
 
 void

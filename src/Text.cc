@@ -1,11 +1,11 @@
-#include "Arena.hh"
+#include "ArenaAllocator.hh"
 #include "frame.hh"
 #include "Text.hh"
 
 void
 Text::genMesh(u32 size, int xOrigin, int yOrigin, GLint drawMode)
 {
-    adt::Arena allocScope(adt::SIZE_1M);
+    adt::ArenaAllocator allocScope(adt::SIZE_1M);
 
     auto aQuads = this->genBuffer(&allocScope, this->str, this->maxSize, xOrigin, yOrigin);
 

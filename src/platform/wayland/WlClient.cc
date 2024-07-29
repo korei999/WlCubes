@@ -1,7 +1,7 @@
 #define _POSIX_C_SOURCE 199309L
 
 #include "Array.hh"
-#include "Arena.hh"
+#include "ArenaAllocator.hh"
 #include "input.hh"
 #include "WlClient.hh"
 #include "logs.hh"
@@ -267,7 +267,7 @@ WlClient::~WlClient()
 void
 WlClient::init()
 {
-    adt::Arena arena(adt::SIZE_8K);
+    adt::ArenaAllocator arena(adt::SIZE_8K);
 
     if ((this->display = wl_display_connect(nullptr)))
         LOG_OK("wayland display connected\n");

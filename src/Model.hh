@@ -18,22 +18,22 @@ enum class DRAW : int
     ALL      = INT_MAX
 };
 
-static inline bool
+inline bool
 operator&(enum DRAW l, enum DRAW r)
 {
-    return static_cast<int>(l) & static_cast<int>(r);
+    return int(l) & int(r);
 }
 
-static inline enum DRAW
+inline enum DRAW
 operator|(enum DRAW l, enum DRAW r)
 {
-    return static_cast<enum DRAW>(static_cast<int>(l) | static_cast<int>(r));
+    return (enum DRAW)(int(l) | int(r));
 }
 
-static inline enum DRAW
+inline enum DRAW
 operator^(enum DRAW l, enum DRAW r)
 {
-    return static_cast<enum DRAW>(static_cast<int>(l) ^ static_cast<int>(r));
+    return (enum DRAW)((int)(l) ^ (int)(r));
 }
 
 struct Ubo
