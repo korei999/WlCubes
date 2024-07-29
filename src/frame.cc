@@ -7,6 +7,7 @@
 #include "gl/gl.hh"
 #include "math.hh"
 #include "Text.hh"
+#include "AtomicListAllocator.hh"
 
 namespace frame
 {
@@ -27,7 +28,7 @@ f32 fov = 90.0f;
 f32 uiWidth = 150.0f;
 f32 uiHeight = (uiWidth * 9.0f) / 16.0f;
 
-static adt::AtomicArena allocAssets(adt::SIZE_1M * 50);
+static adt::AtomicListAllocator allocAssets(adt::SIZE_1K);
 
 static Shader shTex;
 static Shader shBitMap;
