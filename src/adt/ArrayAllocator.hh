@@ -27,7 +27,7 @@ struct ArrayAllocator : Allocator
     void freeAll();
 
 private:
-    static ArrayAllocatorNode* ptrToNode(void* p) { return (ArrayAllocatorNode*)((u8*)p - sizeof(ArrayAllocatorNode)); }
+    static ArrayAllocatorNode* ptrToNode(const void* p) { return (ArrayAllocatorNode*)((u8*)p - sizeof(ArrayAllocatorNode)); }
 };
 
 inline void*
@@ -46,20 +46,22 @@ ArrayAllocator::alloc(u32 memberCount, u32 memberSize)
 inline void
 ArrayAllocator::free(void* p)
 {
-    auto node = *ptrToNode(p);
-    ::free(node.pData);
-    assert(this->aFreeList[node.selfIdx] != nullptr && "double free");
-    this->aFreeList[node.selfIdx] = nullptr;
+    auto* pNode = ptrToNode(p);
+    assert(this->aFreeList[node->selfIdx] != nullptr && "double free");
+    this->aFreeList[pNode->selfIdx] = nullptr;
+    ::free(pNode);
 }
 
 inline void*
 ArrayAllocator::realloc(void* p, u32 size)
 {
     auto* pNode = ptrToNode(p);
-    this->aFreeList[pNode->selfIdx] = nullptr;
+    u64 idx = pNode->selfIdx;
 
     void* r = ::realloc(pNode, size + sizeof(ArrayAllocatorNode));
     auto pNew = (ArrayAllocatorNode*)r;
+
+    this->aFreeList[idx] = nullptr;
     this->aFreeList.push(pNew);
     pNew->selfIdx = this->aFreeList.size - 1;
 

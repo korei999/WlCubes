@@ -28,7 +28,7 @@ f32 fov = 90.0f;
 f32 uiWidth = 150.0f;
 f32 uiHeight = (uiWidth * 9.0f) / 16.0f;
 
-static adt::AtomicArrayAllocator allocAssets(adt::SIZE_1K);
+static adt::AtomicArrayAllocator allocAssets(adt::SIZE_MIN);
 
 static Shader shTex;
 static Shader shBitMap;
