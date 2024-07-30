@@ -47,7 +47,7 @@ inline void
 ArrayAllocator::free(void* p)
 {
     auto* pNode = ptrToNode(p);
-    assert(this->aFreeList[node->selfIdx] != nullptr && "double free");
+    assert(this->aFreeList[pNode->selfIdx] != nullptr && "double free");
     this->aFreeList[pNode->selfIdx] = nullptr;
     ::free(pNode);
 }
