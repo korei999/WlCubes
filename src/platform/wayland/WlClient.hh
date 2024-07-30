@@ -6,7 +6,6 @@
 #include <wayland-cursor.h>
 #include <wayland-egl-core.h>
 
-#include "Arena.hh"
 #include "Allocator.hh"
 #include "ultratypes.h"
 #include "wayland-protocols/pointer-constraints-unstable-v1.h"

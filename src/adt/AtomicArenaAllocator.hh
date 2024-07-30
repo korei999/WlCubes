@@ -2,18 +2,18 @@
 
 #include <threads.h>
 
-#include "Arena.hh"
+#include "ArenaAllocator.hh"
 
 namespace adt
 {
 
-struct AtomicArena : Allocator
+struct AtomicArenaAllocator : Allocator
 {
     mtx_t mtxA;
-    Arena arena; /* compose for 1 mutex instead of second mutex for realloc (or recursive mutex) */
+    ArenaAllocator arena; /* compose for 1 mutex instead of second mutex for realloc (or recursive mutex) */
 
-    AtomicArena() = default;
-    AtomicArena(u32 blockSize) : arena(blockSize) { mtx_init(&this->mtxA, mtx_plain); }
+    AtomicArenaAllocator() = default;
+    AtomicArenaAllocator(u32 blockSize) : arena(blockSize) { mtx_init(&this->mtxA, mtx_plain); }
 
     virtual void*
     alloc(u32 memberCount, u32 size) override
@@ -43,9 +43,20 @@ struct AtomicArena : Allocator
         return rp;
     }
 
-    void reset() { this->arena.reset(); }
-    void freeAll() { this->arena.freeAll(); }
-    void destroy() { mtx_destroy(&this->mtxA); }
+    void
+    reset()
+    {
+        mtx_lock(&this->mtxA);
+        this->arena.reset();
+        mtx_unlock(&this->mtxA);
+    }
+
+    void
+    freeAll()
+    {
+        this->arena.freeAll();
+        mtx_destroy(&this->mtxA);
+    }
 };
 
 } /* namespace adt */

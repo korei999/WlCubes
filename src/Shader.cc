@@ -1,6 +1,6 @@
 #include "Shader.hh"
 #include "logs.hh"
-#include "Arena.hh"
+#include "ArenaAllocator.hh"
 #include "file.hh"
 
 Shader::Shader(adt::String vertexPath, adt::String fragmentPath)
@@ -116,7 +116,7 @@ Shader::loadShader(GLenum type, adt::String path)
     if (!shader)
         return 0;
 
-    adt::Arena arena(adt::SIZE_8K);
+    adt::ArenaAllocator arena(adt::SIZE_8K);
 
     adt::String src = loadFile(&arena, path);
     const char* srcData = src.pData;
@@ -141,7 +141,6 @@ Shader::loadShader(GLenum type, adt::String path)
     }
 
     arena.freeAll();
-    arena.destroy();
     return shader;
 }
 

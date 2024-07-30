@@ -1,4 +1,3 @@
-#include "AtomicArena.hh"
 #include "Model.hh"
 #include "Shader.hh"
 #include "ThreadPool.hh"
@@ -7,6 +6,7 @@
 #include "gl/gl.hh"
 #include "math.hh"
 #include "Text.hh"
+#include "AtomicArenaAllocator.hh"
 
 namespace frame
 {
@@ -27,7 +27,8 @@ f32 fov = 90.0f;
 f32 uiWidth = 150.0f;
 f32 uiHeight = (uiWidth * 9.0f) / 16.0f;
 
-static adt::AtomicArena allocAssets(adt::SIZE_1M * 50);
+/* assume there is no asset > 50Mb for one allocation */
+static adt::AtomicArenaAllocator allocAssets(adt::SIZE_1M * 50);
 
 static Shader shTex;
 static Shader shBitMap;
@@ -107,7 +108,7 @@ prepareDraw(App* self)
 
     textFPS = Text("", adt::size(_fpsStrBuff), 0, 0, GL_DYNAMIC_DRAW);
 
-    adt::Arena allocScope(512);
+    adt::ArenaAllocator allocScope(512);
     adt::ThreadPool tp(&allocScope);
     tp.start();
 
@@ -131,11 +132,8 @@ prepareDraw(App* self)
     /* restore context after assets are loaded */
     self->bindGlContext();
 
-    tp.stop();
     tp.destroy();
-
     allocScope.freeAll();
-    allocScope.destroy();
 }
 
 void
@@ -202,19 +200,19 @@ renderScene(adt::Allocator* pAlloc, Shader* sh)
 {
     m4 m = m4Iden();
 
-    mSponza.drawGraph(pAlloc, DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, sh, "uModel", "uNormalMatrix", m);
+    mSponza.drawGraph(pAlloc, DRAW::ALL ^ DRAW::NORM, sh, "uModel", "uNormalMatrix", m);
 
     m = m4Iden();
     m *= m4Translate(m, {0, 0.5, 0});
     m *= m4Scale(m, 0.002);
     m = m4RotY(m, toRad(90));
-    mBackpack.drawGraph(pAlloc, DRAW::DIFF | DRAW::APPLY_TM | DRAW::APPLY_NM, sh, "uModel", "uNormalMatrix", m);
+    mBackpack.drawGraph(pAlloc, DRAW::ALL ^ DRAW::NORM, sh, "uModel", "uNormalMatrix", m);
 }
 
 void
 mainLoop(App* self)
 {
-    adt::Arena allocFrame(adt::SIZE_8M);
+    adt::ArenaAllocator allocFrame(adt::SIZE_8M);
 
     while (self->bRunning)
     {
@@ -265,10 +263,10 @@ mainLoop(App* self)
             glViewport(0, 0, self->wWidth, self->wHeight);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            /*render scene as normal using the denerated depth map */
-
+            /* draw skybox prior to everything else */
             renderSkyBox();
 
+            /*render scene as normal using the generated depth map */
             shOmniDirShadow.use();
             shOmniDirShadow.setV3("uLightPos", lightPos);
             shOmniDirShadow.setV3("uLightColor", lightColor);
@@ -295,7 +293,6 @@ mainLoop(App* self)
 
     allocFrame.freeAll();
     allocAssets.freeAll();
-    allocAssets.destroy();
 }
 
 } /* namespace frame */

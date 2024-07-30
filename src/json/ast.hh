@@ -2,7 +2,6 @@
 
 #include "String.hh"
 #include "Array.hh"
-#include "Arena.hh"
 
 namespace json
 {

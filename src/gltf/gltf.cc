@@ -1,3 +1,4 @@
+#include "ArenaAllocator.hh"
 #include "ThreadPool.hh"
 #include "gltf.hh"
 #include "logs.hh"
@@ -91,7 +92,7 @@ accessorTypeToString(enum ACCESSOR_TYPE t)
 
 #endif
 
-static inline enum ACCESSOR_TYPE
+inline enum ACCESSOR_TYPE
 stringToAccessorType(adt::String sv)
 {
     switch (adt::hashFNV(sv))
@@ -112,7 +113,7 @@ stringToAccessorType(adt::String sv)
     }
 }
 
-static inline union Type
+inline union Type
 assignUnionType(json::Object* obj, u32 n)
 {
     auto& arr = json::getArray(obj);
@@ -173,7 +174,7 @@ Asset::load(adt::String path)
     this->processJSONObjs();
     this->defaultSceneIdx = json::getLong(this->jsonObjs.scene);
 
-    adt::Arena alloc(adt::SIZE_1K);
+    adt::ArenaAllocator alloc(adt::SIZE_1K);
     adt::ThreadPool tp(&alloc);
     tp.start();
 
@@ -188,9 +189,9 @@ Asset::load(adt::String path)
     tp.submit([](void* a) { ((Asset*)a)->processNodes();       return 0; }, this);
 
     tp.wait();
-    tp.stop();
+    tp.destroy();
+
     alloc.freeAll();
-    alloc.destroy();
 }
 
 void
