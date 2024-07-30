@@ -290,7 +290,6 @@ mainLoop(App* self)
     }
 
     allocFrame.freeAll();
-    /*allocAssets.freeAll();*/
     apAssets.freeAll();
 }
 
