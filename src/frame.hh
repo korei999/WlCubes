@@ -6,6 +6,8 @@
 namespace frame
 {
 
+constexpr u32 ASSET_MAX_COUNT = 512;
+
 extern controls::PlayerControls player;
 extern f32 fov;
 extern f32 uiWidth;

@@ -17,7 +17,6 @@ struct AllocatorPool
         this->aAllocators.push({});
         new (&this->aAllocators.back()) A(size); /* 'placement new' */
 
-        COUT("returned: %p\n", &this->aAllocators.back());
         return &this->aAllocators.back();
     }
 
