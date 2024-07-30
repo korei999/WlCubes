@@ -265,7 +265,7 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_INPUT:
             {
                 u32 size = sizeof(RAWINPUT);
-                static RAWINPUT raw[sizeof(RAWINPUT)];
+                static RAWINPUT raw[sizeof(RAWINPUT)] {};
                 GetRawInputData((HRAWINPUT)lParam, RID_INPUT, raw, &size, sizeof(RAWINPUTHEADER));
 
                 if (raw->header.dwType == RIM_TYPEMOUSE)

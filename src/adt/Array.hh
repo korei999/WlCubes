@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Allocator.hh"
+#include "logs.hh"
 
 namespace adt
 {
@@ -59,7 +60,8 @@ template<typename T>
 Array<T>::Array(Allocator* _allocator, u32 _capacity)
     : pAlloc(_allocator), capacity(_capacity)
 {
-    pData = static_cast<T*>(this->pAlloc->alloc(this->capacity, sizeof(T)));
+    this->pData = (T*)(this->pAlloc->alloc(_capacity, sizeof(T)));
+    COUT("after: %p\n", this->pData);
 }
 
 template<typename T>
@@ -99,7 +101,7 @@ inline void
 Array<T>::grow(u32 _size)
 {
     this->capacity = _size;
-    this->pData = static_cast<T*>(this->pAlloc->realloc(this->pData, sizeof(T) * _size));
+    this->pData = (T*)(this->pAlloc->realloc(this->pData, sizeof(T) * _size));
 }
 
 } /* namespace adt */

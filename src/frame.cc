@@ -7,6 +7,7 @@
 #include "math.hh"
 #include "Text.hh"
 #include "AtomicArenaAllocator.hh"
+#include "AllocatorPool.hh"
 
 namespace frame
 {
@@ -28,7 +29,8 @@ f32 uiWidth = 150.0f;
 f32 uiHeight = (uiWidth * 9.0f) / 16.0f;
 
 /* assume there is no asset > 50Mb for one allocation */
-static adt::AtomicArenaAllocator allocAssets(adt::SIZE_1M * 50);
+static adt::AllocatorPool allocPoolAssets(adt::SIZE_1K);
+/*static adt::AtomicArenaAllocator allocAssets(adt::SIZE_1M * 50);*/
 
 static Shader shTex;
 static Shader shBitMap;
@@ -36,11 +38,11 @@ static Shader shColor;
 static Shader shCubeDepth;
 static Shader shOmniDirShadow;
 static Shader shSkyBox;
-static Model mSphere(&allocAssets);
-static Model mSponza(&allocAssets);
-static Model mBackpack(&allocAssets);
-static Model mCube(&allocAssets);
-static Texture tAsciiMap(&allocAssets);
+static Model mSphere(allocPoolAssets.get(adt::SIZE_8M));
+static Model mSponza(allocPoolAssets.get(adt::SIZE_8M));
+static Model mBackpack(allocPoolAssets.get(adt::SIZE_8M));
+static Model mCube(allocPoolAssets.get(adt::SIZE_8M));
+static Texture tAsciiMap(allocPoolAssets.get(adt::SIZE_8M));
 static Text textFPS;
 static Ubo uboProjView;
 static CubeMap cmCubeMap;
@@ -199,7 +201,6 @@ void
 renderScene(adt::Allocator* pAlloc, Shader* sh)
 {
     m4 m = m4Iden();
-
     mSponza.drawGraph(pAlloc, DRAW::ALL ^ DRAW::NORM, sh, "uModel", "uNormalMatrix", m);
 
     m = m4Iden();
@@ -292,7 +293,8 @@ mainLoop(App* self)
     }
 
     allocFrame.freeAll();
-    allocAssets.freeAll();
+    /*allocAssets.freeAll();*/
+    allocPoolAssets.freeAll();
 }
 
 } /* namespace frame */
