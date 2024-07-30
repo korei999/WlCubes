@@ -2,10 +2,6 @@
 
 #include "ultratypes.h"
 
-#ifdef DEBUG
-    #include "logs.hh"
-#endif
-
 namespace adt
 {
 
@@ -21,11 +17,7 @@ struct AllocatorPool
     A*
     get(u32 size)
     {
-#ifdef DEBUG
-        if (this->size >= this->cap)
-            LOG_FATAL("Size reached cap\n");
-#endif
-
+        assert(this->size < this->cap && "size reached cap");
         new(&this->aAllocators[this->size++]) A(size); /* 'placement new' */
         return &this->aAllocators[this->size - 1];
     }
