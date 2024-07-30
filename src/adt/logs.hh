@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 #define COUT(...) fprintf(stdout, __VA_ARGS__)
