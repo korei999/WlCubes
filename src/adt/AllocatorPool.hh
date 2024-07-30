@@ -15,7 +15,7 @@ struct AllocatorPool
     get(u32 size)
     {
         this->aAllocators.push({});
-        new (&this->aAllocators.back()) A(size); /* 'placement new' */
+        new(&this->aAllocators.back()) A(size); /* 'placement new' */
 
         return &this->aAllocators.back();
     }
