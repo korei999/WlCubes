@@ -3,7 +3,6 @@
 #include "ThreadPool.hh"
 #include "colors.hh"
 #include "frame.hh"
-#include "gl/gl.hh"
 #include "math.hh"
 #include "Text.hh"
 #include "AtomicArenaAllocator.hh"
@@ -108,7 +107,7 @@ prepareDraw(App* self)
 
     textFPS = Text("", adt::size(_fpsStrBuff), 0, 0, GL_DYNAMIC_DRAW);
 
-    adt::ArenaAllocator allocScope(512);
+    adt::ArenaAllocator allocScope(adt::SIZE_1K);
     adt::ThreadPool tp(&allocScope);
     tp.start();
 

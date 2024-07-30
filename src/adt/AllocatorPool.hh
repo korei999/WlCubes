@@ -26,7 +26,7 @@ struct AllocatorPool
         for (auto& a : this->aAllocators)
             a.freeAll();
 
-        aAllocators.destroy();
+        this->aAllocators.destroy();
     }
 
 private:
