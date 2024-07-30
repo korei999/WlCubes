@@ -182,14 +182,11 @@ enterFullscreen(HWND hwnd, int fullscreenWidth, int fullscreenHeight, int colour
     bool bSucces;
 
     EnumDisplaySettings(NULL, 0, &fullscreenSettings);
-    fullscreenSettings.dmPelsWidth        = fullscreenWidth;
-    fullscreenSettings.dmPelsHeight       = fullscreenHeight;
-    fullscreenSettings.dmBitsPerPel       = colourBits;
+    fullscreenSettings.dmPelsWidth = fullscreenWidth;
+    fullscreenSettings.dmPelsHeight = fullscreenHeight;
+    fullscreenSettings.dmBitsPerPel = colourBits;
     fullscreenSettings.dmDisplayFrequency = refreshRate;
-    fullscreenSettings.dmFields           = DM_PELSWIDTH |
-                                            DM_PELSHEIGHT |
-                                            DM_BITSPERPEL |
-                                            DM_DISPLAYFREQUENCY;
+    fullscreenSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
 
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_TOPMOST);
     SetWindowLongPtr(hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
@@ -276,15 +273,6 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     frame::player.mouse.relX += raw->data.mouse.lLastX;
                     frame::player.mouse.relY += raw->data.mouse.lLastY;
                 }
-                // if (raw->header.dwType == RIM_TYPEKEYBOARD)
-                // {
-                //     auto key = raw->data.keyboard.VKey;
-                //     /* 0 == down, 1 == up */
-                //     auto flags = raw->data.keyboard.Flags;
-
-                //     /*COUT("%d, %d\n", key, asciiToLinuxKeyCodes[key]);*/
-                //     controls::pressedKeys[ asciiToLinuxKeyCodes[key] ] = !flags;
-                // }
             }
             break;
 
