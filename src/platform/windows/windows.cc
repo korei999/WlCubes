@@ -276,7 +276,7 @@ Window::setSwapInterval(int interval)
 void 
 Window::toggleVSync()
 {
-    this->swapInterval = !this->swapInterval; 
+    this->swapInterval = !this->swapInterval;
     wglSwapIntervalEXT(this->swapInterval);
     LOG_OK("swapInterval: %d\n", this->swapInterval);
 }
