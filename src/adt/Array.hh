@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Allocator.hh"
-#include "logs.hh"
 
 namespace adt
 {
@@ -61,7 +60,6 @@ Array<T>::Array(Allocator* _allocator, u32 _capacity)
     : pAlloc(_allocator), capacity(_capacity)
 {
     this->pData = (T*)(this->pAlloc->alloc(_capacity, sizeof(T)));
-    COUT("after: %p\n", this->pData);
 }
 
 template<typename T>

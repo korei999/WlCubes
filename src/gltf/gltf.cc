@@ -175,7 +175,7 @@ Asset::load(adt::String path)
     this->defaultSceneIdx = json::getLong(this->jsonObjs.scene);
 
     adt::ArenaAllocator alloc(adt::SIZE_1K);
-    adt::ThreadPool tp(&alloc);
+    adt::ThreadPool tp(&alloc, 9);
     tp.start();
 
     tp.submit([](void* a) { ((Asset*)a)->processScenes();      return 0; }, this);
@@ -190,7 +190,6 @@ Asset::load(adt::String path)
 
     tp.wait();
     tp.destroy();
-
     alloc.freeAll();
 }
 

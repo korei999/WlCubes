@@ -1,22 +1,24 @@
 #pragma once
 
-#include "ArenaAllocator.hh"
 #include "Array.hh"
 #include "DefaultAllocator.hh"
 
 namespace adt
 {
 
+template<typename A>
 struct AllocatorPool
 {
     AllocatorPool(u32 prealloc) : aAllocators(&StdAllocator, prealloc) {}
 
-    ArenaAllocator*
+    A*
     get(u32 size)
     {
-        this->aAllocators.push({size});
+        this->aAllocators.push({});
+        new (&this->aAllocators.back()) A(size); /* 'placement new' */
 
-        return &this->aAllocators[aAllocators.size - 1];
+        COUT("returned: %p\n", &this->aAllocators.back());
+        return &this->aAllocators.back();
     }
 
     void
@@ -29,7 +31,7 @@ struct AllocatorPool
     }
 
 private:
-    Array<ArenaAllocator> aAllocators;
+    Array<A> aAllocators;
 };
 
 } /* namespace adt */

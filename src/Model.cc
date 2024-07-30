@@ -40,22 +40,22 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
     }
 
     adt::AtomicArenaAllocator aAlloc(adt::SIZE_1M * 10);
-
     adt::ThreadPool tp(&aAlloc);
     tp.start();
 
     /* preload texures */
-    adt::Array<Texture> aTex(this->pAlloc, a.aImages.size);
+    adt::Array<Texture> aTex(&aAlloc, a.aImages.size);
+    aTex.resize(a.aImages.size);
 
     for (u32 i = 0; i < a.aImages.size; i++)
     {
-        auto* p = &aTex[i];
         auto uri = a.aImages[i].uri;
 
         if (!uri.endsWith(".bmp"))
             LOG_FATAL("trying to load unsupported texture: '%.*s'\n", uri.size, uri.pData);
 
-        struct args {
+        struct args
+        {
             Texture* p;
             adt::Allocator* pAlloc;
             adt::String path;
@@ -65,9 +65,9 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             App* c;
         };
 
-        auto* arg = (args*)aAlloc.alloc(1, sizeof(args));
+        auto* arg = (args*)::calloc(1, sizeof(args));
         *arg = {
-            .p = p,
+            .p = &aTex[i],
             .pAlloc = &aAlloc,
             .path = adt::replacePathSuffix(this->pAlloc, path, uri),
             .type = TEX_TYPE::DIFFUSE,
@@ -79,6 +79,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
         auto task = [](void* pArgs) -> int {
             auto a = *(args*)pArgs;
             *a.p = Texture(a.pAlloc, a.path, a.type, a.flip, a.texMode, a.c);
+            free(pArgs);
 
             return 0;
         };

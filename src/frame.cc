@@ -28,9 +28,7 @@ f32 fov = 90.0f;
 f32 uiWidth = 150.0f;
 f32 uiHeight = (uiWidth * 9.0f) / 16.0f;
 
-/* assume there is no asset > 50Mb for one allocation */
-static adt::AllocatorPool allocPoolAssets(adt::SIZE_1K);
-/*static adt::AtomicArenaAllocator allocAssets(adt::SIZE_1M * 50);*/
+static adt::AllocatorPool<adt::AtomicArenaAllocator> apAssets(adt::SIZE_1K);
 
 static Shader shTex;
 static Shader shBitMap;
@@ -38,11 +36,11 @@ static Shader shColor;
 static Shader shCubeDepth;
 static Shader shOmniDirShadow;
 static Shader shSkyBox;
-static Model mSphere(allocPoolAssets.get(adt::SIZE_8M));
-static Model mSponza(allocPoolAssets.get(adt::SIZE_8M));
-static Model mBackpack(allocPoolAssets.get(adt::SIZE_8M));
-static Model mCube(allocPoolAssets.get(adt::SIZE_8M));
-static Texture tAsciiMap(allocPoolAssets.get(adt::SIZE_8M));
+static Model mSphere(apAssets.get(adt::SIZE_8M));
+static Model mSponza(apAssets.get(adt::SIZE_8M * 2));
+static Model mBackpack(apAssets.get(adt::SIZE_8M));
+static Model mCube(apAssets.get(adt::SIZE_1M));
+static Texture tAsciiMap(apAssets.get(adt::SIZE_1M));
 static Text textFPS;
 static Ubo uboProjView;
 static CubeMap cmCubeMap;
@@ -294,7 +292,7 @@ mainLoop(App* self)
 
     allocFrame.freeAll();
     /*allocAssets.freeAll();*/
-    allocPoolAssets.freeAll();
+    apAssets.freeAll();
 }
 
 } /* namespace frame */
