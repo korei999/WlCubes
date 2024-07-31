@@ -48,39 +48,6 @@ getTargetString(enum TARGET t)
     }
 }
 
-// static std::string
-// getUnionTypeString(enum ACCESSOR_TYPE type, const union Type& t, adt::String prefix)
-// {
-//     switch (type)
-//     {
-//         default:
-//             return "unknown";
-//         case ACCESSOR_TYPE::SCALAR:
-//             return FMT("{}({})", prefix, t.SCALAR);
-//         case ACCESSOR_TYPE::VEC2:
-//             return FMT("{}({}, {})", prefix, t.VEC2.x, t.VEC2.y);
-//         case ACCESSOR_TYPE::VEC3:
-//             return FMT("{}({}, {}, {})", prefix, t.VEC3.x, t.VEC3.y, t.VEC3.z);
-//         case ACCESSOR_TYPE::VEC4:
-//             return FMT("{}({}, {}, {}, {})", prefix, t.VEC4.x, t.VEC4.y, t.VEC4.z, t.VEC4.w);
-//         case ACCESSOR_TYPE::MAT3:
-//             return FMT("{}({}, {}, {}\n"
-//                        "{} {}, {}, {}\n"
-//                        "{} {}, {}, {})\n", prefix, t.MAT3.e[0][0], t.MAT3.e[0][1], t.MAT3.e[0][2],
-//                                            prefix, t.MAT3.e[1][0], t.MAT3.e[1][1], t.MAT3.e[1][2],
-//                                            prefix, t.MAT3.e[2][0], t.MAT3.e[2][1], t.MAT3.e[2][2]);
-//         case ACCESSOR_TYPE::MAT4:
-//             return FMT("{}({}, {}, {}, {}\n"
-//                        "{} {}, {}, {}, {}\n"
-//                        "{} {}, {}, {}, {}\n"
-//                        "{} {}, {}, {}, {})\n", prefix, t.MAT4.e[0][0], t.MAT4.e[0][1], t.MAT4.e[0][2], t.MAT4.e[0][3],
-//                                                prefix, t.MAT4.e[1][0], t.MAT4.e[1][1], t.MAT4.e[1][2], t.MAT4.e[1][3],
-//                                                prefix, t.MAT4.e[2][0], t.MAT4.e[2][1], t.MAT4.e[2][2], t.MAT4.e[2][3],
-//                                                prefix, t.MAT4.e[3][0], t.MAT4.e[3][1], t.MAT4.e[3][2], t.MAT4.e[3][3]);
-// 
-//     }
-// }
-
 static adt::String
 accessorTypeToString(enum ACCESSOR_TYPE t)
 {
@@ -249,9 +216,10 @@ Asset::processJSONObjs()
     }
 
 #ifdef GLTF
-    LOG_OK("GLTF: '%.*s'\n", (int)this->parser.sName, this->parser.sName.pData);
+    LOG_OK("GLTF: '%.*s'\n", this->parser.sName.size, this->parser.sName.pData);
     auto check = [](adt::String sv, json::Object* p) -> void {
-        CERR("\t{}: '{}'\n", sv, p ? p->svKey : "(null)");
+        adt::String s = p ? p->svKey : "(null)";
+        CERR("\t%.*s: '%.*s'\n", sv.size, sv.data(), s.size, s.pData);
     };
 
     check("scene", this->jsonObjs.scene);
@@ -291,13 +259,6 @@ Asset::processScenes()
             break;
         }
     }
-
-#ifdef GLTF
-    // LOG(OK, "scene nodes: ");
-    // for (auto& n : this->aScenes)
-    //     CERR("{}, ", n.nodeIdx);
-    // CERR("\n");
-#endif
 }
 
 void
@@ -328,12 +289,6 @@ Asset::processBuffers()
             .aBin = aBin
         });
     }
-
-#ifdef GLTF
-    // LOG(OK, "buffers:\n");
-    // for (auto& b : this->aBuffers)
-    //     CERR("\tbyteLength: '{}', uri: '{}'\n", b.byteLength, b.uri);
-#endif
 }
 
 void
@@ -361,13 +316,6 @@ Asset::processBufferViews()
             .target = pTarget ? static_cast<enum TARGET>(json::getLong(pTarget)) : TARGET::NONE
         });
     }
-
-#ifdef GLTF
-    // LOG(OK, "bufferViews:\n");
-    // for (auto& bv : this->aBufferViews)
-    //     CERR("\tbuffer: '{}'\n\tbyteOffset: '{}'\n\tbyteLength: '{}'\n\tbyteStride: '{}'\n\ttarget: '{}'\n\n",
-    //          bv.buffer, bv.byteOffset, bv.byteLength, bv.byteStride, getTargetString(bv.target));
-#endif
 }
 
 void
@@ -402,18 +350,6 @@ Asset::processAccessors()
             .type = type
         });
     }
-
-#ifdef GLTF
-    // LOG(OK, "accessors:\n");
-    // for (auto& a : this->aAccessors)
-    // {
-    //     CERR("\tbufferView: '{}'\n\tbyteOffset: '{}'\n\tcomponentType: '{}'\n\tcount: '{}'\n",
-    //          a.bufferView, a.byteOffset, getComponentTypeString(a.componentType), a.count);
-    //     CERR("\tmax:\n{}\n", getUnionTypeString(a.type, a.max, "\t"));
-    //     CERR("\tmin:\n{}\n", getUnionTypeString(a.type, a.min, "\t"));
-    //     CERR("\ttype: '{}'\n\n", accessorTypeToString(a.type));
-    // }
-#endif
 }
 
 void
@@ -463,21 +399,6 @@ Asset::processMeshes()
  
         this->aMeshes.push({.aPrimitives = aPrimitives, .svName = name});
     }
-
-#ifdef GLTF
-    // LOG(OK, "meshes:\n");
-    // for (auto& m : this->aMeshes)
-    // {
-    //     CERR("\tname: '{}'\n", m.svName);
-    //     for (auto& p : m.aPrimitives)
-    //     {
-    //         CERR("\tattributes:\n");
-    //         CERR("\t\tNORMAL: '{}', POSITION: '{}', TEXCOORD_0: '{}', TANGENT: '{}'\n",
-    //              p.attributes.NORMAL, p.attributes.POSITION, p.attributes.TEXCOORD_0, p.attributes.TANGENT);
-    //         CERR("\tindices: '{}', material: '{}, mode: '{}''\n\n", p.indices, p.material, getPrimitiveModeString(p.mode));
-    //     }
-    // }
-#endif
 }
 
 void
@@ -627,28 +548,6 @@ Asset::processNodes()
 
         this->aNodes.push(nNode);
     }
-
-#ifdef GLTF
-    // LOG(OK, "nodes:\n");
-    // for (auto& node : this->aNodes)
-    // {
-    //     CERR("\tcamera: '{}'\n", node.camera);
-    //     CERR("\tchildren: ");
-    //     for (auto& c : node.children)
-    //         CERR("{}, ", c);
-    //     CERR("\n");
-
-    //     union Type* ut = reinterpret_cast<union Type*>(&node.matrix);
-    //     CERR("\tmatrix:\n{}\n", getUnionTypeString(ACCESSOR_TYPE::MAT4, *ut, "\t"));
-    //     CERR("\tmesh: '{}'\n", node.mesh);
-    //     ut = reinterpret_cast<union Type*>(&node.rotation);
-    //     CERR("\trotation:\n{}\n", getUnionTypeString(ACCESSOR_TYPE::VEC4, *ut, "\t"));
-    //     ut = reinterpret_cast<union Type*>(&node.translation);
-    //     CERR("\ttranslation:\n{}\n", getUnionTypeString(ACCESSOR_TYPE::VEC3, *ut, "\t"));
-    //     ut = reinterpret_cast<union Type*>(&node.scale);
-    //     CERR("\tscale:\n{}\n", getUnionTypeString(ACCESSOR_TYPE::VEC3, *ut, "\t"));
-    // }
-#endif
 }
 
 } /* namespace gltf */

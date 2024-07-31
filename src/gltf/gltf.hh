@@ -219,8 +219,7 @@ struct Asset
     Asset(adt::Allocator* p)
         : pAlloc(p), parser(p), aScenes(p), aBuffers(p), aBufferViews(p), aAccessors(p), aMeshes(p), aTextures(p), aMaterials(p), aImages(p), aNodes(p) {}
     Asset(adt::Allocator* p, adt::String path)
-        : pAlloc(p), parser(p), aScenes(p), aBuffers(p), aBufferViews(p), aAccessors(p), aMeshes(p), aTextures(p), aMaterials(p), aImages(p), aNodes(p)
-        { this->load(path); }
+        : Asset(p) { this->load(path); }
 
     void load(adt::String path);
 private:
@@ -281,7 +280,7 @@ getPrimitiveModeString(enum PRIMITIVES pm)
         "POINTS", "LINES", "LINE_LOOP", "LINE_STRIP", "TRIANGLES", "TRIANGLE_STRIP", "TRIANGLE_FAN"
     };
 
-    return ss[static_cast<int>(pm)];
+    return ss[int(pm)];
 }
 
 } /* namespace gltf */
