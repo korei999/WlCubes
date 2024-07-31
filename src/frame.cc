@@ -18,11 +18,7 @@ static f64 s_prevTime;
 static int s_fpsCount = 0;
 static char s_fpsStrBuff[40] {};
 
-controls::PlayerControls player {
-    ._pos {0.0, 1.0, 1.0},
-    ._moveSpeed = 4.0,
-    ._mouse {.sens = 0.07}
-};
+controls::PlayerControls player({0.0f, 1.0f, 1.0f}, 4.0, 0.07);
 
 f32 g_fov = 90.0f;
 f32 g_uiWidth = 150.0f;

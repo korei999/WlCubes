@@ -45,6 +45,10 @@ struct PlayerControls
 
     Mouse _mouse {};
 
+    PlayerControls() = default;
+    PlayerControls(const v3& pos, f64 moveSpeed, f64 sens)
+        : _pos{pos}, _moveSpeed{moveSpeed}, _mouse{} { _mouse.sens = sens; }
+
     void procMouse();
     void procKeys(App* app);
     void procMovements([[maybe_unused]] App* c);
