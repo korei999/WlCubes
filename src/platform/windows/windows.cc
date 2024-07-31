@@ -83,7 +83,7 @@ getWglFunctions(void)
     }
 
     if (!wglChoosePixelFormatARB || !wglCreateContextAttribsARB || !wglSwapIntervalEXT)
-        LOG_FATAL("OpenGL does not support required WGL extensions for modern context!");
+        LOG_FATAL("OpenGL does not support required WGL extensions context!");
 
     wglMakeCurrent(nullptr, nullptr);
     wglDeleteContext(rc);
