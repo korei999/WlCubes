@@ -10,7 +10,7 @@ namespace json
 void
 Lexer::loadFile(adt::String path)
 {
-    this->sFile = adt::loadFile(this->pArena, path);
+    _sFile = adt::loadFile(_pArena, path);
 }
 
 void
@@ -24,29 +24,29 @@ Lexer::skipWhiteSpace()
         return false;
     };
 
-    while (this->pos < this->sFile.size && oneOf(this->sFile[this->pos]))
-        this->pos++;
+    while (_pos < _sFile._size && oneOf(_sFile[_pos]))
+        _pos++;
 }
 
 Token
 Lexer::number()
 {
     Token r {};
-    u32 start = this->pos;
+    u32 start = _pos;
     u32 i = start;
 
-    while (isxdigit(this->sFile[i])       ||
-                    this->sFile[i] == '.' ||
-                    this->sFile[i] == '-' ||
-                    this->sFile[i] == '+')
+    while (isxdigit(_sFile[i])       ||
+                    _sFile[i] == '.' ||
+                    _sFile[i] == '-' ||
+                    _sFile[i] == '+')
     {
         i++;
     }
 
     r.type = Token::NUMBER;
-    r.svLiteral = {&this->sFile[start], i - start};
+    r.svLiteral = {&_sFile[start], i - start};
     
-    this->pos = i - 1;
+    _pos = i - 1;
     return r;
 }
 
@@ -55,13 +55,13 @@ Lexer::stringNoQuotes()
 {
     Token r {};
 
-    u32 start = this->pos;
+    u32 start = _pos;
     u32 i = start;
 
-    while (isalpha(this->sFile[i]))
+    while (isalpha(_sFile[i]))
         i++;
 
-    r.svLiteral = {&this->sFile[start], i - start};
+    r.svLiteral = {&_sFile[start], i - start};
 
     if ("null" == r.svLiteral)
         r.type = Token::NULL_;
@@ -72,7 +72,7 @@ Lexer::stringNoQuotes()
     else
         r.type = Token::IDENT;
 
-    this->pos = i - 1;
+    _pos = i - 1;
     return r;
 }
 
@@ -81,13 +81,13 @@ Lexer::string()
 {
     Token r {};
 
-    u32 start = this->pos;
+    u32 start = _pos;
     u32 i = start + 1;
     bool bEsc = false;
 
-    while (this->sFile[i])
+    while (_sFile[i])
     {
-        switch (this->sFile[i])
+        switch (_sFile[i])
         {
             default:
                 if (bEsc)
@@ -120,9 +120,9 @@ Lexer::string()
 done:
 
     r.type = Token::IDENT;
-    r.svLiteral = {&this->sFile[start + 1], (i - start) - 1};
+    r.svLiteral = {&_sFile[start + 1], (i - start) - 1};
 
-    this->pos = i;
+    _pos = i;
     return r;
 }
 
@@ -131,7 +131,7 @@ Lexer::character(enum Token::TYPE type)
 {
     return {
         .type = type,
-        .svLiteral = {&this->sFile[pos], 1}
+        .svLiteral = {&_sFile[_pos], 1}
     };
 }
 
@@ -140,12 +140,12 @@ Lexer::next()
 {
     Token r {};
 
-    if (this->pos >= this->sFile.size)
+    if (_pos >= _sFile._size)
             return r;
 
     skipWhiteSpace();
 
-    switch (this->sFile[this->pos])
+    switch (_sFile[_pos])
     {
         default:
             /* solves bools and nulls */
@@ -200,7 +200,7 @@ Lexer::next()
             break;
     }
 
-    this->pos++;
+    _pos++;
     return r;
 }
 

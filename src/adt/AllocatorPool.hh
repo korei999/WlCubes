@@ -2,30 +2,32 @@
 
 #include "ultratypes.h"
 
+#include <assert.h>
+
 namespace adt
 {
 
 template<typename A, u32 MAX>
 struct AllocatorPool
 {
-    A aAllocators[MAX];
-    u32 size;
-    u32 cap;
+    A _aAllocators[MAX];
+    u32 _size;
+    u32 _cap;
 
-    AllocatorPool() : size(0), cap(MAX) {}
+    AllocatorPool() : _size(0), _cap(MAX) {}
 
     A*
     get(u32 size)
     {
-        assert(this->size < this->cap && "size reached cap");
-        this->aAllocators[this->size++] = A(size);
-        return &this->aAllocators[this->size - 1];
+        assert(_size < _cap && "size reached cap");
+        _aAllocators[_size++] = A(size);
+        return &_aAllocators[_size - 1];
     }
 
     void
     freeAll()
     {
-        for (auto& a : this->aAllocators)
+        for (auto& a : _aAllocators)
             a.freeAll();
     }
 };

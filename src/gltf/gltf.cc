@@ -1,8 +1,8 @@
 #include "ArenaAllocator.hh"
 #include "ThreadPool.hh"
+#include "file.hh"
 #include "gltf.hh"
 #include "logs.hh"
-#include "file.hh"
 
 namespace gltf
 {
@@ -135,11 +135,11 @@ accessorTypeToUnionType(enum ACCESSOR_TYPE t, json::Object* obj)
 void
 Asset::load(adt::String path)
 {
-    this->parser.load(path);
-    this->parser.parse();
+    _parser.load(path);
+    _parser.parse();
 
-    this->processJSONObjs();
-    this->defaultSceneIdx = json::getLong(this->jsonObjs.scene);
+    processJSONObjs();
+    _defaultSceneIdx = json::getLong(this->_jsonObjs.scene);
 
     adt::ArenaAllocator alloc(adt::SIZE_1K);
     adt::ThreadPool tp(&alloc, 9);
@@ -164,84 +164,84 @@ void
 Asset::processJSONObjs()
 {
     /* collect all the top level objects */
-    for (auto& node : json::getObject(this->parser.pHead))
+    for (auto& node : json::getObject(_parser.getHeadObj()))
     {
         switch (adt::hashFNV(node.svKey))
         {
             default:
                 break;
             case static_cast<u64>(HASH_CODES::scene):
-                this->jsonObjs.scene = &node;
+                _jsonObjs.scene = &node;
                 break;
             case static_cast<u64>(HASH_CODES::scenes):
-                this->jsonObjs.scenes = &node;
+                _jsonObjs.scenes = &node;
                 break;
             case static_cast<u64>(HASH_CODES::nodes):
-                this->jsonObjs.nodes = &node;
+                _jsonObjs.nodes = &node;
                 break;
             case static_cast<u64>(HASH_CODES::meshes):
-                this->jsonObjs.meshes = &node;
+                _jsonObjs.meshes = &node;
                 break;
             case static_cast<u64>(HASH_CODES::cameras):
-                this->jsonObjs.cameras = &node;
+                _jsonObjs.cameras = &node;
                 break;
             case static_cast<u64>(HASH_CODES::buffers):
-                this->jsonObjs.buffers = &node;
+                _jsonObjs.buffers = &node;
                 break;
             case static_cast<u64>(HASH_CODES::bufferViews):
-                this->jsonObjs.bufferViews = &node;
+                _jsonObjs.bufferViews = &node;
                 break;
             case static_cast<u64>(HASH_CODES::accessors):
-                this->jsonObjs.accessors = &node;
+                _jsonObjs.accessors = &node;
                 break;
             case static_cast<u64>(HASH_CODES::materials):
-                this->jsonObjs.materials = &node;
+                _jsonObjs.materials = &node;
                 break;
             case static_cast<u64>(HASH_CODES::textures):
-                this->jsonObjs.textures = &node;
+                _jsonObjs.textures = &node;
                 break;
             case static_cast<u64>(HASH_CODES::images):
-                this->jsonObjs.images = &node;
+                _jsonObjs.images = &node;
                 break;
             case static_cast<u64>(HASH_CODES::samplers):
-                this->jsonObjs.samplers = &node;
+                _jsonObjs.samplers = &node;
                 break;
             case static_cast<u64>(HASH_CODES::skins):
-                this->jsonObjs.skins = &node;
+                _jsonObjs.skins = &node;
                 break;
             case static_cast<u64>(HASH_CODES::animations):
-                this->jsonObjs.animations = &node;
+                _jsonObjs.animations = &node;
                 break;
         }
     }
 
 #ifdef GLTF
-    LOG_OK("GLTF: '%.*s'\n", this->parser.sName.size, this->parser.sName.pData);
+    LOG_OK("GLTF: '%.*s'\n", parser.sName.size, this->parser.sName.pData);
     auto check = [](adt::String sv, json::Object* p) -> void {
         adt::String s = p ? p->svKey : "(null)";
         CERR("\t%.*s: '%.*s'\n", sv.size, sv.data(), s.size, s.pData);
     };
 
-    check("scene", this->jsonObjs.scene);
-    check("scenes", this->jsonObjs.scenes);
-    check("nodes", this->jsonObjs.nodes);
-    check("meshes", this->jsonObjs.meshes);
-    check("buffers", this->jsonObjs.buffers);
-    check("bufferViews", this->jsonObjs.bufferViews);
-    check("accessors", this->jsonObjs.accessors);
-    check("materials", this->jsonObjs.materials);
-    check("textures", this->jsonObjs.textures);
-    check("images", this->jsonObjs.images);
-    check("samplers", this->jsonObjs.samplers);
-    check("skins", this->jsonObjs.skins);
-    check("animations", this->jsonObjs.animations);
+    check("scene", jsonObjs.scene);
+    check("scenes", jsonObjs.scenes);
+    check("nodes", jsonObjs.nodes);
+    check("meshes", jsonObjs.meshes);
+    check("buffers", jsonObjs.buffers);
+    check("bufferViews", jsonObjs.bufferViews);
+    check("accessors", jsonObjs.accessors);
+    check("materials", jsonObjs.materials);
+    check("textures", jsonObjs.textures);
+    check("images", jsonObjs.images);
+    check("samplers", jsonObjs.samplers);
+    check("skins", jsonObjs.skins);
+    check("animations", jsonObjs.animations);
 #endif
 }
 
 void
 Asset::processScenes()
 {
-    auto scenes = this->jsonObjs.scenes;
+    auto scenes = _jsonObjs.scenes;
     auto& arr = json::getArray(scenes);
     for (auto& e : arr)
     {
@@ -251,11 +251,11 @@ Asset::processScenes()
         {
             auto& a = json::getArray(pNodes);
             for (auto& el : a)
-                this->aScenes.push({(u32)json::getLong(&el)});
+                _aScenes.push({(u32)json::getLong(&el)});
         }
         else
         {
-            this->aScenes.push({0});
+            _aScenes.push({0});
             break;
         }
     }
@@ -264,7 +264,7 @@ Asset::processScenes()
 void
 Asset::processBuffers()
 {
-    auto buffers = this->jsonObjs.buffers;
+    auto buffers = _jsonObjs.buffers;
     auto& arr = json::getArray(buffers);
     for (auto& e : arr)
     {
@@ -279,11 +279,11 @@ Asset::processBuffers()
         if (pUri)
         {
             svUri = json::getString(pUri);
-            auto sNewPath = adt::replacePathSuffix(this->pAlloc, this->parser.sName, svUri);
-            aBin = adt::loadFile(this->pAlloc, sNewPath);
+            auto sNewPath = adt::replacePathSuffix(_pAlloc, this->_parser._sName, svUri);
+            aBin = adt::loadFile(_pAlloc, sNewPath);
         }
 
-        this->aBuffers.push({
+        _aBuffers.push({
             .byteLength = static_cast<u32>(json::getLong(pByteLength)),
             .uri = svUri,
             .aBin = aBin
@@ -294,7 +294,7 @@ Asset::processBuffers()
 void
 Asset::processBufferViews()
 {
-    auto bufferViews = this->jsonObjs.bufferViews;
+    auto bufferViews = _jsonObjs.bufferViews;
     auto& arr = json::getArray(bufferViews);
     for (auto& e : arr)
     {
@@ -308,7 +308,7 @@ Asset::processBufferViews()
         auto pByteStride = json::searchObject(obj, "byteStride");
         auto pTarget = json::searchObject(obj, "target");
 
-        this->aBufferViews.push({
+        _aBufferViews.push({
             .buffer = static_cast<u32>(json::getLong(pBuffer)),
             .byteOffset = pByteOffset ? static_cast<u32>(json::getLong(pByteOffset)) : 0,
             .byteLength = static_cast<u32>(json::getLong(pByteLength)),
@@ -321,7 +321,7 @@ Asset::processBufferViews()
 void
 Asset::processAccessors()
 {
-    auto accessors = this->jsonObjs.accessors;
+    auto accessors = _jsonObjs.accessors;
     auto& arr = json::getArray(accessors);
     for (auto& e : arr)
     {
@@ -340,7 +340,7 @@ Asset::processAccessors()
  
         enum ACCESSOR_TYPE type = stringToAccessorType(json::getString(pType));
  
-        this->aAccessors.push({
+        _aAccessors.push({
             .bufferView = pBufferView ? static_cast<u32>(json::getLong(pBufferView)) : 0,
             .byteOffset = pByteOffset ? static_cast<u32>(json::getLong(pByteOffset)) : 0,
             .componentType = static_cast<enum COMPONENT_TYPE>(json::getLong(pComponentType)),
@@ -355,7 +355,7 @@ Asset::processAccessors()
 void
 Asset::processMeshes()
 {
-    auto meshes = this->jsonObjs.meshes;
+    auto meshes = _jsonObjs.meshes;
     auto& arr = json::getArray(meshes);
     for (auto& e : arr)
     {
@@ -364,7 +364,7 @@ Asset::processMeshes()
         auto pPrimitives = json::searchObject(obj, "primitives");
         if (!pPrimitives) LOG_FATAL("'primitives' field is required\n");
  
-        adt::Array<Primitive> aPrimitives(this->pAlloc);
+        adt::Array<Primitive> aPrimitives(_pAlloc);
         auto pName = json::searchObject(obj, "name");
         auto name = pName ? json::getString(pName) : "";
  
@@ -397,14 +397,14 @@ Asset::processMeshes()
             });
         }
  
-        this->aMeshes.push({.aPrimitives = aPrimitives, .svName = name});
+        _aMeshes.push({.aPrimitives = aPrimitives, .svName = name});
     }
 }
 
 void
 Asset::processTexures()
 {
-    auto textures = this->jsonObjs.textures;
+    auto textures = _jsonObjs.textures;
     if (!textures) return;
 
     auto& arr = json::getArray(textures);
@@ -415,7 +415,7 @@ Asset::processTexures()
         auto pSource = json::searchObject(obj, "source");
         auto pSampler = json::searchObject(obj, "sampler");
 
-        this->aTextures.push({
+        _aTextures.push({
             .source = pSource ? static_cast<u32>(json::getLong(pSource)) : adt::NPOS,
             .sampler = pSampler ? static_cast<u32>(json::getLong(pSampler)) : adt::NPOS
         });
@@ -425,7 +425,7 @@ Asset::processTexures()
 void
 Asset::processMaterials()
 {
-    auto materials = this->jsonObjs.materials;
+    auto materials = _jsonObjs.materials;
     if (!materials) return;
 
     auto& arr = json::getArray(materials);
@@ -464,7 +464,7 @@ Asset::processMaterials()
             normTexInfo.index = json::getLong(pIndex);
         }
 
-        this->aMaterials.push({
+        _aMaterials.push({
             .pbrMetallicRoughness {
                 .baseColorTexture = texInfo,
             },
@@ -476,7 +476,7 @@ Asset::processMaterials()
 void
 Asset::processImages()
 {
-    auto imgs = this->jsonObjs.images;
+    auto imgs = _jsonObjs.images;
     if (!imgs) return;
 
     auto& arr = json::getArray(imgs);
@@ -486,20 +486,20 @@ Asset::processImages()
 
         auto pUri = json::searchObject(obj, "uri");
         if (pUri)
-            this->aImages.push({json::getString(pUri)});
+            _aImages.push({json::getString(pUri)});
     }
 }
 
 void
 Asset::processNodes()
 {
-    auto nodes = this->jsonObjs.nodes;
+    auto nodes = _jsonObjs.nodes;
     auto& arr = json::getArray(nodes);
     for (auto& node : arr)
     {
         auto& obj = json::getObject(&node);
 
-        Node nNode(this->pAlloc);
+        Node nNode(_pAlloc);
 
         auto pName = json::searchObject(obj, "name");
         if (pName) nNode.name = json::getString(pName);
@@ -546,7 +546,7 @@ Asset::processNodes()
             nNode.scale = ut.VEC3;
         }
 
-        this->aNodes.push(nNode);
+        _aNodes.push(nNode);
     }
 }
 

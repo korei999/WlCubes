@@ -30,20 +30,20 @@ struct Mouse
 struct PlayerControls
 {
     /* place proj and view adjecent for nice ubo buffering */
-    m4 proj {};
-    m4 view {};
+    m4 _proj {};
+    m4 _view {};
 
-    v3 pos {0, 0, 3};
-    v3 front {0, 0, -1};
-    v3 right {1, 0, 0};
-    const v3 up {0, 1, 0};
+    v3 _pos {0, 0, 3};
+    v3 _front {0, 0, -1};
+    v3 _right {1, 0, 0};
+    const v3 _up {0, 1, 0};
 
-    f64 currTime = 0.0;
-    f64 deltaTime = 0.0;
-    f64 lastFrameTime = 0.0;
-    f64 moveSpeed = 5.0;
+    f64 _currTime = 0.0;
+    f64 _deltaTime = 0.0;
+    f64 _lastFrameTime = 0.0;
+    f64 _moveSpeed = 5.0;
 
-    Mouse mouse {};
+    Mouse _mouse {};
 
     void procMouse();
     void procKeys(App* app);

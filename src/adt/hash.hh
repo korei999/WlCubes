@@ -1,35 +1,37 @@
 #pragma once
 
+#include "ultratypes.h"
+
 namespace adt
 {
 
 template<typename T>
-inline size_t
+inline u64
 fnHash(T& x)
 {
     return (x);
 }
 
 template<>
-inline size_t
-fnHash<size_t>(size_t& x)
+inline u64
+fnHash<u64>(u64& x)
 {
     return x;
 }
 
 template<>
-inline size_t
+inline u64
 fnHash<void* const>(void* const& x)
 {
-    return reinterpret_cast<size_t>(x);
+    return reinterpret_cast<u64>(x);
 }
 
-constexpr size_t
+constexpr u64
 hashFNV(const char* str, u32 size)
 {
-    size_t hash = 0xCBF29CE484222325;
-    for (size_t i = 0; i < size; i++)
-        hash = (hash ^ size_t(str[i])) * 0x100000001B3;
+    u64 hash = 0xCBF29CE484222325;
+    for (u64 i = 0; i < size; i++)
+        hash = (hash ^ u64(str[i])) * 0x100000001B3;
     return hash;
 }
 

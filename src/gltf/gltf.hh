@@ -201,23 +201,23 @@ struct Material
 
 struct Asset
 {
-    adt::Allocator* pAlloc;
-    json::Parser parser;
-    adt::String svGenerator;
-    adt::String svVersion;
-    u32 defaultSceneIdx;
-    adt::Array<Scene> aScenes;
-    adt::Array<Buffer> aBuffers;
-    adt::Array<BufferView> aBufferViews;
-    adt::Array<Accessor> aAccessors;
-    adt::Array<Mesh> aMeshes;
-    adt::Array<Texture> aTextures;
-    adt::Array<Material> aMaterials;
-    adt::Array<Image> aImages;
-    adt::Array<Node> aNodes;
+    adt::Allocator* _pAlloc;
+    json::Parser _parser;
+    adt::String _svGenerator;
+    adt::String _svVersion;
+    u32 _defaultSceneIdx;
+    adt::Array<Scene> _aScenes;
+    adt::Array<Buffer> _aBuffers;
+    adt::Array<BufferView> _aBufferViews;
+    adt::Array<Accessor> _aAccessors;
+    adt::Array<Mesh> _aMeshes;
+    adt::Array<Texture> _aTextures;
+    adt::Array<Material> _aMaterials;
+    adt::Array<Image> _aImages;
+    adt::Array<Node> _aNodes;
 
     Asset(adt::Allocator* p)
-        : pAlloc(p), parser(p), aScenes(p), aBuffers(p), aBufferViews(p), aAccessors(p), aMeshes(p), aTextures(p), aMaterials(p), aImages(p), aNodes(p) {}
+        : _pAlloc(p), _parser(p), _aScenes(p), _aBuffers(p), _aBufferViews(p), _aAccessors(p), _aMeshes(p), _aTextures(p), _aMaterials(p), _aImages(p), _aNodes(p) {}
     Asset(adt::Allocator* p, adt::String path)
         : Asset(p) { this->load(path); }
 
@@ -238,7 +238,7 @@ private:
         json::Object* samplers;
         json::Object* skins;
         json::Object* animations;
-    } jsonObjs {};
+    } _jsonObjs {};
 
     void processJSONObjs();
     void processScenes();

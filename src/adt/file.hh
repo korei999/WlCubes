@@ -13,16 +13,16 @@ loadFile(Allocator* pAlloc, String path)
 
     auto sn = makeString(pAlloc, path);
 
-    FILE* pf = fopen(sn.pData, "rb");
+    FILE* pf = fopen(sn._pData, "rb");
     if (pf)
     {
         fseek(pf, 0, SEEK_END);
         long size = ftell(pf) + 1;
         rewind(pf);
 
-        ret.pData = (char*)(pAlloc->alloc(size, sizeof(char)));
-        ret.size = size - 1;
-        fread(ret.pData, 1, ret.size, pf);
+        ret._pData = (char*)(pAlloc->alloc(size, sizeof(char)));
+        ret._size = size - 1;
+        fread(ret._pData, 1, ret._size, pf);
 
         fclose(pf);
     }
@@ -43,8 +43,8 @@ loadFileToCharArray(Allocator* pAlloc, String path)
         rewind(pf);
 
         ret.resize(size + 1);
-        ret.size = size;
-        fread(ret.pData, 1, size, pf);
+        ret._size = size;
+        fread(ret._pData, 1, size, pf);
 
         fclose(pf);
     }

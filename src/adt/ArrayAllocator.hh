@@ -16,10 +16,10 @@ struct ArrayAllocatorNode
 
 struct ArrayAllocator : Allocator
 {
-    Array<void*> aFreeList;
+    Array<void*> _aCleanList;
 
-    ArrayAllocator() : aFreeList(&StdAllocator) {}
-    ArrayAllocator(u32 prealloc) : aFreeList(&StdAllocator, prealloc) {}
+    ArrayAllocator() : _aCleanList(&StdAllocator) {}
+    ArrayAllocator(u32 prealloc) : _aCleanList(&StdAllocator, prealloc) {}
 
     virtual void* alloc(u32 memberCount, u32 memberSize) override;
     virtual void free(void* p) override;
@@ -37,8 +37,8 @@ ArrayAllocator::alloc(u32 memberCount, u32 memberSize)
     memset(r, 0, memberCount*memberSize + sizeof(ArrayAllocatorNode));
 
     auto* pNode = (ArrayAllocatorNode*)r;
-    this->aFreeList.push(pNode);
-    pNode->selfIdx = this->aFreeList.size - 1; /* keep idx of this allocation in array to free later */
+    _aCleanList.push(pNode);
+    pNode->selfIdx = _aCleanList._size - 1; /* keep idx of this allocation in array to free later */
 
     return pNode->pData;
 }
@@ -47,8 +47,8 @@ inline void
 ArrayAllocator::free(void* p)
 {
     auto* pNode = ptrToNode(p);
-    assert(this->aFreeList[pNode->selfIdx] != nullptr && "double free");
-    this->aFreeList[pNode->selfIdx] = nullptr;
+    assert(_aCleanList[pNode->selfIdx] != nullptr && "double free");
+    _aCleanList[pNode->selfIdx] = nullptr;
     ::free(pNode);
 }
 
@@ -61,9 +61,9 @@ ArrayAllocator::realloc(void* p, u32 size)
     void* r = ::realloc(pNode, size + sizeof(ArrayAllocatorNode));
     auto pNew = (ArrayAllocatorNode*)r;
 
-    this->aFreeList[idx] = nullptr;
-    this->aFreeList.push(pNew);
-    pNew->selfIdx = this->aFreeList.size - 1;
+    _aCleanList[idx] = nullptr;
+    _aCleanList.push(pNew);
+    pNew->selfIdx = _aCleanList._size - 1;
 
     return pNew->pData;
 }
@@ -71,14 +71,14 @@ ArrayAllocator::realloc(void* p, u32 size)
 inline void
 ArrayAllocator::freeAll()
 {
-    for (void* e : this->aFreeList)
+    for (void* e : _aCleanList)
         if (e)
         {
             ::free(e);
             e = nullptr;
         }
 
-    this->aFreeList.destroy();
+    _aCleanList.destroy();
 }
 
 } /* namespace adt */

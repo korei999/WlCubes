@@ -8,7 +8,7 @@
 #include "Texture.hh"
 #include "App.hh"
 
-enum class DRAW : int
+enum DRAW : int
 {
     NONE     = 0,
     DIFF     = 1,      /* bind diffuse textures */
@@ -38,16 +38,16 @@ operator^(enum DRAW l, enum DRAW r)
 
 struct Ubo
 {
-    GLuint id;
-    u32 size;
-    GLuint point;
+    GLuint _id;
+    u32 _size;
+    GLuint _point;
 
     Ubo() = default;
-    Ubo(u32 _size, GLint drawMode);
+    Ubo(u32 size, GLint drawMode);
 
-    void createBuffer(u32 _size, GLint drawMode);
-    void bindBlock(Shader* sh, adt::String block, GLuint _point);
-    void bufferData(void* data, u32 offset, u32 _size);
+    void createBuffer(u32 size, GLint drawMode);
+    void bindBlock(Shader* sh, adt::String block, GLuint point);
+    void bufferData(void* data, u32 offset, u32 size);
 };
 
 struct Materials
@@ -79,13 +79,13 @@ struct Mesh
 
 struct Model
 {
-    adt::Allocator* pAlloc;
-    adt::String savedPath;
-    adt::Array<adt::Array<Mesh>> aaMeshes;
-    gltf::Asset asset;
+    adt::Allocator* _pAlloc;
+    adt::String _sSavedPath;
+    adt::Array<adt::Array<Mesh>> _aaMeshes;
+    gltf::Asset _asset;
 
-    Model(adt::Allocator* p) : pAlloc(p), aaMeshes(p), asset(p), aTmIdxs(p), aTmCounters(p) {}
-    Model(adt::Allocator* p, adt::String path, GLint drawMode, GLint texMode, App* c) : Model(p) { this->load(path, drawMode, texMode, c); }
+    Model(adt::Allocator* p) : _pAlloc(p), _aaMeshes(p), _asset(p), _aTmIdxs(p), _aTmCounters(p) {}
+    Model(adt::Allocator* p, adt::String path, GLint drawMode, GLint texMode, App* c) : Model(p) {}
 
     void load(adt::String path, GLint drawMode, GLint texMode, App* c);
     void loadOBJ(adt::String path, GLint drawMode, GLint texMode, App* c);
@@ -96,22 +96,22 @@ struct Model
 private:
     void parseOBJ(adt::String path, GLint drawMode, GLint texMode, App* c);
 
-    adt::Array<int> aTmIdxs; /* parents map */
-    adt::Array<int> aTmCounters; /* map's sizes */
+    adt::Array<int> _aTmIdxs; /* parents map */
+    adt::Array<int> _aTmCounters; /* map's sizes */
 };
 
 struct Quad
 {
-    GLuint vao;
-    GLuint vbo;
-    GLuint ebo;
-    GLuint eboSize;
+    GLuint _vao;
+    GLuint _vbo;
+    GLuint _ebo;
+    GLuint _eboSize;
 
     void
     draw()
     {
-        glBindVertexArray(this->vao);
-        glDrawElements(GL_TRIANGLES, this->eboSize, GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(_vao);
+        glDrawElements(GL_TRIANGLES, _eboSize, GL_UNSIGNED_INT, nullptr);
     }
 };
 

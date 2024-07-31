@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Allocator.hh"
-#include "utils.hh"
 #include "String.hh"
 
 namespace parser
@@ -28,7 +27,7 @@ struct Binary
     u32 read32();
     u64 read64();
     void setPos(u32 p);
-    u32 size() const { return file.size; };
+    u32 size() const { return file._size; };
     bool finished();
 };
 

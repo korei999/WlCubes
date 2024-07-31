@@ -32,7 +32,7 @@ adt::Array<TextCharQuad>
 Text::genBuffer(adt::Allocator* pAlloc, adt::String s, u32 size, int xOrigin, int yOrigin)
 {
     adt::Array<TextCharQuad> aQuads(pAlloc, size);
-    memset(aQuads.pData, 0, sizeof(TextCharQuad) * size);
+    memset(aQuads._pData, 0, sizeof(TextCharQuad) * size);
 
     /* 16/16 bitmap aka extended ascii */
     auto getUV = [](int p) -> f32 {
@@ -67,19 +67,19 @@ Text::genBuffer(adt::Allocator* pAlloc, adt::String s, u32 size, int xOrigin, in
         }
 
         aQuads.push({
-             0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x0, y0, /* tl */
-             0.0f + xOff + xOrigin,  0.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x1, y1, /* bl */
-             2.0f + xOff + xOrigin,  0.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x2, y2, /* br */
+             0.0f + xOff + xOrigin,  2.0f + yOff + frame::g_uiHeight - 2.0f - yOrigin,     x0, y0, /* tl */
+             0.0f + xOff + xOrigin,  0.0f + yOff + frame::g_uiHeight - 2.0f - yOrigin,     x1, y1, /* bl */
+             2.0f + xOff + xOrigin,  0.0f + yOff + frame::g_uiHeight - 2.0f - yOrigin,     x2, y2, /* br */
 
-             0.0f + xOff + xOrigin,  2.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x0, y0, /* tl */
-             2.0f + xOff + xOrigin,  0.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x2, y2, /* br */
-             2.0f + xOff + xOrigin,  2.0f + yOff + frame::uiHeight - 2.0f - yOrigin,     x3, y3, /* tr */
+             0.0f + xOff + xOrigin,  2.0f + yOff + frame::g_uiHeight - 2.0f - yOrigin,     x0, y0, /* tl */
+             2.0f + xOff + xOrigin,  0.0f + yOff + frame::g_uiHeight - 2.0f - yOrigin,     x2, y2, /* br */
+             2.0f + xOff + xOrigin,  2.0f + yOff + frame::g_uiHeight - 2.0f - yOrigin,     x3, y3, /* tr */
         });
 
         xOff += 2.0f;
     }
 
-    this->vboSize = aQuads.size * 6; /* 6 vertices for 1 quad */
+    this->vboSize = aQuads._size * 6; /* 6 vertices for 1 quad */
 
     return aQuads;
 }

@@ -20,47 +20,47 @@ nullTermStringSize(const char* str)
 /* just pointer + size, no allocations, use `makeString()` for that */
 struct String
 {
-    char* pData = nullptr;
-    u32 size = 0;
+    char* _pData = nullptr;
+    u32 _size = 0;
 
     constexpr String() = default;
-    constexpr String(char* sNullTerminated) : pData(sNullTerminated), size(nullTermStringSize(sNullTerminated)) {}
-    constexpr String(const char* sNullTerminated) : pData(const_cast<char*>(sNullTerminated)), size(nullTermStringSize(sNullTerminated)) {}
-    constexpr String(char* pStr, u32 len) : pData(pStr), size(len) {}
+    constexpr String(char* sNullTerminated) : _pData(sNullTerminated), _size(nullTermStringSize(sNullTerminated)) {}
+    constexpr String(const char* sNullTerminated) : _pData(const_cast<char*>(sNullTerminated)), _size(nullTermStringSize(sNullTerminated)) {}
+    constexpr String(char* pStr, u32 len) : _pData(pStr), _size(len) {}
 
-    constexpr char& operator[](u32 i) { return this->pData[i]; }
-    constexpr const char& operator[](u32 i) const { return this->pData[i]; }
+    constexpr char& operator[](u32 i) { return _pData[i]; }
+    constexpr const char& operator[](u32 i) const { return _pData[i]; }
 
-    constexpr char* data() { return this->pData; }
+    constexpr char* data() { return _pData; }
     constexpr bool endsWith(String other);
 
     struct It
     {
-        char* p;
-        u32 i;
-        u32 size;
+        char* p_;
+        u32 i_;
+        u32 size_;
 
-        It(String* _self, u32 _i) : p(_self->pData), i(_i), size(_self->size) {}
+        It(String* _self, u32 _i) : p_(_self->_pData), i_(_i), size_(_self->_size) {}
 
-        char& operator*() const { return this->p[this->i]; }
-        char* operator->() const { return &this->p[this->i]; }
+        char& operator*() const { return p_[i_]; }
+        char* operator->() const { return &p_[i_]; }
 
         It operator++()
         {
-            if (this->i >= (this->size - 1) || this->size == 0)
+            if (i_ >= (size_ - 1) || size_ == 0)
             {
-                this->i = NPOS;
+                i_ = NPOS;
                 return *this;
             }
 
-            this->i++;
+            i_++;
             return *this;
         }
 
         It operator++(int) { It tmp = *this; ++(*this); return tmp; }
 
-        friend bool operator==(const It& l, const It& r) { return l.i == r.i; }
-        friend bool operator!=(const It& l, const It& r) { return l.i != r.i; }
+        friend bool operator==(const It& l, const It& r) { return l.i_ == r.i_; }
+        friend bool operator!=(const It& l, const It& r) { return l.i_ != r.i_; }
     };
 
     It begin() { return {this, 0}; }
@@ -72,10 +72,10 @@ String::endsWith(String r)
 {
     auto& l = *this;
 
-    if (l.size < r.size)
+    if (l._size < r._size)
         return false;
 
-    for (int i = r.size - 1, j = l.size - 1; i >= 0; i--, j--)
+    for (int i = r._size - 1, j = l._size - 1; i >= 0; i--, j--)
         if (r[i] != l[j])
             return false;
 
@@ -85,7 +85,7 @@ String::endsWith(String r)
 constexpr bool
 operator==(const String& sL, const String& sR)
 {
-    auto m = min(sL.size, sR.size);
+    auto m = min(sL._size, sR._size);
     for (u32 i = 0; i < m; i++)
         if (sL[i] != sR[i])
             return false;
@@ -102,7 +102,7 @@ operator!=(const String& sL, const String& sR)
 constexpr u32
 findLastOf(String sv, char c)
 {
-    for (int i = sv.size - 1; i >= 0; i--)
+    for (int i = sv._size - 1; i >= 0; i--)
         if (sv[i] == c)
             return i;
 
@@ -135,39 +135,39 @@ makeString(Allocator* p, const char* str)
 constexpr String
 makeString(Allocator* p, String s)
 {
-    return makeString(p, s.pData, s.size);
+    return makeString(p, s._pData, s._size);
 }
 
 template<>
 constexpr size_t
 fnHash<String>(String& str)
 {
-    return hashFNV(str.pData, str.size);
+    return hashFNV(str._pData, str._size);
 }
 
 template<>
 constexpr size_t
 fnHash<const String>(const String& str)
 {
-    return hashFNV(str.pData, str.size);
+    return hashFNV(str._pData, str._size);
 }
 
 constexpr size_t
 hashFNV(String str)
 {
-    return hashFNV(str.pData, str.size);
+    return hashFNV(str._pData, str._size);
 }
 
 constexpr String
 concat(Allocator* p, String l, String r)
 {
-    u32 len = l.size + r.size;
+    u32 len = l._size + r._size;
     char* ret = (char*)p->alloc(len + 1, sizeof(char));
 
     u32 pos = 0;
-    for (u32 i = 0; i < l.size; i++, pos++)
+    for (u32 i = 0; i < l._size; i++, pos++)
         ret[pos] = l[i];
-    for (u32 i = 0; i < r.size; i++, pos++)
+    for (u32 i = 0; i < r._size; i++, pos++)
         ret[pos] = r[i];
 
     ret[len] = '\0';

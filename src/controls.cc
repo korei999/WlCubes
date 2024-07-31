@@ -21,27 +21,27 @@ bool pressedKeys[300] {};
 void
 PlayerControls::procMouse()
 {
-    f64 offsetX = (this->mouse.relX - this->mouse.prevRelX) * this->mouse.sens;
-    f64 offsetY = (this->mouse.prevRelY - this->mouse.relY) * this->mouse.sens;
+    f64 offsetX = (_mouse.relX - _mouse.prevRelX) * _mouse.sens;
+    f64 offsetY = (_mouse.prevRelY - _mouse.relY) * _mouse.sens;
 
-    this->mouse.prevRelX = this->mouse.relX;
-    this->mouse.prevRelY = this->mouse.relY;
+    _mouse.prevRelX = _mouse.relX;
+    _mouse.prevRelY = _mouse.relY;
 
-    this->mouse.yaw += offsetX;
-    this->mouse.pitch += offsetY;
+    _mouse.yaw += offsetX;
+    _mouse.pitch += offsetY;
 
-    if (this->mouse.pitch > 89.9)
-        this->mouse.pitch = 89.9;
-    if (this->mouse.pitch < -89.9)
-        this->mouse.pitch = -89.9;
+    if (_mouse.pitch > 89.9)
+        _mouse.pitch = 89.9;
+    if (_mouse.pitch < -89.9)
+        _mouse.pitch = -89.9;
 
-    front = v3Norm({
-        static_cast<f32>(cos(toRad(this->mouse.yaw)) * cos(toRad(this->mouse.pitch))),
-        static_cast<f32>(sin(toRad(this->mouse.pitch))),
-        static_cast<f32>(sin(toRad(this->mouse.yaw)) * cos(toRad(this->mouse.pitch)))
+    _front = v3Norm({
+        f32(cos(toRad(_mouse.yaw)) * cos(toRad(_mouse.pitch))),
+        f32(sin(toRad(_mouse.pitch))),
+        f32(sin(toRad(_mouse.yaw)) * cos(toRad(_mouse.pitch)))
     });
 
-    this->right = v3Norm(v3Cross(this->front, this->up));
+    _right = v3Norm(v3Cross(_front, _up));
 }
 
 void
@@ -91,34 +91,34 @@ procKeysOnce(App* app, u32 key, u32 pressed)
 void
 PlayerControls::procKeys(App* app)
 {
-    this->procMovements(app);
+    procMovements(app);
 
     if (pressedKeys[KEY_I])
     {
-        frame::fov += 100.0f * static_cast<f32>(this->deltaTime);
-        LOG_OK("fov: %.3f}\n", frame::fov);
+        frame::g_fov += 100.0f * f32(_deltaTime);
+        LOG_OK("fov: %.3f}\n", frame::g_fov);
     }
     if (pressedKeys[KEY_O])
     {
-        frame::fov -= 100.0f * static_cast<f32>(this->deltaTime);
-        LOG_OK("fov: %.3f\n", frame::fov);
+        frame::g_fov -= 100.0f * f32(_deltaTime);
+        LOG_OK("fov: %.3f\n", frame::g_fov);
     }
     if (pressedKeys[KEY_Z])
     {
         /*f64 inc = pressedKeys[KEY_LEFTSHIFT] ? (-4.0) : 4.0;*/
-        /*x += inc * this->deltaTime;*/
+        /*x += inc * deltaTime;*/
         /*LOG_OK("x: %.3f\n", x);*/
     }
     if (pressedKeys[KEY_X])
     {
         /*f64 inc = pressedKeys[KEY_LEFTSHIFT] ? (-4.0) : 4.0;*/
-        /*y += inc * this->deltaTime;*/
+        /*y += inc * deltaTime;*/
         /*LOG_OK("y: %.3f\n", y);*/
     }
     if (pressedKeys[KEY_C])
     {
         /*f64 inc = pressedKeys[KEY_LEFTSHIFT] ? (-4.0) : 4.0;*/
-        /*z += inc * this->deltaTime;*/
+        /*z += inc * deltaTime;*/
         /*LOG_OK("z: %.3f\n", z);*/
     }
 }
@@ -126,36 +126,36 @@ PlayerControls::procKeys(App* app)
 void
 PlayerControls::procMovements([[maybe_unused]] App* c)
 {
-    f64 moveSpeed = this->moveSpeed * this->deltaTime;
+    f64 moveSpeed = _moveSpeed * _deltaTime;
 
     v3 combinedMove {};
     if (pressedKeys[KEY_W])
     {
-        v3 forward {this->front.x, 0.0f, this->front.z};
+        v3 forward {_front.x, 0.0f, _front.z};
         combinedMove += (v3Norm(forward));
     }
     if (pressedKeys[KEY_S])
     {
-        v3 forward {this->front.x, 0.0f, this->front.z};
+        v3 forward {_front.x, 0.0f, _front.z};
         combinedMove -= (v3Norm(forward));
     }
     if (pressedKeys[KEY_A])
     {
-        v3 left = v3Norm(v3Cross(this->front, this->up));
+        v3 left = v3Norm(v3Cross(_front, _up));
         combinedMove -= (left);
     }
     if (pressedKeys[KEY_D])
     {
-        v3 left = v3Norm(v3Cross(this->front, this->up));
+        v3 left = v3Norm(v3Cross(_front, _up));
         combinedMove += (left);
     }
     if (pressedKeys[KEY_SPACE])
     {
-        combinedMove += this->up;
+        combinedMove += _up;
     }
     if (pressedKeys[KEY_LEFTCTRL])
     {
-        combinedMove -= this->up;
+        combinedMove -= _up;
     }
     f32 len = v3Length(combinedMove);
     if (len > 0) combinedMove = v3Norm(combinedMove, len);
@@ -165,27 +165,27 @@ PlayerControls::procMovements([[maybe_unused]] App* c)
     if (pressedKeys[KEY_LEFTALT])
         moveSpeed /= 3;
 
-    this->pos += combinedMove * f32(moveSpeed);
+    _pos += combinedMove * f32(moveSpeed);
 }
 
 void
 PlayerControls::updateDeltaTime()
 {
-    this->currTime = adt::timeNowS();
-    this->deltaTime = this->currTime - this->lastFrameTime;
-    this->lastFrameTime = this->currTime;
+    _currTime = adt::timeNowS();
+    _deltaTime = _currTime - _lastFrameTime;
+    _lastFrameTime = _currTime;
 }
 
 void 
 PlayerControls::updateView()
 {
-    this->view = m4LookAt(pos, pos + front, up);
+    _view = m4LookAt(_pos, _pos + _front, _up);
 }
 
 void 
 PlayerControls::updateProj(f32 fov, f32 aspect, f32 near, f32 far)
 {
-    this->proj = m4Pers(fov, aspect, near, far);
+    _proj = m4Pers(fov, aspect, near, far);
 }
 
 } /* namespace controls */

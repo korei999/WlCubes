@@ -24,17 +24,17 @@ struct TextureData
 
 struct Texture
 {
-    adt::Allocator* pAlloc;
-    adt::String texPath;
-    u32 width;
-    u32 height;
-    GLuint id = 0;
-    enum TEX_TYPE type;
+    adt::Allocator* _pAlloc;
+    adt::String _texPath;
+    u32 _width;
+    u32 _height;
+    GLuint _id = 0;
+    enum TEX_TYPE _type;
 
     Texture() = default;
-    Texture(adt::Allocator* p) : pAlloc(p) {}
-    Texture(adt::Allocator* p, adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c) : pAlloc(p) {
-        this->load(path, type, flip, texMode, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, c);
+    Texture(adt::Allocator* p) : _pAlloc(p) {}
+    Texture(adt::Allocator* p, adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c) : _pAlloc(p) {
+        load(path, type, flip, texMode, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, c);
     }
 
     void load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint magFilter, GLint minFilter, App* c);
@@ -78,11 +78,11 @@ struct CubeMap : ShadowMap
 
 struct CubeMapProjections
 {
-    m4 tms[6];
+    m4 _tms[6];
 
     CubeMapProjections(const m4 projection, const v3 position);
 
-    m4& operator[](size_t i) { return tms[i]; }
+    m4& operator[](size_t i) { return _tms[i]; }
 };
 
 ShadowMap makeShadowMap(const int width, const int height);

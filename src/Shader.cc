@@ -119,7 +119,7 @@ Shader::loadShader(GLenum type, adt::String path)
     adt::ArenaAllocator arena(adt::SIZE_8K);
 
     adt::String src = loadFile(&arena, path);
-    const char* srcData = src.pData;
+    const char* srcData = src._pData;
 
     glShaderSource(shader, 1, &srcData, nullptr);
     glCompileShader(shader);
@@ -134,7 +134,7 @@ Shader::loadShader(GLenum type, adt::String path)
         {
             char infoLog[255] {};
             glGetShaderInfoLog(shader, infoLen, nullptr, infoLog);
-            LOG_FATAL("error compiling shader '%.*s'\n%s\n", (int)path.size, path.pData, infoLog);
+            LOG_FATAL("error compiling shader '%.*s'\n%s\n", (int)path._size, path._pData, infoLog);
         }
         glDeleteShader(shader);
         return 0;
@@ -203,7 +203,7 @@ Shader::queryActiveUniforms()
                 typeName = "unknown";
                 break;
         }
-        LOG_OK("\tuniformName: '%s', type: '%.*s'\n", uniformName, (int)typeName.size, typeName.pData);
+        LOG_OK("\tuniformName: '%s', type: '%.*s'\n", uniformName, (int)typeName._size, typeName._pData);
     }
 }
 

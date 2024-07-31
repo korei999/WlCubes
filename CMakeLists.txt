@@ -21,10 +21,10 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    add_compile_options(-Wall -Wextra -fms-extensions)
-else()
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4146 /wd4200 /wd4312")
+else()
+    add_compile_options(-Wall -Wextra -fms-extensions)
 endif()
 
 include_directories(BEFORE "src/adt")

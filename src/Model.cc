@@ -8,22 +8,22 @@ void
 Model::load(adt::String path, GLint drawMode, GLint texMode, App* c)
 {
     if (path.endsWith(".gltf"))
-        this->loadGLTF(path, drawMode, texMode, c);
+        loadGLTF(path, drawMode, texMode, c);
     else
-        LOG_FATAL("trying to load unsupported asset: '%.*s'\n", path.size, path.pData);
+        LOG_FATAL("trying to load unsupported asset: '%.*s'\n", path._size, path._pData);
 
-    this->savedPath = path;
+    _sSavedPath = path;
 }
 
 void
 Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 {
-    this->asset.load(path);
-    auto& a = this->asset;;
+    _asset.load(path);
+    auto& a = _asset;;
 
     /* load buffers first */
-    adt::Array<GLuint> aBufferMap(this->pAlloc);
-    for (u32 i = 0; i < a.aBuffers.size; i++)
+    adt::Array<GLuint> aBufferMap(_pAlloc);
+    for (u32 i = 0; i < a._aBuffers._size; i++)
     {
         mtx_lock(&gl::mtxGlContext);
         c->bindGlContext();
@@ -31,7 +31,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
         GLuint b;
         glGenBuffers(1, &b);
         glBindBuffer(GL_ARRAY_BUFFER, b);
-        glBufferData(GL_ARRAY_BUFFER, a.aBuffers[i].byteLength, a.aBuffers[i].aBin.data(), drawMode);
+        glBufferData(GL_ARRAY_BUFFER, a._aBuffers[i].byteLength, a._aBuffers[i].aBin.data(), drawMode);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         aBufferMap.push(b);
 
@@ -44,15 +44,15 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
     tp.start();
 
     /* preload texures */
-    adt::Array<Texture> aTex(&aAlloc, a.aImages.size);
-    aTex.resize(a.aImages.size);
+    adt::Array<Texture> aTex(&aAlloc, a._aImages._size);
+    aTex.resize(a._aImages._size);
 
-    for (u32 i = 0; i < a.aImages.size; i++)
+    for (u32 i = 0; i < a._aImages._size; i++)
     {
-        auto uri = a.aImages[i].uri;
+        auto uri = a._aImages[i].uri;
 
         if (!uri.endsWith(".bmp"))
-            LOG_FATAL("trying to load unsupported texture: '%.*s'\n", uri.size, uri.pData);
+            LOG_FATAL("trying to load unsupported texture: '%.*s'\n", uri._size, uri._pData);
 
         struct args
         {
@@ -69,7 +69,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
         *arg = {
             .p = &aTex[i],
             .pAlloc = &aAlloc,
-            .path = adt::replacePathSuffix(this->pAlloc, path, uri),
+            .path = adt::replacePathSuffix(_pAlloc, path, uri),
             .type = TEX_TYPE::DIFFUSE,
             .flip = true,
             .texMode = texMode,
@@ -88,9 +88,9 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 
     tp.wait();
 
-    for (auto& mesh : a.aMeshes)
+    for (auto& mesh : a._aMeshes)
     {
-        adt::Array<Mesh> aNMeshes(this->pAlloc);
+        adt::Array<Mesh> aNMeshes(_pAlloc);
 
         for (auto& primitive : mesh.aPrimitives)
         {
@@ -102,11 +102,11 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             u32 accMatIdx = primitive.material;
             enum gltf::PRIMITIVES mode = primitive.mode;
 
-            auto& accPos = a.aAccessors[accPosIdx];
-            auto& accTex = a.aAccessors[accTexIdx];
+            auto& accPos = a._aAccessors[accPosIdx];
+            auto& accTex = a._aAccessors[accTexIdx];
 
-            auto& bvPos = a.aBufferViews[accPos.bufferView];
-            auto& bvTex = a.aBufferViews[accTex.bufferView];
+            auto& bvPos = a._aBufferViews[accPos.bufferView];
+            auto& bvTex = a._aBufferViews[accTex.bufferView];
 
             Mesh nMesh {};
 
@@ -120,8 +120,8 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 
             if (accIndIdx != adt::NPOS)
             {
-                auto& accInd = a.aAccessors[accIndIdx];
-                auto& bvInd = a.aBufferViews[accInd.bufferView];
+                auto& accInd = a._aAccessors[accIndIdx];
+                auto& bvInd = a._aBufferViews[accInd.bufferView];
                 nMesh.indType = accInd.componentType;
                 nMesh.meshData.eboSize = accInd.count;
                 nMesh.triangleCount = adt::NPOS;
@@ -130,7 +130,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
                 glGenBuffers(1, &nMesh.meshData.ebo);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nMesh.meshData.ebo);
                 glBufferData(GL_ELEMENT_ARRAY_BUFFER, bvInd.byteLength,
-                             &a.aBuffers[bvInd.buffer].aBin.data()[bvInd.byteOffset + accInd.byteOffset], drawMode);
+                             &a._aBuffers[bvInd.buffer].aBin.data()[bvInd.byteOffset + accInd.byteOffset], drawMode);
             }
             else
             {
@@ -158,8 +158,8 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
              /*normals */
             if (accNormIdx != adt::NPOS)
             {
-                auto& accNorm = a.aAccessors[accNormIdx];
-                auto& bvNorm = a.aBufferViews[accNorm.bufferView];
+                auto& accNorm = a._aAccessors[accNormIdx];
+                auto& bvNorm = a._aBufferViews[accNorm.bufferView];
 
                 glEnableVertexAttribArray(2);
                 glVertexAttribPointer(2, v3Size, static_cast<GLenum>(accNorm.componentType), GL_FALSE,
@@ -169,8 +169,8 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             /* tangents */
             if (accTanIdx != adt::NPOS)
             {
-                auto& accTan = a.aAccessors[accTanIdx];
-                auto& bvTan = a.aBufferViews[accTan.bufferView];
+                auto& accTan = a._aAccessors[accTanIdx];
+                auto& bvTan = a._aBufferViews[accTan.bufferView];
 
                 glEnableVertexAttribArray(3);
                 glVertexAttribPointer(3, v3Size, static_cast<GLenum>(accTan.componentType), GL_FALSE,
@@ -184,51 +184,51 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             /* load textures */
             if (accMatIdx != adt::NPOS)
             {
-                auto& mat = a.aMaterials[accMatIdx];
+                auto& mat = a._aMaterials[accMatIdx];
                 u32 baseColorSourceIdx = mat.pbrMetallicRoughness.baseColorTexture.index;
 
                 if (baseColorSourceIdx != adt::NPOS)
                 {
-                    u32 diffTexInd = a.aTextures[baseColorSourceIdx].source;
+                    u32 diffTexInd = a._aTextures[baseColorSourceIdx].source;
                     if (diffTexInd != adt::NPOS)
                     {
                         nMesh.meshData.materials.diffuse = aTex[diffTexInd];
-                        nMesh.meshData.materials.diffuse.type = TEX_TYPE::DIFFUSE;
+                        nMesh.meshData.materials.diffuse._type = TEX_TYPE::DIFFUSE;
                     }
                 }
 
                 u32 normalSourceIdx = mat.normalTexture.index;
                 if (normalSourceIdx != adt::NPOS)
                 {
-                    u32 normTexIdx = a.aTextures[normalSourceIdx].source;
+                    u32 normTexIdx = a._aTextures[normalSourceIdx].source;
                     if (normTexIdx != adt::NPOS)
                     {
                         nMesh.meshData.materials.normal = aTex[normalSourceIdx];
-                        nMesh.meshData.materials.normal.type = TEX_TYPE::NORMAL;
+                        nMesh.meshData.materials.normal._type = TEX_TYPE::NORMAL;
                     }
                 }
             }
 
             aNMeshes.push(nMesh);
         }
-        this->aaMeshes.push(aNMeshes);
+        _aaMeshes.push(aNMeshes);
     }
 
-    this->aTmIdxs = adt::Array<int>(this->pAlloc, sq(this->asset.aNodes.size));
-    this->aTmCounters = adt::Array<int>(this->pAlloc, this->asset.aNodes.size);
-    this->aTmIdxs.resize(sq(this->asset.aNodes.size));
-    this->aTmCounters.resize(this->asset.aNodes.size);
+    _aTmIdxs = adt::Array<int>(_pAlloc, sq(_asset._aNodes._size));
+    _aTmCounters = adt::Array<int>(_pAlloc, _asset._aNodes._size);
+    _aTmIdxs.resize(sq(_asset._aNodes._size));
+    _aTmCounters.resize(_asset._aNodes._size);
 
-    auto& aNodes = this->asset.aNodes;
+    auto& aNodes = _asset._aNodes;
     auto at = [&](int r, int c) -> int {
-        return r*aNodes.size + c;
+        return r*aNodes._size + c;
     };
 
-    for (int i = 0; i < (int)aNodes.size; i++)
+    for (int i = 0; i < (int)aNodes._size; i++)
     {
         auto& node = aNodes[i];
         for (auto& ch : node.children)
-            this->aTmIdxs[at(ch, this->aTmCounters[ch]++)] = i; /* give each children it's parent's idx's */
+            _aTmIdxs[at(ch, _aTmCounters[ch]++)] = i; /* give each children it's parent's idx's */
     }
 
     tp.destroy();
@@ -238,7 +238,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 void
 Model::draw(enum DRAW flags, Shader* sh, adt::String svUniform, adt::String svUniformM3Norm, const m4& tmGlobal)
 {
-    for (auto& m : this->aaMeshes)
+    for (auto& m : _aaMeshes)
     {
         for (auto& e : m)
         {
@@ -278,23 +278,23 @@ Model::drawGraph([[maybe_unused]] adt::Allocator* pFrameAlloc,
                  adt::String svUniformM3Norm,
                  const m4& tmGlobal)
 {
-    auto& aNodes = this->asset.aNodes;
+    auto& aNodes = _asset._aNodes;
 
     auto at = [&](int r, int c) -> int {
-        return r*aNodes.size + c;
+        return r*aNodes._size + c;
     };
 
-    for (int i = 0; i < (int)aNodes.size; i++)
+    for (int i = 0; i < (int)aNodes._size; i++)
     {
         auto& node = aNodes[i];
         if (node.mesh != adt::NPOS)
         {
             m4 tm = tmGlobal;
             qt rot = qtIden();
-            for (int j = 0; j < aTmCounters[i]; j++)
+            for (int j = 0; j < _aTmCounters[i]; j++)
             {
                 /* collect each transformation from parent's map */
-                auto& n = aNodes[ this->aTmIdxs[at(i, j)] ];
+                auto& n = aNodes[ _aTmIdxs[at(i, j)] ];
 
                 tm = m4Scale(tm, n.scale);
                 rot *= n.rotation;
@@ -305,7 +305,7 @@ Model::drawGraph([[maybe_unused]] adt::Allocator* pFrameAlloc,
             tm = m4Translate(tm, node.translation);
             tm *= node.matrix;
 
-            for (auto& e : this->aaMeshes[node.mesh])
+            for (auto& e : _aaMeshes[node.mesh])
             {
                 glBindVertexArray(e.meshData.vao);
 
@@ -332,38 +332,38 @@ Model::drawGraph([[maybe_unused]] adt::Allocator* pFrameAlloc,
     }
 }
 
-Ubo::Ubo(u32 _size, GLint drawMode)
+Ubo::Ubo(u32 size, GLint drawMode)
 {
-    createBuffer(_size, drawMode);
+    createBuffer(size, drawMode);
 }
 
 void
-Ubo::createBuffer(u32 _size, GLint drawMode)
+Ubo::createBuffer(u32 size, GLint drawMode)
 {
-    this->size = _size;
-    glGenBuffers(1, &this->id);
-    glBindBuffer(GL_UNIFORM_BUFFER, this->id);
+    _size = size;
+    glGenBuffers(1, &_id);
+    glBindBuffer(GL_UNIFORM_BUFFER, _id);
     glBufferData(GL_UNIFORM_BUFFER, _size, nullptr, drawMode);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void
-Ubo::bindBlock(Shader* sh, adt::String block, GLuint _point)
+Ubo::bindBlock(Shader* sh, adt::String block, GLuint point)
 {
-    this->point = _point;
+    _point = point;
     GLuint index = glGetUniformBlockIndex(sh->id, block.data());
     glUniformBlockBinding(sh->id, index, _point);
-    LOG_OK("uniform block: '%.*s' at '%u', in shader '%u'\n", (int)block.size, block.pData, index, sh->id);
+    LOG_OK("uniform block: '%.*s' at '%u', in shader '%u'\n", (int)block._size, block._pData, index, sh->id);
 
-    glBindBufferBase(GL_UNIFORM_BUFFER, _point, this->id);
+    glBindBufferBase(GL_UNIFORM_BUFFER, point, _id);
     /* or */
-    // glBindBufferRange(GL_UNIFORM_BUFFER, _point, this->id, 0, size);
+    // glBindBufferRange(GL_UNIFORM_BUFFER, _point, id, 0, size);
 }
 
 void
 Ubo::bufferData(void* pData, u32 offset, u32 _size)
 {
-    glBindBuffer(GL_UNIFORM_BUFFER, this->id);
+    glBindBuffer(GL_UNIFORM_BUFFER, _id);
     glBufferSubData(GL_UNIFORM_BUFFER, offset, _size, pData);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
@@ -392,17 +392,17 @@ makeQuad(GLint drawMode)
 
     Quad q {};
 
-    glGenVertexArrays(1, &q.vao);
-    glBindVertexArray(q.vao);
+    glGenVertexArrays(1, &q._vao);
+    glBindVertexArray(q._vao);
 
-    glGenBuffers(1, &q.vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, q.vbo);
+    glGenBuffers(1, &q._vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, q._vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, drawMode);
 
-    glGenBuffers(1, &q.ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, q.ebo);
+    glGenBuffers(1, &q._ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, q._ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, drawMode);
-    q.eboSize = adt::size(indices);
+    q._eboSize = adt::size(indices);
 
     /* positions */
     glEnableVertexAttribArray(0);
@@ -413,7 +413,7 @@ makeQuad(GLint drawMode)
 
     glBindVertexArray(0);
 
-    LOG_OK("quad '%u' created\n", q.vao);
+    LOG_OK("quad '%u' created\n", q._vao);
     return q;
 }
 

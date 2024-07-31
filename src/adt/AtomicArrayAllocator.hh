@@ -9,11 +9,11 @@ namespace adt
 
 struct AtomicArrayAllocator : Allocator
 {
-    mtx_t mtx;
-    ArrayAllocator lAlloc;
+    mtx_t _mtx;
+    ArrayAllocator _lAlloc;
 
-    AtomicArrayAllocator() { mtx_init(&this->mtx, mtx_plain); }
-    AtomicArrayAllocator(u32 prealloc) : lAlloc(prealloc) { mtx_init(&this->mtx, mtx_plain); }
+    AtomicArrayAllocator() { mtx_init(&_mtx, mtx_plain); }
+    AtomicArrayAllocator(u32 prealloc) : _lAlloc(prealloc) { mtx_init(&_mtx, mtx_plain); }
 
     virtual void* alloc(u32 memberCount, u32 memberSize) override;
     virtual void free(void* p) override;
@@ -24,9 +24,9 @@ struct AtomicArrayAllocator : Allocator
 inline void*
 AtomicArrayAllocator::alloc(u32 memberCount, u32 memberSize)
 {
-    mtx_lock(&this->mtx);
-    void* r = this->lAlloc.alloc(memberCount, memberSize);
-    mtx_unlock(&this->mtx);
+    mtx_lock(&_mtx);
+    void* r = _lAlloc.alloc(memberCount, memberSize);
+    mtx_unlock(&_mtx);
 
     return r;
 }
@@ -34,17 +34,17 @@ AtomicArrayAllocator::alloc(u32 memberCount, u32 memberSize)
 inline void
 AtomicArrayAllocator::free(void* p)
 {
-    mtx_lock(&this->mtx);
-    this->lAlloc.free(p);
-    mtx_unlock(&this->mtx);
+    mtx_lock(&_mtx);
+    _lAlloc.free(p);
+    mtx_unlock(&_mtx);
 }
 
 inline void*
 AtomicArrayAllocator::realloc(void* p, u32 size)
 {
-    mtx_lock(&this->mtx);
-    void* r = this->lAlloc.realloc(p, size);
-    mtx_unlock(&this->mtx);
+    mtx_lock(&_mtx);
+    void* r = _lAlloc.realloc(p, size);
+    mtx_unlock(&_mtx);
 
     return r;
 }
@@ -52,8 +52,8 @@ AtomicArrayAllocator::realloc(void* p, u32 size)
 inline void
 AtomicArrayAllocator::freeAll()
 {
-     this->lAlloc.freeAll();
-     mtx_destroy(&this->mtx);
+     _lAlloc.freeAll();
+     mtx_destroy(&_mtx);
 }
 
 } /* namespace adt */

@@ -5,15 +5,6 @@
 #include "parser/Binary.hh"
 #include "logs.hh"
 
-// Texture::~Texture()
-// {
-//     if (this->id != 0)
-//     {
-//         glDeleteTextures(1, &this->id);
-//         // LOG(OK, "texture {}: '{}' deleted\n", this->id, this->texPath);
-//     }
-// }
-
 /* Bitmap file format
  *
  * SECTION
@@ -43,26 +34,26 @@ Texture::load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint m
     LOG_OK("loading '%.*s' texture...\n", (int)path.size, path.pData);
 #endif
 
-    if (this->id != 0)
+    if (_id != 0)
     {
-        LOG_WARN("id != 0: '%d'\n", this->id);
+        LOG_WARN("id != 0: '%d'\n", _id);
         return;
     }
 
     adt::ArenaAllocator aAlloc(adt::SIZE_1M * 5);
     TextureData img = loadBMP(&aAlloc, path, flip);
 
-    this->texPath = path;
-    this->type = type;
+    _texPath = path;
+    _type = type;
 
     adt::Array<u8> pixels = img.aData;
 
     setTexture(pixels.data(), texMode, img.format, img.width, img.height, magFilter, minFilter, c);
-    this->width = img.width;
-    this->height = img.height;
+    _width = img.width;
+    _height = img.height;
 
 #ifdef TEXTURE
-    LOG(OK, "%.*s: id: %d, texMode: %d\n", (int)path.size, path.pData, this->id, format);
+    LOG(OK, "%.*s: id: %d, texMode: %d\n", (int)path.size, path.pData, id, format);
 #endif
 
     aAlloc.freeAll();
@@ -72,7 +63,7 @@ void
 Texture::bind(GLint glTexture)
 {
     glActiveTexture(glTexture);
-    glBindTexture(GL_TEXTURE_2D, this->id);
+    glBindTexture(GL_TEXTURE_2D, _id);
 }
 
 void
@@ -81,8 +72,8 @@ Texture::setTexture(u8* pData, GLint texMode, GLint format, GLsizei width, GLsiz
     mtx_lock(&gl::mtxGlContext);
     c->bindGlContext();
 
-    glGenTextures(1, &this->id);
-    glBindTexture(GL_TEXTURE_2D, this->id);
+    glGenTextures(1, &_id);
+    glBindTexture(GL_TEXTURE_2D, _id);
     /* set the texture wrapping parameters */
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texMode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texMode);
@@ -103,7 +94,7 @@ Texture::setTexture(u8* pData, GLint texMode, GLint format, GLsizei width, GLsiz
 }
 
 CubeMapProjections::CubeMapProjections(const m4 proj, const v3 pos)
-    : tms{
+    : _tms{
         proj * m4LookAt(pos, pos + v3( 1, 0, 0), v3(0,-1, 0)),
         proj * m4LookAt(pos, pos + v3(-1, 0, 0), v3(0,-1, 0)),
         proj * m4LookAt(pos, pos + v3( 0, 1, 0), v3(0, 0, 1)),
@@ -233,7 +224,7 @@ loadBMP(adt::Allocator* pAlloc, adt::String path, bool flip)
     auto BM = p.readString(2);
 
     if (BM != "BM")
-        LOG_FATAL("BM: %.*s, bmp file should have 'BM' as first 2 bytes\n", (int)BM.size, BM.pData);
+        LOG_FATAL("BM: %.*s, bmp file should have 'BM' as first 2 bytes\n", (int)BM._size, BM._pData);
 
     p.skipBytes(8);
     imageDataAddress = p.read32();
@@ -313,7 +304,7 @@ printPack(adt::String s, __m128i m)
 {
     u32 f[4];
     memcpy(f, &m, sizeof(f));
-    COUT("'%.*s': %08x, %08x, %08x, %08x\n", s.size, s.data(), f[0], f[1], f[2], f[3]);
+    COUT("'%.*s': %08x, %08x, %08x, %08x\n", s._size, s.data(), f[0], f[1], f[2], f[3]);
 };
 #endif
 
