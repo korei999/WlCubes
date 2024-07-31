@@ -93,6 +93,7 @@ struct Node
     v4 rotation = qtIden();
     v3 scale {1, 1, 1};
 
+    Node() = default;
     Node(adt::Allocator* p) : children(p) {}
 };
 

@@ -18,7 +18,7 @@ struct AllocatorPool
     get(u32 size)
     {
         assert(this->size < this->cap && "size reached cap");
-        new(&this->aAllocators[this->size++]) A(size); /* 'placement new' */
+        this->aAllocators[this->size++] = A(size);
         return &this->aAllocators[this->size - 1];
     }
 

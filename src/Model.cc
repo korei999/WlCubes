@@ -65,7 +65,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             App* c;
         };
 
-        auto* arg = (args*)::calloc(1, sizeof(args));
+        auto* arg = (args*)aAlloc.alloc(1, sizeof(args));
         *arg = {
             .p = &aTex[i],
             .pAlloc = &aAlloc,
@@ -79,7 +79,6 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
         auto task = [](void* pArgs) -> int {
             auto a = *(args*)pArgs;
             *a.p = Texture(a.pAlloc, a.path, a.type, a.flip, a.texMode, a.c);
-            free(pArgs);
 
             return 0;
         };

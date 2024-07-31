@@ -57,10 +57,7 @@ Array<T>::Array(Allocator* _allocator)
 
 template<typename T>
 Array<T>::Array(Allocator* _allocator, u32 _capacity)
-    : pAlloc(_allocator), capacity(_capacity)
-{
-    this->pData = (T*)(this->pAlloc->alloc(_capacity, sizeof(T)));
-}
+    : pAlloc(_allocator), pData((T*)(this->pAlloc->alloc(_capacity, sizeof(T)))), size(0), capacity(_capacity) {}
 
 template<typename T>
 inline T*
