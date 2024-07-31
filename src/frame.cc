@@ -1,6 +1,6 @@
 #include "AllocatorPool.hh"
 #include "ArenaAllocator.hh"
-#include "AtomicArrayAllocator.hh"
+#include "AtomicArenaAllocator.hh"
 #include "Model.hh"
 #include "Shader.hh"
 #include "Text.hh"
@@ -24,7 +24,7 @@ f32 g_fov = 90.0f;
 f32 g_uiWidth = 150.0f;
 f32 g_uiHeight = (g_uiWidth * 9.0f) / 16.0f;
 
-static adt::AllocatorPool<adt::AtomicArrayAllocator, ASSET_MAX_COUNT> s_apAssets;
+static adt::AllocatorPool<adt::AtomicArenaAllocator, ASSET_MAX_COUNT> s_apAssets;
 
 static Shader s_shTex;
 static Shader s_shBitMap;
@@ -89,10 +89,10 @@ prepareDraw(App* pApp)
     s_shSkyBox.setI("uSkyBox", 0);
 
     s_uboProjView.createBuffer(sizeof(m4) * 2, GL_DYNAMIC_DRAW);
-    s_uboProjView.bindBlock(&s_shTex, "ubProjView", 0);
-    s_uboProjView.bindBlock(&s_shColor, "ubProjView", 0);
-    s_uboProjView.bindBlock(&s_shOmniDirShadow, "ubProjView", 0);
-    s_uboProjView.bindBlock(&s_shSkyBox, "ubProjView", 0);
+    s_uboProjView.bindShader(&s_shTex, "ubProjView", 0);
+    s_uboProjView.bindShader(&s_shColor, "ubProjView", 0);
+    s_uboProjView.bindShader(&s_shOmniDirShadow, "ubProjView", 0);
+    s_uboProjView.bindShader(&s_shSkyBox, "ubProjView", 0);
 
     s_cmCubeMap = makeCubeShadowMap(1024, 1024);
 

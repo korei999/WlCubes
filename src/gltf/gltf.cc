@@ -1,5 +1,3 @@
-#include "ArenaAllocator.hh"
-#include "ThreadPool.hh"
 #include "file.hh"
 #include "gltf.hh"
 #include "logs.hh"
@@ -54,7 +52,7 @@ accessorTypeToString(enum ACCESSOR_TYPE t)
     const char* ss[] {
         "SCALAR", "VEC2", "VEC3", "VEC4", /*MAT2, Unused*/ "MAT3", "MAT4"
     };
-    return ss[static_cast<int>(t)];
+    return ss[(int)(t)];
 }
 
 #endif
@@ -65,17 +63,17 @@ stringToAccessorType(adt::String sv)
     switch (adt::hashFNV(sv))
     {
         default:
-        case static_cast<u64>(HASH_CODES::SCALAR):
+        case (u64)(HASH_CODES::SCALAR):
             return ACCESSOR_TYPE::SCALAR;
-        case static_cast<u64>(HASH_CODES::VEC2):
+        case (u64)(HASH_CODES::VEC2):
             return ACCESSOR_TYPE::VEC2;
-        case static_cast<u64>(HASH_CODES::VEC3):
+        case (u64)(HASH_CODES::VEC3):
             return ACCESSOR_TYPE::VEC3;
-        case static_cast<u64>(HASH_CODES::VEC4):
+        case (u64)(HASH_CODES::VEC4):
             return ACCESSOR_TYPE::VEC4;
-        case static_cast<u64>(HASH_CODES::MAT3):
+        case (u64)(HASH_CODES::MAT3):
             return ACCESSOR_TYPE::MAT3;
-        case static_cast<u64>(HASH_CODES::MAT4):
+        case (u64)(HASH_CODES::MAT4):
             return ACCESSOR_TYPE::MAT4;
     }
 }
@@ -141,23 +139,15 @@ Asset::load(adt::String path)
     processJSONObjs();
     _defaultSceneIdx = json::getLong(this->_jsonObjs.scene);
 
-    adt::ArenaAllocator alloc(adt::SIZE_1K);
-    adt::ThreadPool tp(&alloc, 9);
-    tp.start();
-
-    tp.submit([](void* a) { ((Asset*)a)->processScenes();      return 0; }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processBuffers();     return 0; }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processBufferViews(); return 0; }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processAccessors();   return 0; }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processMeshes();      return 0; }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processTexures();     return 0; }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processMaterials();   return 0; }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processImages();      return 0; }, this);
-    tp.submit([](void* a) { ((Asset*)a)->processNodes();       return 0; }, this);
-
-    tp.wait();
-    tp.destroy();
-    alloc.freeAll();
+    processScenes();     
+    processBuffers();    
+    processBufferViews();
+    processAccessors();  
+    processMeshes();     
+    processTexures();    
+    processMaterials();  
+    processImages();     
+    processNodes();      
 }
 
 void
@@ -170,46 +160,46 @@ Asset::processJSONObjs()
         {
             default:
                 break;
-            case static_cast<u64>(HASH_CODES::scene):
+            case (u64)(HASH_CODES::scene):
                 _jsonObjs.scene = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::scenes):
+            case (u64)(HASH_CODES::scenes):
                 _jsonObjs.scenes = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::nodes):
+            case (u64)(HASH_CODES::nodes):
                 _jsonObjs.nodes = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::meshes):
+            case (u64)(HASH_CODES::meshes):
                 _jsonObjs.meshes = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::cameras):
+            case (u64)(HASH_CODES::cameras):
                 _jsonObjs.cameras = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::buffers):
+            case (u64)(HASH_CODES::buffers):
                 _jsonObjs.buffers = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::bufferViews):
+            case (u64)(HASH_CODES::bufferViews):
                 _jsonObjs.bufferViews = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::accessors):
+            case (u64)(HASH_CODES::accessors):
                 _jsonObjs.accessors = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::materials):
+            case (u64)(HASH_CODES::materials):
                 _jsonObjs.materials = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::textures):
+            case (u64)(HASH_CODES::textures):
                 _jsonObjs.textures = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::images):
+            case (u64)(HASH_CODES::images):
                 _jsonObjs.images = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::samplers):
+            case (u64)(HASH_CODES::samplers):
                 _jsonObjs.samplers = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::skins):
+            case (u64)(HASH_CODES::skins):
                 _jsonObjs.skins = &node;
                 break;
-            case static_cast<u64>(HASH_CODES::animations):
+            case (u64)(HASH_CODES::animations):
                 _jsonObjs.animations = &node;
                 break;
         }
@@ -284,7 +274,7 @@ Asset::processBuffers()
         }
 
         _aBuffers.push({
-            .byteLength = static_cast<u32>(json::getLong(pByteLength)),
+            .byteLength = (u32)(json::getLong(pByteLength)),
             .uri = svUri,
             .aBin = aBin
         });
@@ -309,11 +299,11 @@ Asset::processBufferViews()
         auto pTarget = json::searchObject(obj, "target");
 
         _aBufferViews.push({
-            .buffer = static_cast<u32>(json::getLong(pBuffer)),
-            .byteOffset = pByteOffset ? static_cast<u32>(json::getLong(pByteOffset)) : 0,
-            .byteLength = static_cast<u32>(json::getLong(pByteLength)),
-            .byteStride = pByteStride ? static_cast<u32>(json::getLong(pByteStride)) : 0,
-            .target = pTarget ? static_cast<enum TARGET>(json::getLong(pTarget)) : TARGET::NONE
+            .buffer = (u32)(json::getLong(pBuffer)),
+            .byteOffset = pByteOffset ? (u32)(json::getLong(pByteOffset)) : 0,
+            .byteLength = (u32)(json::getLong(pByteLength)),
+            .byteStride = pByteStride ? (u32)(json::getLong(pByteStride)) : 0,
+            .target = pTarget ? (TARGET)(json::getLong(pTarget)) : TARGET::NONE
         });
     }
 }
@@ -341,10 +331,10 @@ Asset::processAccessors()
         enum ACCESSOR_TYPE type = stringToAccessorType(json::getString(pType));
  
         _aAccessors.push({
-            .bufferView = pBufferView ? static_cast<u32>(json::getLong(pBufferView)) : 0,
-            .byteOffset = pByteOffset ? static_cast<u32>(json::getLong(pByteOffset)) : 0,
-            .componentType = static_cast<enum COMPONENT_TYPE>(json::getLong(pComponentType)),
-            .count = static_cast<u32>(json::getLong(pCount)),
+            .bufferView = pBufferView ? (u32)(json::getLong(pBufferView)) : 0,
+            .byteOffset = pByteOffset ? (u32)(json::getLong(pByteOffset)) : 0,
+            .componentType = (COMPONENT_TYPE)(json::getLong(pComponentType)),
+            .count = (u32)(json::getLong(pCount)),
             .max = pMax ? accessorTypeToUnionType(type, pMax) : Type{},
             .min = pMin ? accessorTypeToUnionType(type, pMin) : Type{},
             .type = type
@@ -416,8 +406,8 @@ Asset::processTexures()
         auto pSampler = json::searchObject(obj, "sampler");
 
         _aTextures.push({
-            .source = pSource ? static_cast<u32>(json::getLong(pSource)) : adt::NPOS,
-            .sampler = pSampler ? static_cast<u32>(json::getLong(pSampler)) : adt::NPOS
+            .source = pSource ? (u32)(json::getLong(pSource)) : adt::NPOS,
+            .sampler = pSampler ? (u32)(json::getLong(pSampler)) : adt::NPOS
         });
     }
 }
@@ -505,14 +495,14 @@ Asset::processNodes()
         if (pName) nNode.name = json::getString(pName);
 
         auto pCamera = json::searchObject(obj, "camera");
-        if (pCamera) nNode.camera = static_cast<u32>(json::getLong(pCamera));
+        if (pCamera) nNode.camera = (u32)(json::getLong(pCamera));
 
         auto pChildren = json::searchObject(obj, "children");
         if (pChildren)
         {
             auto& arrChil = json::getArray(pChildren);
             for (auto& c : arrChil)
-                nNode.children.push(static_cast<u32>(json::getLong(&c)));
+                nNode.children.push((u32)(json::getLong(&c)));
         }
 
         auto pMatrix = json::searchObject(obj, "matrix");
@@ -523,7 +513,7 @@ Asset::processNodes()
         }
 
         auto pMesh = json::searchObject(obj, "mesh");
-        if (pMesh) nNode.mesh = static_cast<u32>(json::getLong(pMesh));
+        if (pMesh) nNode.mesh = (u32)(json::getLong(pMesh));
 
         auto pTranslation = json::searchObject(obj, "translation");
         if (pTranslation)

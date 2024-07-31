@@ -46,7 +46,7 @@ struct Ubo
     Ubo(u32 size, GLint drawMode);
 
     void createBuffer(u32 size, GLint drawMode);
-    void bindBlock(Shader* sh, adt::String block, GLuint point);
+    void bindShader(Shader* sh, adt::String block, GLuint point);
     void bufferData(void* data, u32 offset, u32 size);
 };
 
@@ -64,8 +64,6 @@ struct MeshData
     GLuint eboSize;
 
     Materials materials;
-
-    adt::String name;
 };
 
 struct Mesh

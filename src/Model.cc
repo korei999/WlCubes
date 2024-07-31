@@ -348,7 +348,7 @@ Ubo::createBuffer(u32 size, GLint drawMode)
 }
 
 void
-Ubo::bindBlock(Shader* sh, adt::String block, GLuint point)
+Ubo::bindShader(Shader* sh, adt::String block, GLuint point)
 {
     _point = point;
     GLuint index = glGetUniformBlockIndex(sh->id, block.data());
