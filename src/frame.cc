@@ -1,13 +1,13 @@
+#include "AllocatorPool.hh"
 #include "ArenaAllocator.hh"
+#include "AtomicArrayAllocator.hh"
 #include "Model.hh"
 #include "Shader.hh"
+#include "Text.hh"
 #include "ThreadPool.hh"
 #include "colors.hh"
 #include "frame.hh"
 #include "math.hh"
-#include "Text.hh"
-#include "AllocatorPool.hh"
-#include "AtomicArrayAllocator.hh"
 
 namespace frame
 {
@@ -144,9 +144,9 @@ prepareDraw(App* pApp)
 void
 run(App* pApp)
 {
-    pApp->bRunning = true;
+    pApp->_bRunning = true;
     /* FIXME: find better way to toggle this on startup */
-    pApp->bRelativeMode = true;
+    pApp->_bRelativeMode = true;
     pApp->bPaused = false;
     pApp->setCursorImage("default");
 
@@ -218,7 +218,7 @@ mainLoop(App* pApp)
 {
     adt::ArenaAllocator allocFrame(adt::SIZE_8M);
 
-    while (pApp->bRunning)
+    while (pApp->_bRunning)
     {
         {
             player.updateDeltaTime();
@@ -227,7 +227,7 @@ mainLoop(App* pApp)
 
             pApp->procEvents();
 
-            f32 aspect = f32(pApp->wWidth) / f32(pApp->wHeight);
+            f32 aspect = f32(pApp->_wWidth) / f32(pApp->_wHeight);
             constexpr f32 shadowAspect = 1024.0f / 1024.0f;
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -264,7 +264,7 @@ mainLoop(App* pApp)
 
             /* reset viewport */
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glViewport(0, 0, pApp->wWidth, pApp->wHeight);
+            glViewport(0, 0, pApp->_wWidth, pApp->_wHeight);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             /* draw skybox prior to everything else */

@@ -4,16 +4,16 @@
 
 struct App
 {
-    adt::Allocator* pAlloc;
-    adt::String svName;
-    int wWidth = 1920;
-    int wHeight = 1080;
-    bool bRunning = false;
-    bool bConfigured = false;
-    int swapInterval = 1;
+    adt::Allocator* _pAlloc;
+    adt::String _svName;
+    int _wWidth = 1920;
+    int _wHeight = 1080;
+    bool _bRunning = false;
+    bool _bConfigured = false;
+    int _swapInterval = 1;
     bool bPaused = false;
-    bool bRelativeMode = false;
-    bool bFullscreen = false;
+    bool _bRelativeMode = false;
+    bool _bFullscreen = false;
 
     virtual ~App() = default;
 

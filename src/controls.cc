@@ -5,13 +5,11 @@
 #include "logs.hh"
 
 #ifdef __linux__
-#include <linux/input-event-codes.h>
+    #include <linux/input-event-codes.h>
 #elif _WIN32
-
+    #undef near
+    #undef far
 #endif
-
-#undef near
-#undef far
 
 namespace controls
 {
@@ -66,7 +64,7 @@ procKeysOnce(App* app, u32 key, u32 pressed)
         case KEY_CAPSLOCK:
             if (pressed)
             {
-                app->bRunning = false;
+                app->_bRunning = false;
                 LOG_OK("quit...\n");
             }
             break;

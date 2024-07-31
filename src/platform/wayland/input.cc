@@ -29,7 +29,7 @@ keyboardEnterHandler([[maybe_unused]] void* data,
 
     auto app = (WlClient*)(data);
 
-    if (app->bRelativeMode) app->enableRelativeMode();
+    if (app->_bRelativeMode) app->enableRelativeMode();
 }
 
 void
@@ -45,7 +45,7 @@ keyboardLeaveHandler([[maybe_unused]] void* data,
     /* prevent keys getting stuck after leaving surface */
     for (auto& key : controls::pressedKeys) key = 0;
 
-    if (app->bRelativeMode) app->disableRelativeMode();
+    if (app->_bRelativeMode) app->disableRelativeMode();
 }
 
 void
@@ -103,16 +103,16 @@ pointerEnterHandler([[maybe_unused]] void* data,
     LOG_OK("pointerEnterHandler\n");
 
     auto app = (WlClient*)(data);
-    app->pointerSerial = serial;
+    app->_pointerSerial = serial;
 
-    if (app->bRelativeMode)
+    if (app->_bRelativeMode)
         wl_pointer_set_cursor(pointer, serial, nullptr, 0, 0);
     else
         wl_pointer_set_cursor(pointer,
                               serial,
-                              app->cursorSurface,
-                              app->cursorImage->hotspot_x,
-                              app->cursorImage->hotspot_y);
+                              app->_cursorSurface,
+                              app->_cursorImage->hotspot_x,
+                              app->_cursorImage->hotspot_y);
 }
 
 void
