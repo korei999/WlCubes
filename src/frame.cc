@@ -1,3 +1,4 @@
+#include "ArenaAllocator.hh"
 #include "Model.hh"
 #include "Shader.hh"
 #include "ThreadPool.hh"
@@ -5,8 +6,8 @@
 #include "frame.hh"
 #include "math.hh"
 #include "Text.hh"
-#include "AtomicArenaAllocator.hh"
 #include "AllocatorPool.hh"
+#include "AtomicArrayAllocator.hh"
 
 namespace frame
 {
@@ -27,7 +28,7 @@ f32 fov = 90.0f;
 f32 uiWidth = 150.0f;
 f32 uiHeight = (uiWidth * 9.0f) / 16.0f;
 
-static adt::AllocatorPool<adt::AtomicArenaAllocator, ASSET_MAX_COUNT> apAssets;
+static adt::AllocatorPool<adt::AtomicArrayAllocator, ASSET_MAX_COUNT> apAssets;
 
 static Shader shTex;
 static Shader shBitMap;
