@@ -32,6 +32,7 @@ struct String
     constexpr const char& operator[](u32 i) const { return _pData[i]; }
 
     constexpr char* data() { return _pData; }
+    constexpr u32 size() const { return _size; }
     constexpr bool endsWith(String other);
 
     struct It

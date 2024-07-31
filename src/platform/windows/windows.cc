@@ -53,34 +53,33 @@ getWglFunctions(void)
     const char* ext = wglGetExtensionsStringARB(dc);
     if (!ext) LOG_FATAL("wglGetExtensionsStringARB failed\n");
 
-    const char* start = ext;
-    while (true)
+    COUT("'%s'\n\n", ext);
+
+    adt::String sExt(ext);
+
+    for (u32 i = 0; i < sExt.size(); )
     {
-        while (*ext != 0 && *ext != ' ')
-            ext++;
+        u32 start = i;
+        u32 end = i;
 
-        size_t length = ext - start;
-        if (strncmp("WGL_ARB_pixel_format", start, length) == 0)
-        {
-            /* https://www.khronos.org/registry/OpenGL/extensions/ARB/WGL_ARB_pixel_format.txt */
+        auto skipSpace = [&]() -> void {
+            while (end < sExt.size() && sExt[end] != ' ')
+                end++;
+        };
+
+        skipSpace();
+
+        adt::String sWord(&sExt[start], end - start);
+        LOG_OK("'%.*s'\n", sWord.size(), sWord.data());
+
+        if (sWord == "WGL_ARB_pixel_format")
             wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
-        }
-        else if (strncmp("WGL_ARB_create_context", start, length) == 0)
-        {
-            /* https://www.khronos.org/registry/OpenGL/extensions/ARB/WGL_ARB_create_context.txt */
+        else if (sWord == "WGL_ARB_create_context")
             wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-        }
-        else if (strncmp("WGL_EXT_swap_control", start, length) == 0)
-        {
-            /* https://www.khronos.org/registry/OpenGL/extensions/EXT/WGL_EXT_swap_control.txt */
+        else if (sWord == "WGL_EXT_swap_control")
             wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
-        }
 
-        if (*ext == 0)
-            break;
-
-        ext++;
-        start = ext;
+        i = end + 1;
     }
 
     if (!wglChoosePixelFormatARB || !wglCreateContextAttribsARB || !wglSwapIntervalEXT)
@@ -92,12 +91,12 @@ getWglFunctions(void)
     DestroyWindow(dummy);
 }
 
-Window::Window(adt::Allocator* p, adt::String name, HINSTANCE _instance)
+Window::Window(adt::Allocator* p, adt::String sName, HINSTANCE hInstance)
 {
-    this->pAlloc = p;
-    this->svName = name;
-    this->hInstance = _instance;
-    this->init();
+    _pAlloc = p;
+    _svName = sName;
+    _hInstance = hInstance;
+    init();
 }
 
 Window::~Window()
@@ -109,44 +108,44 @@ Window::init()
 {
     getWglFunctions();
 
-    this->windowClass = {};
-    this->windowClass.cbSize = sizeof(windowClass);
-    this->windowClass.lpfnWndProc = input::windowProc;
-    this->windowClass.hInstance = hInstance;
-    this->windowClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
-    this->windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    this->windowClass.lpszClassName = L"opengl_window_class";
+    _windowClass = {};
+    _windowClass.cbSize = sizeof(_windowClass);
+    _windowClass.lpfnWndProc = input::windowProc;
+    _windowClass.hInstance = _hInstance;
+    _windowClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+    _windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    _windowClass.lpszClassName = L"opengl_window_class";
 
-    ATOM atom = RegisterClassExW(&this->windowClass);
+    ATOM atom = RegisterClassExW(&_windowClass);
     if (!atom) LOG_FATAL("RegisterClassExW failed\n");
 
-    this->wWidth = 1280;
-    this->wHeight = 960;
+    _wWidth = 1280;
+    _wHeight = 960;
     DWORD exstyle = WS_EX_APPWINDOW;
     DWORD style = WS_OVERLAPPEDWINDOW;
 
     // style &= ~WS_THICKFRAME & ~WS_MAXIMIZEBOX;
     RECT rect = { 0, 0, 1280, 960 };
     AdjustWindowRectEx(&rect, style, false, exstyle);
-    this->wWidth = rect.right - rect.left;
-    this->wHeight = rect.bottom - rect.top;
+    _wWidth = rect.right - rect.left;
+    _wHeight = rect.bottom - rect.top;
 
-    this->hWindow = CreateWindowExW(exstyle,
-                             this->windowClass.lpszClassName,
+    _hWindow = CreateWindowExW(exstyle,
+                             _windowClass.lpszClassName,
                              L"OpenGL Window",
                              style,
                              CW_USEDEFAULT,
                              CW_USEDEFAULT,
-                             this->wWidth,
-                             this->wHeight,
+                             _wWidth,
+                             _wHeight,
                              nullptr,
                              nullptr,
-                             this->windowClass.hInstance,
+                             _windowClass.hInstance,
                              this);
-    if (!this->hWindow) LOG_FATAL("CreateWindowExW failed\n");
+    if (!_hWindow) LOG_FATAL("CreateWindowExW failed\n");
 
-    this->hDeviceContext = GetDC(this->hWindow);
-    if (!hDeviceContext) LOG_FATAL("GetDC failed\n");
+    _hDeviceContext = GetDC(_hWindow);
+    if (!_hDeviceContext) LOG_FATAL("GetDC failed\n");
 
     /* FIXME: find better way to toggle this on startup */
     input::registerRawMouseDevice(this, true);
@@ -169,15 +168,15 @@ Window::init()
 
     int format;
     UINT formats;
-    if (!wglChoosePixelFormatARB(this->hDeviceContext, attrib, nullptr, 1, &format, &formats) || formats == 0)
+    if (!wglChoosePixelFormatARB(_hDeviceContext, attrib, nullptr, 1, &format, &formats) || formats == 0)
         LOG_FATAL("OpenGL does not support required pixel format!");
 
     PIXELFORMATDESCRIPTOR desc {};
     desc.nSize = sizeof(desc);
-    int ok = DescribePixelFormat(hDeviceContext, format, sizeof(desc), &desc);
+    int ok = DescribePixelFormat(_hDeviceContext, format, sizeof(desc), &desc);
     if (!ok) LOG_FATAL("DescribePixelFormat failed\n");
 
-    if (!SetPixelFormat(this->hDeviceContext, format, &desc)) LOG_FATAL("Cannot set OpenGL selected pixel format!");
+    if (!SetPixelFormat(_hDeviceContext, format, &desc)) LOG_FATAL("Cannot set OpenGL selected pixel format!");
 
     int attribContext[] {
         WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
@@ -191,45 +190,45 @@ Window::init()
         0,
     };
 
-    this->hGlContext = wglCreateContextAttribsARB(this->hDeviceContext, nullptr, attribContext);
-    if (!this->hGlContext) LOG_FATAL("Cannot create OpenGL context! OpenGL version 4.5 is not supported");
+    _hGlContext = wglCreateContextAttribsARB(_hDeviceContext, nullptr, attribContext);
+    if (!_hGlContext) LOG_FATAL("Cannot create OpenGL context! OpenGL version 4.5 is not supported");
 
-    bool okContext = wglMakeCurrent(this->hDeviceContext, this->hGlContext);
+    bool okContext = wglMakeCurrent(_hDeviceContext, _hGlContext);
     if (!okContext) LOG_FATAL("wglMakeCurrent failed\n");
 
     if (!gladLoadGL()) LOG_FATAL("gladLoadGL failed\n");
 
-    this->unbindGlContext();
+    unbindGlContext();
 }
 
 void
 Window::disableRelativeMode()
 {
-    this->bRelativeMode = false;
+    _bRelativeMode = false;
     input::registerRawMouseDevice(this, false);
 }
 
 void
 Window::enableRelativeMode()
 {
-    this->bRelativeMode = true;
+    _bRelativeMode = true;
     input::registerRawMouseDevice(this, true);
 }
 
 void
 Window::togglePointerRelativeMode()
 {
-    this->bRelativeMode = !this->bRelativeMode;
-    this->bRelativeMode ? this->enableRelativeMode() : this->disableRelativeMode();
-    LOG_OK("relative mode: %d\n", this->bRelativeMode);
+    _bRelativeMode = !_bRelativeMode;
+    _bRelativeMode ? enableRelativeMode() : disableRelativeMode();
+    LOG_OK("relative mode: %d\n", _bRelativeMode);
 }
 
 void
 Window::toggleFullscreen()
 {
-    this->bFullscreen = !this->bFullscreen;
-    this->bFullscreen ? this->setFullscreen() : this->unsetFullscreen();
-    LOG_OK("fullscreen: %d\n", this->bRelativeMode);
+    _bFullscreen = !_bFullscreen;
+    _bFullscreen ? setFullscreen() : unsetFullscreen();
+    LOG_OK("fullscreen: %d\n", _bRelativeMode);
 }
 
 void 
@@ -241,23 +240,23 @@ Window::setCursorImage(adt::String cursorType)
 void 
 Window::setFullscreen() 
 {
-    input::enterFullscreen(this->hWindow,
-                           GetDeviceCaps(this->hDeviceContext, 0),
-                           GetDeviceCaps(this->hDeviceContext, 0),
-                           GetDeviceCaps(this->hDeviceContext, 0),
-                           GetDeviceCaps(this->hDeviceContext, 0));
+    input::enterFullscreen(_hWindow,
+                           GetDeviceCaps(_hDeviceContext, 0),
+                           GetDeviceCaps(_hDeviceContext, 0),
+                           GetDeviceCaps(_hDeviceContext, 0),
+                           GetDeviceCaps(_hDeviceContext, 0));
 }
 
 void
 Window::unsetFullscreen()
 {
-    input::exitFullscreen(this->hWindow, 0, 0, 800, 600, 0, 0);
+    input::exitFullscreen(_hWindow, 0, 0, 800, 600, 0, 0);
 }
 
 void 
 Window::bindGlContext()
 {
-    wglMakeCurrent(this->hDeviceContext, this->hGlContext);
+    wglMakeCurrent(_hDeviceContext, _hGlContext);
 }
 
 void 
@@ -269,22 +268,22 @@ Window::unbindGlContext()
 void
 Window::setSwapInterval(int interval)
 {
-    this->swapInterval = interval;
+    _swapInterval = interval;
     wglSwapIntervalEXT(interval);
 }
 
 void 
 Window::toggleVSync()
 {
-    this->swapInterval = !this->swapInterval;
-    wglSwapIntervalEXT(this->swapInterval);
-    LOG_OK("swapInterval: %d\n", this->swapInterval);
+    _swapInterval = !_swapInterval;
+    wglSwapIntervalEXT(_swapInterval);
+    LOG_OK("swapInterval: %d\n", _swapInterval);
 }
 
 void
 Window::swapBuffers()
 {
-    if (!SwapBuffers(this->hDeviceContext)) LOG_WARN("SwapBuffers(dc): failed\n");
+    if (!SwapBuffers(_hDeviceContext)) LOG_WARN("SwapBuffers(dc): failed\n");
 }
 
 void 
@@ -296,7 +295,7 @@ Window::procEvents()
         switch (msg.message)
         {
             case WM_QUIT:
-                this->bRunning = false;
+                _bRunning = false;
                 break;
 
             default:
@@ -311,7 +310,7 @@ Window::procEvents()
 void
 Window::showWindow()
 {
-    ShowWindow(this->hWindow, SW_SHOWDEFAULT);
+    ShowWindow(_hWindow, SW_SHOWDEFAULT);
 }
 
 } /* namespace win32 */

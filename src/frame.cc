@@ -12,17 +12,17 @@
 namespace frame
 {
 
-void mainLoop(App* pApp);
+static void mainLoop(App* pApp);
+
+f32 g_fov = 90.0f;
+f32 g_uiWidth = 150.0f;
+f32 g_uiHeight = (g_uiWidth * 9.0f) / 16.0f;
 
 static f64 s_prevTime;
 static int s_fpsCount = 0;
 static char s_fpsStrBuff[40] {};
 
 controls::PlayerControls player({0.0f, 1.0f, 1.0f}, 4.0, 0.07);
-
-f32 g_fov = 90.0f;
-f32 g_uiWidth = 150.0f;
-f32 g_uiHeight = (g_uiWidth * 9.0f) / 16.0f;
 
 static adt::AllocatorPool<adt::AtomicArenaAllocator, ASSET_MAX_COUNT> s_apAssets;
 
@@ -209,7 +209,7 @@ renderScene(adt::Allocator* pAlloc, Shader* sh)
     s_mBackpack.drawGraph(pAlloc, DRAW::ALL ^ DRAW::NORM, sh, "uModel", "uNormalMatrix", m);
 }
 
-void
+static void
 mainLoop(App* pApp)
 {
     adt::ArenaAllocator allocFrame(adt::SIZE_8M);

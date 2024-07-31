@@ -143,35 +143,35 @@ int asciiToLinuxKeyCodes[300] {
 /* https://gist.github.com/luluco250/ac79d72a734295f167851ffdb36d77ee */
 
 void
-registerRawMouseDevice(Window* self, bool on)
+registerRawMouseDevice(Window* pApp, bool on)
 {
     DWORD flag = on ? RIDEV_NOLEGACY : RIDEV_REMOVE;
 
-    self->rawInputDevices[0].usUsagePage = 0x01; /* HID_USAGE_PAGE_GENERIC */
-    self->rawInputDevices[0].usUsage = 0x02;     /* HID_USAGE_GENERIC_MOUSE */
-    self->rawInputDevices[0].dwFlags = flag;     /* adds mouse and also ignores legacy mouse messages */
-    self->rawInputDevices[0].hwndTarget = 0;
+    pApp->_rawInputDevices[0].usUsagePage = 0x01; /* HID_USAGE_PAGE_GENERIC */
+    pApp->_rawInputDevices[0].usUsage = 0x02;     /* HID_USAGE_GENERIC_MOUSE */
+    pApp->_rawInputDevices[0].dwFlags = flag;     /* adds mouse and also ignores legacy mouse messages */
+    pApp->_rawInputDevices[0].hwndTarget = 0;
 
-    // self->rawInputDevices[1].usUsagePage = 0x01;       /* HID_USAGE_PAGE_GENERIC */
-    // self->rawInputDevices[1].usUsage = 0x06;           /* HID_USAGE_GENERIC_KEYBOARD */
-    // self->rawInputDevices[1].dwFlags = RIDEV_NOLEGACY; /* adds keyboard and also ignores legacy keyboard messages */
-    // self->rawInputDevices[1].hwndTarget = 0;
+    // pApp->rawInputDevices[1].usUsagePage = 0x01;       /* HID_USAGE_PAGE_GENERIC */
+    // pApp->rawInputDevices[1].usUsage = 0x06;           /* HID_USAGE_GENERIC_KEYBOARD */
+    // pApp->rawInputDevices[1].dwFlags = RIDEV_NOLEGACY; /* adds keyboard and also ignores legacy keyboard messages */
+    // pApp->rawInputDevices[1].hwndTarget = 0;
 
-    if (RegisterRawInputDevices(self->rawInputDevices, 1, sizeof(self->rawInputDevices[0])) == FALSE)
+    if (RegisterRawInputDevices(pApp->_rawInputDevices, 1, sizeof(pApp->_rawInputDevices[0])) == FALSE)
         LOG_FATAL("RegisterRawInputDevices failed: %lu\n", GetLastError());
 }
 
 void
-registerRawKBDevice(Window* self, bool on)
+registerRawKBDevice(Window* pApp, bool on)
 {
     DWORD flag = on ? RIDEV_NOLEGACY : RIDEV_REMOVE;
 
-    self->rawInputDevices[1].usUsagePage = 0x01;       /* HID_USAGE_PAGE_GENERIC */
-    self->rawInputDevices[1].usUsage = 0x06;           /* HID_USAGE_GENERIC_KEYBOARD */
-    self->rawInputDevices[1].dwFlags = flag; /* adds keyboard and also ignores legacy keyboard messages */
-    self->rawInputDevices[1].hwndTarget = 0;
+    pApp->_rawInputDevices[1].usUsagePage = 0x01;       /* HID_USAGE_PAGE_GENERIC */
+    pApp->_rawInputDevices[1].usUsage = 0x06;           /* HID_USAGE_GENERIC_KEYBOARD */
+    pApp->_rawInputDevices[1].dwFlags = flag; /* adds keyboard and also ignores legacy keyboard messages */
+    pApp->_rawInputDevices[1].hwndTarget = 0;
 
-    if (RegisterRawInputDevices(self->rawInputDevices, 1, sizeof(self->rawInputDevices[1])) == FALSE)
+    if (RegisterRawInputDevices(pApp->_rawInputDevices, 1, sizeof(pApp->_rawInputDevices[1])) == FALSE)
         LOG_FATAL("RegisterRawInputDevices failed: %lu\n", GetLastError());
 }
 
@@ -214,17 +214,17 @@ exitFullscreen(HWND hwnd, int windowX, int windowY, int windowedWidth, int windo
 LRESULT CALLBACK
 windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    Window* self = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    Window* pApp = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
     switch (msg)
     {
         case WM_DESTROY:
-            self->bRunning = false;
+            pApp->_bRunning = false;
             return 0;
 
         case WM_SIZE:
-            self->wWidth = LOWORD(lParam);
-            self->wHeight = HIWORD(lParam);
+            pApp->_wWidth = LOWORD(lParam);
+            pApp->_wHeight = HIWORD(lParam);
             break;
 
         case WM_KILLFOCUS:
@@ -251,14 +251,14 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     break;
 
                 controls::pressedKeys[ asciiToLinuxKeyCodes[keyCode] ] = bDown;
-                controls::procKeysOnce(self, asciiToLinuxKeyCodes[keyCode], bDown);
+                controls::procKeysOnce(pApp, asciiToLinuxKeyCodes[keyCode], bDown);
             }
             break;
 
         case WM_MOUSEMOVE:
             {
-                frame::player.mouse.absX = GET_X_LPARAM(lParam);
-                frame::player.mouse.absY = GET_Y_LPARAM(lParam);
+                frame::player._mouse.absX = GET_X_LPARAM(lParam);
+                frame::player._mouse.absY = GET_Y_LPARAM(lParam);
             }
             break;
 
@@ -270,8 +270,8 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                 if (raw->header.dwType == RIM_TYPEMOUSE)
                 {
-                    frame::player.mouse.relX += raw->data.mouse.lLastX;
-                    frame::player.mouse.relY += raw->data.mouse.lLastY;
+                    frame::player._mouse.relX += raw->data.mouse.lLastX;
+                    frame::player._mouse.relY += raw->data.mouse.lLastY;
                 }
             }
             break;
@@ -280,9 +280,9 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
     }
 
-    if (self && self->bRelativeMode)
+    if (pApp && pApp->_bRelativeMode)
     {
-        SetCursorPos(self->wWidth / 2, self->wHeight / 2);
+        SetCursorPos(pApp->_wWidth / 2, pApp->_wHeight / 2);
         SetCursor(nullptr);
     }
 

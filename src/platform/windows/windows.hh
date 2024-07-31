@@ -8,14 +8,14 @@ namespace win32
 
 struct Window : App
 {
-    HINSTANCE hInstance;
-    HWND hWindow;
-    HDC hDeviceContext;
-    HGLRC hGlContext;
-    WNDCLASSEXW windowClass;
-    RAWINPUTDEVICE rawInputDevices[2];
+    HINSTANCE _hInstance;
+    HWND _hWindow;
+    HDC _hDeviceContext;
+    HGLRC _hGlContext;
+    WNDCLASSEXW _windowClass;
+    RAWINPUTDEVICE _rawInputDevices[2];
 
-    Window(adt::Allocator* p, adt::String name, HINSTANCE _instance);
+    Window(adt::Allocator* p, adt::String name, HINSTANCE instance);
     virtual ~Window() override;
 
     virtual void init() override;
