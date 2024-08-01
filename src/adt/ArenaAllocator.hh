@@ -15,9 +15,6 @@
 #define ARENA_FOREACH(A, IT) for (ArenaBlock* IT = ARENA_FIRST(A); IT; IT = ARENA_NEXT(IT))
 #define ARENA_FOREACH_SAFE(A, IT, TMP) for (ArenaBlock* IT = ARENA_FIRST(A), * TMP = nullptr; IT && ((TMP) = ARENA_NEXT(IT), true); (IT) = (TMP))
 
-#define ARENA_NODE_GET_FROM_DATA(PDATA)   ((adt::ArenaNode*)((u8*)(PDATA)  - offsetof(adt::ArenaNode,  pData)))
-#define ARENA_NODE_GET_FROM_BLOCK(PBLOCK) ((adt::ArenaNode*)((u8*)(PBLOCK) + offsetof(adt::ArenaBlock, pData)))
-
 namespace adt
 {
 
@@ -55,6 +52,9 @@ struct ArenaAllocator : Allocator
 private:
     ArenaBlock* newBlock();
     ArenaBlock* getFreeBlock();
+
+    static ArenaNode* getNodeFromData(void* p) { return (ArenaNode*)((u8*)(p) - offsetof(ArenaNode, pData)); }
+    static ArenaNode* getNodeFromBlock(void* p) { return (ArenaNode*)((u8*)(p) + offsetof(ArenaBlock, pData)); }
 };
 
 inline 
@@ -69,12 +69,12 @@ ArenaAllocator::reset()
 {
     ARENA_FOREACH(this, pB)
     {
-        ArenaNode* pNode = ARENA_NODE_GET_FROM_BLOCK(pB);
+        ArenaNode* pNode = getNodeFromBlock(pB);
         pNode->pNext = pNode;
     }
 
     auto first = ARENA_FIRST(this);
-    ArenaNode* pNode = ARENA_NODE_GET_FROM_BLOCK(first);
+    ArenaNode* pNode = getNodeFromBlock(first);
     _pLatest = pNode;
     _pLatestBlock = first;
 }
@@ -88,7 +88,7 @@ ArenaAllocator::newBlock()
     *ppLastBlock = (ArenaBlock*)(malloc(sizeof(ArenaBlock) + _blockSize));
     memset(*ppLastBlock, 0, sizeof(ArenaBlock) + _blockSize);
 
-    auto* pNode = ARENA_NODE_GET_FROM_BLOCK(*ppLastBlock);
+    auto* pNode = getNodeFromBlock(*ppLastBlock);
     pNode->pNext = pNode; /* don't bump the very first node on `alloc()` */
     _pLatest = pNode;
     _pLatestBlock = *ppLastBlock;
@@ -131,7 +131,7 @@ ArenaAllocator::alloc(u32 memberCount, u32 memberSize)
 
 repeat:
     /* skip pNext */
-    ArenaNode* pFreeBlockOff = ARENA_NODE_GET_FROM_BLOCK(pFreeBlock);
+    ArenaNode* pFreeBlockOff = getNodeFromBlock(pFreeBlock);
     ArenaNode* pNode = _pLatest->pNext;
     size_t nextAligned = ((u8*)pNode + aligned) - (u8*)pFreeBlockOff;
 
@@ -164,8 +164,8 @@ ArenaAllocator::free([[maybe_unused]] void* p)
 inline void*
 ArenaAllocator::realloc(void* p, u32 size)
 {
-    ArenaNode* pNode = ARENA_NODE_GET_FROM_DATA(p);
-    auto* pBlockOff = ARENA_NODE_GET_FROM_BLOCK(pNode->pBlock);
+    ArenaNode* pNode = getNodeFromData(p);
+    auto* pBlockOff = getNodeFromBlock(pNode->pBlock);
     auto aligned = alignedBytes(size);
     size_t nextAligned = ((u8*)pNode + aligned) - (u8*)pBlockOff;
 

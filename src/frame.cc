@@ -1,6 +1,6 @@
 #include "AllocatorPool.hh"
 #include "ArenaAllocator.hh"
-#include "AtomicArenaAllocator.hh"
+#include "ArenaAllocator.hh"
 #include "Model.hh"
 #include "Shader.hh"
 #include "Text.hh"
@@ -24,7 +24,7 @@ static char s_fpsStrBuff[40] {};
 
 controls::PlayerControls player({0.0f, 1.0f, 1.0f}, 4.0, 0.07);
 
-static adt::AllocatorPool<adt::AtomicArenaAllocator, ASSET_MAX_COUNT> s_apAssets;
+static adt::AllocatorPool<adt::ArenaAllocator, ASSET_MAX_COUNT> s_apAssets;
 
 static Shader s_shTex;
 static Shader s_shBitMap;
