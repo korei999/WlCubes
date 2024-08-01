@@ -28,7 +28,6 @@ struct ArenaNode
 {
     ArenaNode* pNext = nullptr;
     ArenaBlock* pBlock;
-    u64 size = 0;
     u8 pData[];
 };
 
@@ -148,7 +147,6 @@ repeat:
     }
 
     pNode->pNext = (ArenaNode*)((u8*)pNode + aligned);
-    pNode->size = requested;
     pNode->pBlock = pFreeBlock;
     _pLatest = pNode;
 
@@ -171,7 +169,6 @@ ArenaAllocator::realloc(void* p, u32 size)
 
     if (pNode == _pLatest && nextAligned < _blockSize)
     {
-        pNode->size = size;
         pNode->pNext = (ArenaNode*)((u8*)pNode + aligned + sizeof(ArenaNode));
 
         return p;
@@ -179,7 +176,7 @@ ArenaAllocator::realloc(void* p, u32 size)
     else
     {
         void* pR = alloc(size, 1);
-        memcpy(pR, p, pNode->size);
+        memcpy(pR, p, ((u8*)pNode->pNext - (u8*)pNode));
 
         return pR;
     }
