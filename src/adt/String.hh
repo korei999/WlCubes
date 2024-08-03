@@ -86,10 +86,10 @@ String::endsWith(String r)
 constexpr bool
 operator==(const String& sL, const String& sR)
 {
-    auto m = min(sL._size, sR._size);
-    for (u32 i = 0; i < m; i++)
-        if (sL[i] != sR[i])
-            return false;
+    if (sL.size() != sR.size()) return false;
+
+    for (u32 i = 0; i < sL.size(); i++)
+        if (sL[i] != sR[i]) return false;
 
     return true;
 }

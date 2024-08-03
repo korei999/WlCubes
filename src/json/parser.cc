@@ -203,12 +203,12 @@ Parser::parseBool(TagVal* pTV)
 void
 Parser::print()
 {
-    printNode(_pHead, "");
+    printNode(_pHead, "", 0);
     COUT("\n");
 }
 
 void
-Parser::printNode(Object* pNode, adt::String svEnd)
+Parser::printNode(Object* pNode, adt::String svEnd, int depth)
 {
     adt::String key = pNode->svKey;
 
@@ -233,12 +233,14 @@ Parser::printNode(Object* pNode, adt::String svEnd)
                     q1 = q0 = "\"";
                 }
 
+                COUT("%*s", depth, "");
                 COUT("%.*s%.*s%.*s%.*s{\n", q0._size, q0._pData, objName0._size, objName0._pData, q1._size, q1._pData, objName1._size, objName1._pData);
                 for (u32 i = 0; i < obj._size; i++)
                 {
                     adt::String slE = (i == obj._size - 1) ? "\n" : ",\n";
-                    printNode(&obj[i], slE);
+                    printNode(&obj[i], slE, depth + 2);
                 }
+                COUT("%*s", depth, "");
                 COUT("}%.*s", svEnd._size, svEnd._pData);
             }
             break;
@@ -259,7 +261,16 @@ Parser::printNode(Object* pNode, adt::String svEnd)
                     q1 = q0 = "\"";
                 }
 
-                COUT("%.*s%.*s%.*s%.*s[", q0._size, q0._pData, arrName0._size, arrName0._pData, q1._size, q1._pData, arrName1._size, arrName1._pData);
+                COUT("%*s", depth, "");
+
+                if (arr.empty())
+                {
+                    COUT("%.*s%.*s%.*s%.*s[", q0._size, q0._pData, arrName0._size, arrName0._pData, q1._size, q1._pData, arrName1._size, arrName1._pData);
+                    COUT("]%.*s", (int)svEnd._size, svEnd._pData);
+                    break;
+                }
+
+                COUT("%.*s%.*s%.*s%.*s[\n", q0._size, q0._pData, arrName0._size, arrName0._pData, q1._size, q1._pData, arrName1._size, arrName1._pData);
                 for (u32 i = 0; i < arr._size; i++)
                 {
                     adt::String slE = (i == arr._size - 1) ? "\n" : ",\n";
@@ -270,17 +281,20 @@ Parser::printNode(Object* pNode, adt::String svEnd)
                         case TAG::STRING:
                             {
                                 adt::String sl = getString(&arr[i]);
+                                COUT("%*s", depth + 2, "");
                                 COUT("\"%.*s\"%.*s", sl._size, sl._pData, slE._size, slE._pData);
                             }
                             break;
 
                         case TAG::NULL_:
+                                COUT("%*s", depth + 2, "");
                                 COUT("%s%.*s", "null", slE._size, slE._pData);
                             break;
 
                         case TAG::LONG:
                             {
                                 long num = getLong(&arr[i]);
+                                COUT("%*s", depth + 2, "");
                                 COUT("%ld%.*s", num, slE._size, slE._pData);
                             }
                             break;
@@ -288,22 +302,25 @@ Parser::printNode(Object* pNode, adt::String svEnd)
                         case TAG::DOUBLE:
                             {
                                 double dnum = getDouble(&arr[i]);
-                                COUT("%lf%.*s", dnum, slE._size, slE._pData);
+                                COUT("%*s", depth + 2, "");
+                                COUT("%.17lf%.*s", dnum, slE._size, slE._pData);
                             }
                             break;
 
                         case TAG::BOOL:
                             {
                                 bool b = getBool(&arr[i]);
+                                COUT("%*s", depth + 2, "");
                                 COUT("%s%.*s", b ? "true" : "false", slE._size, slE._pData);
                             }
                             break;
 
                         case TAG::OBJECT:
-                                printNode(&arr[i], slE);
+                                printNode(&arr[i], slE, depth + 2);
                             break;
                     }
                 }
+                COUT("%*s", depth, "");
                 COUT("]%.*s", (int)svEnd._size, svEnd._pData);
             }
             break;
@@ -312,24 +329,28 @@ Parser::printNode(Object* pNode, adt::String svEnd)
             {
                 /* TODO: add some sort formatting for floats */
                 double f = getDouble(pNode);
-                COUT("\"%.*s\": %lf%.*s", key._size, key._pData, f, svEnd._size, svEnd._pData);
+                COUT("%*s", depth, "");
+                COUT("\"%.*s\": %.17lf%.*s", key._size, key._pData, f, svEnd._size, svEnd._pData);
             }
             break;
 
         case TAG::LONG:
             {
                 long i = getLong(pNode);
+                COUT("%*s", depth, "");
                 COUT("\"%.*s\": %ld%.*s", key._size, key._pData, i, svEnd._size, svEnd._pData);
             }
             break;
 
         case TAG::NULL_:
+                COUT("%*s", depth, "");
                 COUT("\"%.*s\": %s%.*s", key._size, key._pData, "null", svEnd._size, svEnd._pData);
             break;
 
         case TAG::STRING:
             {
                 adt::String sl = getString(pNode);
+                COUT("%*s", depth, "");
                 COUT("\"%.*s\": \"%.*s\"%.*s", key._size, key._pData, sl._size, sl._pData, svEnd._size, svEnd._pData);
             }
             break;
@@ -337,7 +358,30 @@ Parser::printNode(Object* pNode, adt::String svEnd)
         case TAG::BOOL:
             {
                 bool b = getBool(pNode);
+                COUT("%*s", depth, "");
                 COUT("\"%.*s\": %s%.*s", key._size, key._pData, b ? "true" : "false", svEnd._size, svEnd._pData);
+            }
+            break;
+    }
+}
+
+void
+Parser::traverse(Object* pNode, bool (*pfn)(Object* p, void* args), void* args)
+{
+    if (pfn(pNode, args)) return;
+
+    switch (pNode->tagVal.tag)
+    {
+        default:
+            break;
+
+        case TAG::ARRAY:
+        case TAG::OBJECT:
+            {
+                auto& obj = getObject(pNode);
+
+                for (u32 i = 0; i < obj._size; i++)
+                    traverse(&obj[i], pfn, args);
             }
             break;
     }

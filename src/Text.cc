@@ -76,7 +76,8 @@ Text::genBuffer(adt::Allocator* pAlloc, adt::String s, u32 size, int xOrigin, in
              2.0f + xOff + xOrigin,  2.0f + yOff + frame::g_uiHeight - 2.0f - yOrigin,     x3, y3, /* tr */
         });
 
-        xOff += 2.0f;
+        /* TODO: account for aspect ratio */
+        xOff += 1.5f;
     }
 
     this->vboSize = aQuads._size * 6; /* 6 vertices for 1 quad */
