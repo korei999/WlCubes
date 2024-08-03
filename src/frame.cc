@@ -41,6 +41,7 @@ static Model s_mCube(s_apAssets.get(adt::SIZE_1M));
 static Texture s_tAsciiMap(s_apAssets.get(adt::SIZE_1M));
 
 static Text s_textFPS;
+static Text s_textTest;
 
 static CubeMap s_cmCubeMap;
 static CubeMap s_cmSkyBox;
@@ -108,6 +109,7 @@ prepareDraw(App* pApp)
     s_cmSkyBox = makeSkyBox(skyboxImgs);
 
     s_textFPS = Text("", adt::size(s_fpsStrBuff), 0, 0, GL_DYNAMIC_DRAW);
+    s_textTest = Text("", 256, 0, 0, GL_DYNAMIC_DRAW);
 
     adt::ArenaAllocator allocScope(adt::SIZE_1K);
     adt::ThreadPool tp(&allocScope);
@@ -176,7 +178,19 @@ renderFPSCounter(adt::Allocator* pAlloc)
         s_textFPS.update(pAlloc, s_fpsStrBuff, 0, 0);
     }
 
+    static bool bUpdateTextTest = true;
+    if (bUpdateTextTest)
+    {
+        bUpdateTextTest = false;
+
+        char buf[256] {};
+        snprintf(buf, adt::size(buf), "Ascii test:\n!\"#$%%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
+
+        s_textTest.update(pAlloc, buf, 0, g_uiHeight - 2*2);
+    }
+
     s_textFPS.draw();
+    s_textTest.draw();
 }
 
 void
