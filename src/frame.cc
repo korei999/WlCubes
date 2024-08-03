@@ -184,7 +184,9 @@ renderFPSCounter(adt::Allocator* pAlloc)
         bUpdateTextTest = false;
 
         char buf[256] {};
-        snprintf(buf, adt::size(buf), "Ascii test:\n!\"#$%%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
+        snprintf(buf, adt::size(buf), "Ascii test:\n!\"#$%%&'()*+,-./"
+                                      "0123456789:;<=>?@ABCDEFGHIJKLMN"
+                                      "OPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
 
         s_textTest.update(pAlloc, buf, 0, g_uiHeight - 2*2);
     }
