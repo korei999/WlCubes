@@ -35,16 +35,16 @@ struct Array
 
     struct It
     {
-        T* p_;
+        T* _p;
 
-        It(T* _p) : p_(_p) {}
+        It(T* p) : _p(p) {}
 
-        T& operator*() const { return *p_; }
-        T* operator->() const { return p_; }
-        It operator++() { p_++; return *this; }
+        T& operator*() const { return *_p; }
+        T* operator->() const { return _p; }
+        It operator++() { _p++; return *this; }
         It operator++(int) { It tmp = *this; (*this)++; return tmp; }
-        friend bool operator==(const It& l, const It& r) { return l.p_ == r.p_; }
-        friend bool operator!=(const It& l, const It& r) { return l.p_ != r.p_; }
+        friend bool operator==(const It& l, const It& r) { return l._p == r._p; }
+        friend bool operator!=(const It& l, const It& r) { return l._p != r._p; }
     };
 
     It begin() { return &_pData[0]; }

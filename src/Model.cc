@@ -147,12 +147,12 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
 
             /* positions */
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, v3Size, static_cast<GLenum>(accPos.componentType), GL_FALSE,
+            glVertexAttribPointer(0, v3Size, GLenum(accPos.componentType), GL_FALSE,
                                   bvPos.byteStride, reinterpret_cast<void*>(bvPos.byteOffset + accPos.byteOffset));
 
             /* texture coords */
             glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, v2Size, static_cast<GLenum>(accTex.componentType), GL_FALSE,
+            glVertexAttribPointer(1, v2Size, GLenum(accTex.componentType), GL_FALSE,
                                   bvTex.byteStride, reinterpret_cast<void*>(bvTex.byteOffset + accTex.byteOffset));
 
              /*normals */
@@ -162,7 +162,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
                 auto& bvNorm = a._aBufferViews[accNorm.bufferView];
 
                 glEnableVertexAttribArray(2);
-                glVertexAttribPointer(2, v3Size, static_cast<GLenum>(accNorm.componentType), GL_FALSE,
+                glVertexAttribPointer(2, v3Size, GLenum(accNorm.componentType), GL_FALSE,
                                       bvNorm.byteStride, reinterpret_cast<void*>(accNorm.byteOffset + bvNorm.byteOffset));
             }
 
@@ -173,7 +173,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
                 auto& bvTan = a._aBufferViews[accTan.bufferView];
 
                 glEnableVertexAttribArray(3);
-                glVertexAttribPointer(3, v3Size, static_cast<GLenum>(accTan.componentType), GL_FALSE,
+                glVertexAttribPointer(3, v3Size, GLenum(accTan.componentType), GL_FALSE,
                                       bvTan.byteStride, reinterpret_cast<void*>(accTan.byteOffset + bvTan.byteOffset));
             }
 
@@ -260,11 +260,11 @@ Model::draw(enum DRAW flags, Shader* sh, adt::String svUniform, adt::String svUn
             }
 
             if (e.triangleCount != adt::NPOS)
-                glDrawArrays(static_cast<GLenum>(e.mode), 0, e.triangleCount);
+                glDrawArrays(GLenum(e.mode), 0, e.triangleCount);
             else
-                glDrawElements(static_cast<GLenum>(e.mode),
+                glDrawElements(GLenum(e.mode),
                                e.meshData.eboSize,
-                               static_cast<GLenum>(e.indType),
+                               GLenum(e.indType),
                                nullptr);
         }
     }
@@ -321,11 +321,11 @@ Model::drawGraph([[maybe_unused]] adt::Allocator* pFrameAlloc,
                 }
 
                 if (e.triangleCount != adt::NPOS)
-                    glDrawArrays(static_cast<GLenum>(e.mode), 0, e.triangleCount);
+                    glDrawArrays(GLenum(e.mode), 0, e.triangleCount);
                 else
-                    glDrawElements(static_cast<GLenum>(e.mode),
+                    glDrawElements(GLenum(e.mode),
                                    e.meshData.eboSize,
-                                   static_cast<GLenum>(e.indType),
+                                   GLenum(e.indType),
                                    nullptr);
             }
         }

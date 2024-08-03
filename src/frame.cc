@@ -15,7 +15,7 @@ namespace frame
 static void mainLoop(App* pApp);
 
 f32 g_fov = 90.0f;
-f32 g_uiWidth = 150.0f;
+f32 g_uiWidth = 192.0f;
 f32 g_uiHeight = (g_uiWidth * 9.0f) / 16.0f;
 
 static f64 s_prevTime;
@@ -116,7 +116,7 @@ prepareDraw(App* pApp)
     /* unbind before creating threads */
     pApp->unbindGlContext();
 
-    TexLoadArg bitMap {&s_tAsciiMap, "test-assets/FONT.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, pApp};
+    TexLoadArg bitMap {&s_tAsciiMap, "test-assets/bitmapFont2.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, pApp};
 
     ModelLoadArg sphere {&s_mSphere, "test-assets/models/icosphere/gltf/untitled.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, pApp};
     ModelLoadArg sponza {&s_mSponza, "test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, pApp};
