@@ -15,9 +15,9 @@ struct AtomicArrayAllocator : Allocator
     AtomicArrayAllocator() { mtx_init(&_mtx, mtx_plain); }
     AtomicArrayAllocator(u32 prealloc) : _lAlloc(prealloc) { mtx_init(&_mtx, mtx_plain); }
 
-    virtual void* alloc(u32 memberCount, u32 memberSize) override;
-    virtual void free(void* p) override;
-    virtual void* realloc(void* p, u32 size) override;
+    virtual void* alloc(u32 memberCount, u32 memberSize) override final;
+    virtual void free(void* p) override final;
+    virtual void* realloc(void* p, u32 size) override final;
     void freeAll();
 };
 

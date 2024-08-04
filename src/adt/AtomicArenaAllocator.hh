@@ -16,7 +16,7 @@ struct AtomicArenaAllocator : Allocator
     AtomicArenaAllocator(u32 blockSize) : _arena(blockSize) { mtx_init(&_mtxA, mtx_plain); }
 
     virtual void*
-    alloc(u32 memberCount, u32 size) override
+    alloc(u32 memberCount, u32 size) override final
     {
         mtx_lock(&_mtxA);
         auto rp = _arena.alloc(memberCount, size);
@@ -26,7 +26,7 @@ struct AtomicArenaAllocator : Allocator
     }
 
     virtual void
-    free(void* p) override
+    free(void* p) override final
     {
         mtx_lock(&_mtxA);
         _arena.free(p);
@@ -34,7 +34,7 @@ struct AtomicArenaAllocator : Allocator
     }
 
     virtual void*
-    realloc(void* p, u32 size) override
+    realloc(void* p, u32 size) override final
     {
         mtx_lock(&_mtxA);
         auto rp = _arena.realloc(p, size);

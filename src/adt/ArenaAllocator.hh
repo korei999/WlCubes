@@ -43,9 +43,9 @@ struct ArenaAllocator : Allocator
 
     void reset();
     size_t alignedBytes(u32 bytes);
-    virtual void* alloc(u32 memberCount, u32 size) override;
-    virtual void free(void* p) override;
-    virtual void* realloc(void* p, u32 size) override;
+    virtual void* alloc(u32 memberCount, u32 size) override final;
+    virtual void free(void* p) override final;
+    virtual void* realloc(void* p, u32 size) override final;
     void freeAll();
 
 private:
