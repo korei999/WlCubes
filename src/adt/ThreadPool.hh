@@ -36,14 +36,14 @@ struct TaskNode
 
 struct ThreadPool
 {
-    Allocator* pAlloc {};
-    Queue<TaskNode> qTasks;
-    thrd_t* pThreads {};
-    u32 threadCount {};
-    cnd_t cndQ, cndWait;
-    mtx_t mtxQ, mtxWait;
-    std::atomic<int> activeTaskCount;
-    bool bDone {};
+    Allocator* _pAlloc {};
+    Queue<TaskNode> _qTasks;
+    thrd_t* _pThreads {};
+    u32 _threadCount {};
+    cnd_t _cndQ, _cndWait;
+    mtx_t _mtxQ, _mtxWait;
+    std::atomic<int> _activeTaskCount;
+    bool _bDone {};
 
     ThreadPool() = default;
     ThreadPool(Allocator* p, u32 _threadCount);
@@ -63,13 +63,13 @@ private:
 
 inline
 ThreadPool::ThreadPool(Allocator* p, u32 _threadCount)
-    : pAlloc(p), qTasks(p, _threadCount), threadCount(_threadCount), activeTaskCount(0), bDone(false)
+    : _pAlloc(p), _qTasks(p, _threadCount), _threadCount(_threadCount), _activeTaskCount(0), _bDone(false)
 {
-    this->pThreads = (thrd_t*)p->alloc(_threadCount, sizeof(thrd_t));
-    cnd_init(&this->cndQ);
-    mtx_init(&this->mtxQ, mtx_plain);
-    cnd_init(&this->cndWait);
-    mtx_init(&this->mtxWait, mtx_plain);
+    _pThreads = (thrd_t*)p->alloc(_threadCount, sizeof(thrd_t));
+    cnd_init(&_cndQ);
+    mtx_init(&_mtxQ, mtx_plain);
+    cnd_init(&_cndWait);
+    mtx_init(&_mtxWait, mtx_plain);
 }
 
 inline
@@ -79,51 +79,51 @@ ThreadPool::ThreadPool(Allocator* p)
 inline void
 ThreadPool::start()
 {
-    for (size_t i = 0; i < this->threadCount; i++)
-        thrd_create(&this->pThreads[i], ThreadPool::loop, this);
+    for (size_t i = 0; i < _threadCount; i++)
+        thrd_create(&_pThreads[i], ThreadPool::loop, this);
 }
 
 inline bool
 ThreadPool::busy()
 {
-    mtx_lock(&this->mtxQ);
-    bool ret = !this->qTasks.empty() || this->activeTaskCount > 0;
-    mtx_unlock(&this->mtxQ);
+    mtx_lock(&_mtxQ);
+    bool ret = !_qTasks.empty() || _activeTaskCount > 0;
+    mtx_unlock(&_mtxQ);
 
     return ret;
 }
 
 inline int
-ThreadPool::loop(void* _self)
+ThreadPool::loop(void* p)
 {
-    auto* self = reinterpret_cast<ThreadPool*>(_self);
+    auto* self = (ThreadPool*)p;
 
-    while (!self->bDone)
+    while (!self->_bDone)
     {
         TaskNode task;
         {
-            mtx_lock(&self->mtxQ);
+            mtx_lock(&self->_mtxQ);
 
-            while (!(!self->qTasks.empty() || self->bDone))
-                cnd_wait(&self->cndQ, &self->mtxQ);
+            while (!(!self->_qTasks.empty() || self->_bDone))
+                cnd_wait(&self->_cndQ, &self->_mtxQ);
 
-            if (self->bDone)
+            if (self->_bDone)
             {
-                mtx_unlock(&self->mtxQ);
+                mtx_unlock(&self->_mtxQ);
                 return thrd_success;
             }
 
-            task = *self->qTasks.popFront();
-            self->activeTaskCount++; /* increment before unlocking mtxQ to avoid 0 tasks and 0 q possibility */
+            task = *self->_qTasks.popFront();
+            self->_activeTaskCount++; /* increment before unlocking mtxQ to avoid 0 tasks and 0 q possibility */
 
-            mtx_unlock(&self->mtxQ);
+            mtx_unlock(&self->_mtxQ);
         }
 
         task.pfn(task.pArgs);
-        self->activeTaskCount--;
+        self->_activeTaskCount--;
 
         if (!self->busy())
-            cnd_signal(&self->cndWait);
+            cnd_signal(&self->_cndWait);
     }
 
     return thrd_success;
@@ -132,44 +132,44 @@ ThreadPool::loop(void* _self)
 inline void
 ThreadPool::submit(TaskNode task)
 {
-    mtx_lock(&this->mtxQ);
-    this->qTasks.pushBack(task);
-    mtx_unlock(&this->mtxQ);
+    mtx_lock(&_mtxQ);
+    _qTasks.pushBack(task);
+    mtx_unlock(&_mtxQ);
 
-    cnd_signal(&this->cndQ);
+    cnd_signal(&_cndQ);
 }
 
 inline void
 ThreadPool::wait()
 {
-    while (this->busy())
+    while (busy())
     {
-        mtx_lock(&this->mtxWait);
-        cnd_wait(&this->cndWait, &this->mtxWait);
-        mtx_unlock(&this->mtxWait);
+        mtx_lock(&_mtxWait);
+        cnd_wait(&_cndWait, &_mtxWait);
+        mtx_unlock(&_mtxWait);
     }
 }
 
 inline void
 ThreadPool::stop()
 {
-    this->bDone = true;
-    cnd_broadcast(&this->cndQ);
-    for (u32 i = 0; i < this->threadCount; i++)
-        thrd_join(this->pThreads[i], nullptr);
+    _bDone = true;
+    cnd_broadcast(&_cndQ);
+    for (u32 i = 0; i < _threadCount; i++)
+        thrd_join(_pThreads[i], nullptr);
 }
 
 inline void
 ThreadPool::destroy()
 {
-    this->stop();
+    stop();
 
-    this->pAlloc->free(this->pThreads);
-    this->qTasks.destroy();
-    cnd_destroy(&this->cndQ);
-    mtx_destroy(&this->mtxQ);
-    cnd_destroy(&this->cndWait);
-    mtx_destroy(&this->mtxWait);
+    _pAlloc->free(_pThreads);
+    _qTasks.destroy();
+    cnd_destroy(&_cndQ);
+    mtx_destroy(&_mtxQ);
+    cnd_destroy(&_cndWait);
+    mtx_destroy(&_mtxWait);
 }
 
 } /* namespace adt */

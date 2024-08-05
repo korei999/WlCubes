@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef __linux__
-    #include <sys/mman.h>
-#endif
-
 #include <math.h>
 #include <string.h>
 #include <stddef.h>
@@ -91,13 +87,8 @@ ArenaAllocator::newBlock(size_t size)
 
     size_t addedSize = size + sizeof(ArenaBlock);
 
-#ifdef __linux__
-    *ppLastBlock = (ArenaBlock*)mmap(0, addedSize, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-    mprotect(*ppLastBlock, addedSize, PROT_READ|PROT_WRITE);
-#else
-    *ppLastBlock = (ArenaBlock*)(malloc(sizeof(ArenaBlock) + _blockSize));
-    memset(*ppLastBlock, 0, sizeof(ArenaBlock) + _blockSize);
-#endif
+    *ppLastBlock = (ArenaBlock*)(malloc(addedSize));
+    memset(*ppLastBlock, 0, addedSize);
 
     auto* pBlock = (ArenaBlock*)*ppLastBlock;
     pBlock->size = size;
@@ -199,13 +190,7 @@ inline void
 ArenaAllocator::freeAll()
 {
     ARENA_FOREACH_SAFE(this, it, tmp)
-    {
-#ifdef __linux__
-        munmap(it, sizeof(ArenaBlock) + it->size);
-#else
-        ::free();
-#endif
-    }
+        ::free(it);
 }
 
 } /* namespace adt */
