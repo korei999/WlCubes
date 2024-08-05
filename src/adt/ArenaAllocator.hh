@@ -143,7 +143,6 @@ repeat:
         LOG_WARN("block overflow\n");
 #endif
 
-        size_t size = pFreeBlock->size;
         pFreeBlock = pFreeBlock->pNext;
         if (!pFreeBlock) pFreeBlock = newBlock(aligned);
         goto repeat;
