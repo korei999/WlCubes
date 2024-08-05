@@ -87,8 +87,7 @@ ArenaAllocator::newBlock(size_t size)
 
     size_t addedSize = size + sizeof(ArenaBlock);
 
-    *ppLastBlock = (ArenaBlock*)(malloc(addedSize));
-    memset(*ppLastBlock, 0, addedSize);
+    *ppLastBlock = (ArenaBlock*)(calloc(1, addedSize));
 
     auto* pBlock = (ArenaBlock*)*ppLastBlock;
     pBlock->size = size;
