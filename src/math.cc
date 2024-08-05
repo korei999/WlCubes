@@ -167,14 +167,12 @@ m4::operator*=(const m4& other)
 m4
 operator*(const m4& l, const m4& r)
 {
-    m4 res;
-    for (int i = 0; i < 4; i++)
-    {
-        res.e[i][0] = (l.e[0][0]*r.e[i][0]) + (l.e[1][0]*r.e[i][1]) + (l.e[2][0]*r.e[i][2]) + (l.e[3][0]*r.e[i][3]); 
-        res.e[i][1] = (l.e[0][1]*r.e[i][0]) + (l.e[1][1]*r.e[i][1]) + (l.e[2][1]*r.e[i][2]) + (l.e[3][1]*r.e[i][3]); 
-        res.e[i][2] = (l.e[0][2]*r.e[i][0]) + (l.e[1][2]*r.e[i][1]) + (l.e[2][2]*r.e[i][2]) + (l.e[3][2]*r.e[i][3]); 
-        res.e[i][3] = (l.e[0][3]*r.e[i][0]) + (l.e[1][3]*r.e[i][1]) + (l.e[2][3]*r.e[i][2]) + (l.e[3][3]*r.e[i][3]); 
-    }
+    m4 res {};
+
+    for (int j = 0 ; j < 4; j++)
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                res.e[i][j] += l.e[k][j] * r.e[i][k];
 
     return res;
 }

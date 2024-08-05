@@ -1,13 +1,18 @@
 #pragma once
 
+#ifdef __linux__
+    #include <sys/mman.h>
+#endif
+
 #include <math.h>
 #include <string.h>
 #include <stddef.h>
 
 #include "Allocator.hh"
+#include "ultratypes.h"
 
 #ifdef DEBUG
-#include "logs.hh"
+    #include "logs.hh"
 #endif
 
 #define ARENA_FIRST(A) ((A)->_pBlocks)
@@ -15,12 +20,15 @@
 #define ARENA_FOREACH(A, IT) for (ArenaBlock* IT = ARENA_FIRST(A); IT; IT = ARENA_NEXT(IT))
 #define ARENA_FOREACH_SAFE(A, IT, TMP) for (ArenaBlock* IT = ARENA_FIRST(A), * TMP = nullptr; IT && ((TMP) = ARENA_NEXT(IT), true); (IT) = (TMP))
 
+#define ALIGN_TO8(x) (((x) + 8 - 1) & (~(8 - 1)))
+
 namespace adt
 {
 
 struct ArenaBlock
 {
     ArenaBlock* pNext = nullptr;
+    size_t size = 0;
     u8 pData[]; /* flexible array member */
 };
 
@@ -34,7 +42,6 @@ struct ArenaNode
 struct ArenaAllocator : Allocator
 {
     ArenaBlock* _pBlocks = nullptr;
-    size_t _blockSize = 0;
     ArenaNode* _pLatest = nullptr;
     ArenaBlock* _pLatestBlock = nullptr;
 
@@ -42,14 +49,13 @@ struct ArenaAllocator : Allocator
     ArenaAllocator(u32 cap);
 
     void reset();
-    size_t alignedBytes(u32 bytes);
-    virtual void* alloc(u32 memberCount, u32 size) override final;
+    virtual void* alloc(size_t memberCount, size_t size) override final;
     virtual void free(void* p) override final;
-    virtual void* realloc(void* p, u32 size) override final;
+    virtual void* realloc(void* p, size_t size) override final;
     void freeAll();
 
 private:
-    ArenaBlock* newBlock();
+    ArenaBlock* newBlock(size_t size);
     ArenaBlock* getFreeBlock();
 
     static ArenaNode* getNodeFromData(void* p) { return (ArenaNode*)((u8*)(p) - offsetof(ArenaNode, pData)); }
@@ -58,9 +64,8 @@ private:
 
 inline 
 ArenaAllocator::ArenaAllocator(u32 cap)
-    : _blockSize(alignedBytes(cap + sizeof(ArenaNode))) /* preventively align */
 {
-    newBlock();
+    newBlock(ALIGN_TO8(cap + sizeof(ArenaNode)));
 }
 
 inline void
@@ -79,14 +84,23 @@ ArenaAllocator::reset()
 }
 
 inline ArenaBlock*
-ArenaAllocator::newBlock()
+ArenaAllocator::newBlock(size_t size)
 {
     ArenaBlock** ppLastBlock = &_pBlocks;
     while (*ppLastBlock) ppLastBlock = &((*ppLastBlock)->pNext);
 
+    size_t addedSize = size + sizeof(ArenaBlock);
+
+#ifdef __linux__
+    *ppLastBlock = (ArenaBlock*)mmap(0, addedSize, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+    mprotect(*ppLastBlock, addedSize, PROT_READ|PROT_WRITE);
+#else
     *ppLastBlock = (ArenaBlock*)(malloc(sizeof(ArenaBlock) + _blockSize));
     memset(*ppLastBlock, 0, sizeof(ArenaBlock) + _blockSize);
+#endif
 
+    auto* pBlock = (ArenaBlock*)*ppLastBlock;
+    pBlock->size = size;
     auto* pNode = getNodeFromBlock(*ppLastBlock);
     pNode->pNext = pNode; /* don't bump the very first node on `alloc()` */
     _pLatest = pNode;
@@ -108,25 +122,23 @@ ArenaAllocator::getFreeBlock()
     return pFreeBlock;
 }
 
-inline size_t
-ArenaAllocator::alignedBytes(u32 bytes)
-{
-    f64 mulOf = f64(bytes) / f64(sizeof(size_t));
-    return u32(sizeof(size_t) * ceil(mulOf));
-}
-
 inline void*
-ArenaAllocator::alloc(u32 memberCount, u32 memberSize)
+ArenaAllocator::alloc(size_t memberCount, size_t memberSize)
 {
     ArenaBlock* pFreeBlock = _pLatestBlock;
     u32 requested = memberCount * memberSize;
-    size_t aligned = alignedBytes(requested + sizeof(ArenaNode));
+    size_t aligned = ALIGN_TO8(requested + sizeof(ArenaNode));
 
+    if (aligned >= pFreeBlock->size)
+    {
 #ifdef DEBUG
-    if (aligned >= _blockSize)
-        LOG_FATAL("requested size is > than one block\n"
-                  "aligned: %zu, blockSize: %zu, requested: %u\n", aligned, _blockSize, requested);
+        LOG_WARN("requested size > than one block\n"
+                "aligned: %zu, blockSize: %zu, requested: %u\n", aligned, pFreeBlock->size, requested);
 #endif
+
+        pFreeBlock = pFreeBlock->pNext;
+        if (!pFreeBlock) pFreeBlock = newBlock(aligned * 2); /* NOTE: trying to double too big of an array situation */
+    }
 
 repeat:
     /* skip pNext */
@@ -135,14 +147,15 @@ repeat:
     size_t nextAligned = ((u8*)pNode + aligned) - (u8*)pFreeBlockOff;
 
     /* heap overflow */
-    if (nextAligned >= _blockSize)
+    if (nextAligned >= pFreeBlock->size)
     {
 #ifdef DEBUG
-        LOG_WARN("heap overflow\n");
+        LOG_WARN("block overflow\n");
 #endif
 
+        size_t size = pFreeBlock->size;
         pFreeBlock = pFreeBlock->pNext;
-        if (!pFreeBlock) pFreeBlock = newBlock();
+        if (!pFreeBlock) pFreeBlock = newBlock(aligned);
         goto repeat;
     }
 
@@ -160,14 +173,14 @@ ArenaAllocator::free([[maybe_unused]] void* p)
 }
 
 inline void*
-ArenaAllocator::realloc(void* p, u32 size)
+ArenaAllocator::realloc(void* p, size_t size)
 {
     ArenaNode* pNode = getNodeFromData(p);
     auto* pBlockOff = getNodeFromBlock(pNode->pBlock);
-    auto aligned = alignedBytes(size);
+    auto aligned = ALIGN_TO8(size);
     size_t nextAligned = ((u8*)pNode + aligned) - (u8*)pBlockOff;
 
-    if (pNode == _pLatest && nextAligned < _blockSize)
+    if (pNode == _pLatest && nextAligned < pNode->pBlock->size)
     {
         pNode->pNext = (ArenaNode*)((u8*)pNode + aligned + sizeof(ArenaNode));
 
@@ -186,7 +199,13 @@ inline void
 ArenaAllocator::freeAll()
 {
     ARENA_FOREACH_SAFE(this, it, tmp)
-        ::free(it);
+    {
+#ifdef __linux__
+        munmap(it, sizeof(ArenaBlock) + it->size);
+#else
+        ::free();
+#endif
+    }
 }
 
 } /* namespace adt */

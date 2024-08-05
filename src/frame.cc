@@ -34,7 +34,7 @@ static Shader s_shOmniDirShadow;
 static Shader s_shSkyBox;
 
 static Model s_mSphere(s_apAssets.get(adt::SIZE_1M));
-static Model s_mSponza(s_apAssets.get(adt::SIZE_8M * 2));
+static Model s_mSponza(s_apAssets.get(adt::SIZE_8M));
 static Model s_mBackpack(s_apAssets.get(adt::SIZE_8M));
 static Model s_mCube(s_apAssets.get(adt::SIZE_1M));
 

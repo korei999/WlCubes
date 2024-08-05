@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Allocator.hh"
+#include "ultratypes.h"
 
 namespace adt
 {

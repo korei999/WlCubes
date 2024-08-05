@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "ultratypes.h"
-
 namespace adt
 {
 
@@ -20,9 +18,9 @@ constexpr size_t SIZE_1G = SIZE_1M * SIZE_1K;
 /* Base allocator interface */
 struct Allocator
 {
-    virtual void* alloc(u32 memberCount, u32 memberSize) = 0;
+    virtual void* alloc(size_t memberCount, size_t memberSize) = 0;
     virtual void free(void* p) = 0;
-    virtual void* realloc(void* p, u32 size) = 0;
+    virtual void* realloc(void* p, size_t size) = 0;
 };
 
 } /* namespace adt */

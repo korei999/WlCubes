@@ -21,9 +21,9 @@ struct ArrayAllocator : Allocator
     ArrayAllocator() : _aCleanList(&StdAllocator) {}
     ArrayAllocator(u32 prealloc) : _aCleanList(&StdAllocator, prealloc) {}
 
-    virtual void* alloc(u32 memberCount, u32 memberSize) override final;
+    virtual void* alloc(size_t memberCount, size_t memberSize) override final;
     virtual void free(void* p) override final;
-    virtual void* realloc(void* p, u32 size) override final;
+    virtual void* realloc(void* p, size_t size) override final;
     void freeAll();
 
 private:
@@ -31,7 +31,7 @@ private:
 };
 
 inline void*
-ArrayAllocator::alloc(u32 memberCount, u32 memberSize)
+ArrayAllocator::alloc(size_t memberCount, size_t memberSize)
 {
     void* r = ::malloc(memberCount*memberSize + sizeof(ArrayAllocatorNode));
     memset(r, 0, memberCount*memberSize + sizeof(ArrayAllocatorNode));
@@ -53,7 +53,7 @@ ArrayAllocator::free(void* p)
 }
 
 inline void*
-ArrayAllocator::realloc(void* p, u32 size)
+ArrayAllocator::realloc(void* p, size_t size)
 {
     auto* pNode = ptrToNode(p);
     u64 idx = pNode->selfIdx;

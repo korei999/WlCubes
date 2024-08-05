@@ -15,14 +15,14 @@ struct AtomicArrayAllocator : Allocator
     AtomicArrayAllocator() { mtx_init(&_mtx, mtx_plain); }
     AtomicArrayAllocator(u32 prealloc) : _lAlloc(prealloc) { mtx_init(&_mtx, mtx_plain); }
 
-    virtual void* alloc(u32 memberCount, u32 memberSize) override final;
+    virtual void* alloc(size_t memberCount, size_t memberSize) override final;
     virtual void free(void* p) override final;
-    virtual void* realloc(void* p, u32 size) override final;
+    virtual void* realloc(void* p, size_t size) override final;
     void freeAll();
 };
 
 inline void*
-AtomicArrayAllocator::alloc(u32 memberCount, u32 memberSize)
+AtomicArrayAllocator::alloc(size_t memberCount, size_t memberSize)
 {
     mtx_lock(&_mtx);
     void* r = _lAlloc.alloc(memberCount, memberSize);
@@ -40,7 +40,7 @@ AtomicArrayAllocator::free(void* p)
 }
 
 inline void*
-AtomicArrayAllocator::realloc(void* p, u32 size)
+AtomicArrayAllocator::realloc(void* p, size_t size)
 {
     mtx_lock(&_mtx);
     void* r = _lAlloc.realloc(p, size);

@@ -8,7 +8,7 @@ namespace adt
 struct DefaultAllocator : Allocator
 {
     virtual void*
-    alloc(u32 memberCount, u32 memberSize) override final
+    alloc(size_t memberCount, size_t memberSize) override final
     {
         return ::calloc(memberCount, memberSize);
     }
@@ -20,7 +20,7 @@ struct DefaultAllocator : Allocator
     }
 
     virtual void*
-    realloc(void* p, u32 size) override final
+    realloc(void* p, size_t size) override final
     {
         return ::realloc(p, size);
     }
