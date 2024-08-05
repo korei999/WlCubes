@@ -173,6 +173,8 @@ ArenaAllocator::realloc(void* p, size_t size)
         if ((u8*)p > (u8*)pB && ((u8*)pB + pB->size) > (u8*)p)
             pBlock = pB;
 
+    assert(pBlock != nullptr && "block not found, bad pointer");
+
     auto aligned = ALIGN_TO_8_BYTES(size);
     size_t nextAligned = ((u8*)pNode + aligned) - (u8*)getNodeFromBlock(pBlock);
 
