@@ -53,8 +53,6 @@ prepareDraw(App* pApp)
 {
     pApp->bindGlContext();
     pApp->showWindow();
-    pApp->setSwapInterval(1);
-    pApp->toggleFullscreen();
 
 #ifdef DEBUG
     glEnable(GL_DEBUG_OUTPUT);
@@ -137,6 +135,9 @@ prepareDraw(App* pApp)
 
     tp.destroy();
     allocScope.freeAll();
+
+    pApp->setSwapInterval(1);
+    pApp->toggleFullscreen();
 }
 
 void
