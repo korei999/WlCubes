@@ -188,7 +188,7 @@ renderFPSCounter(adt::Allocator* pAlloc)
                                       "0123456789:;<=>?@ABCDEFGHIJKLMN"
                                       "OPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
 
-        s_textTest.update(pAlloc, buf, 0, g_uiHeight - 2*2);
+        s_textTest.update(pAlloc, buf, 0, int(g_uiHeight - 2.0f*2.0f));
     }
 
     s_textFPS.draw();
@@ -220,7 +220,7 @@ renderScene(adt::Allocator* pAlloc, Shader* sh)
 
     m = m4Iden();
     m *= m4Translate(m, {0, 0.5, 0});
-    m *= m4Scale(m, 0.002);
+    m *= m4Scale(m, 0.002f);
     m = m4RotY(m, toRad(90));
     s_mBackpack.drawGraph(pAlloc, DRAW::ALL ^ DRAW::NORM, sh, "uModel", "uNormalMatrix", m);
 }

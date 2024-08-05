@@ -115,7 +115,7 @@ ArenaAllocator::getFreeBlock()
 inline void*
 ArenaAllocator::alloc(size_t memberCount, size_t memberSize)
 {
-    u32 requested = memberCount * memberSize;
+    size_t requested = memberCount * memberSize;
     size_t aligned = ALIGN_TO_8_BYTES(requested + sizeof(ArenaNode));
 
     /* TODO: find block that can fit */
