@@ -146,7 +146,7 @@ repeat:
 #endif
 
         pFreeBlock = pFreeBlock->pNext;
-        if (!pFreeBlock) pFreeBlock = newBlock(nextAligned * 2);
+        if (!pFreeBlock) pFreeBlock = newBlock(nextAligned);
         goto repeat;
     }
 
