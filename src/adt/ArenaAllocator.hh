@@ -125,7 +125,7 @@ ArenaAllocator::alloc(size_t memberCount, size_t memberSize)
     {
 #ifdef DEBUG
         LOG_WARN("requested size > than one block\n"
-                "aligned: %zu, blockSize: %zu, requested: %u\n", aligned, pFreeBlock->size, requested);
+                 "aligned: %zu, blockSize: %zu, requested: %zu\n", aligned, pFreeBlock->size, requested);
 #endif
 
         pFreeBlock = pFreeBlock->pNext;

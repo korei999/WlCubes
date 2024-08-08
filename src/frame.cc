@@ -144,7 +144,8 @@ run(App* pApp)
 {
     pApp->_bRunning = true;
     /* FIXME: find better way to toggle this on startup */
-    pApp->_bRelativeMode = true;
+    pApp->_bRelativeMode = false;
+    pApp->togglePointerRelativeMode();
     pApp->bPaused = false;
     pApp->setCursorImage("default");
 
