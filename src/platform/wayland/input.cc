@@ -9,21 +9,25 @@ namespace input
 {
 
 void
-keyboardKeymapHandler([[maybe_unused]] void* data,
-                      [[maybe_unused]] wl_keyboard* keyboard,
-                      [[maybe_unused]] u32 format,
-                      [[maybe_unused]] s32 fd,
-                      [[maybe_unused]] u32 size)
+keyboardKeymapHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_keyboard* keyboard,
+    [[maybe_unused]] u32 format,
+    [[maybe_unused]] s32 fd,
+    [[maybe_unused]] u32 size
+)
 {
     //
 }
 
 void
-keyboardEnterHandler([[maybe_unused]] void* data,
-                     [[maybe_unused]] wl_keyboard* keyboard,
-                     [[maybe_unused]] u32 serial,
-                     [[maybe_unused]] wl_surface* surface,
-                     [[maybe_unused]] wl_array* keys)
+keyboardEnterHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_keyboard* keyboard,
+    [[maybe_unused]] u32 serial,
+    [[maybe_unused]] wl_surface* surface,
+    [[maybe_unused]] wl_array* keys
+)
 {
     LOG_OK("keyboardEnterHandler\n");
 
@@ -33,10 +37,12 @@ keyboardEnterHandler([[maybe_unused]] void* data,
 }
 
 void
-keyboardLeaveHandler([[maybe_unused]] void* data,
-                     [[maybe_unused]] wl_keyboard* keyboard,
-                     [[maybe_unused]] u32 serial,
-                     [[maybe_unused]] wl_surface* surface)
+keyboardLeaveHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_keyboard* keyboard,
+    [[maybe_unused]] u32 serial,
+    [[maybe_unused]] wl_surface* surface
+)
 {
     LOG_OK("keyboardLeaveHandler\n");
 
@@ -49,12 +55,14 @@ keyboardLeaveHandler([[maybe_unused]] void* data,
 }
 
 void
-keyboardKeyHandler([[maybe_unused]] void* data,
-                   [[maybe_unused]] wl_keyboard* keyboard,
-                   [[maybe_unused]] u32 serial,
-                   [[maybe_unused]] u32 time,
-                   [[maybe_unused]] u32 key,
-                   [[maybe_unused]] u32 keyState)
+keyboardKeyHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_keyboard* keyboard,
+    [[maybe_unused]] u32 serial,
+    [[maybe_unused]] u32 time,
+    [[maybe_unused]] u32 key,
+    [[maybe_unused]] u32 keyState
+)
 {
     auto app = (WlClient*)(data);
 
@@ -71,34 +79,39 @@ keyboardKeyHandler([[maybe_unused]] void* data,
 }
 
 void
-keyboardModifiersHandler([[maybe_unused]] void* data,
-                         [[maybe_unused]] wl_keyboard* keyboard,
-                         [[maybe_unused]] u32 serial,
-                         [[maybe_unused]] u32 modsDepressed,
-                         [[maybe_unused]] u32 modsLatched,
-                         [[maybe_unused]] u32 modsLocked,
-                         [[maybe_unused]] u32 group)
+keyboardModifiersHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_keyboard* keyboard,
+    [[maybe_unused]] u32 serial,
+    [[maybe_unused]] u32 modsDepressed,
+    [[maybe_unused]] u32 modsLatched, [[maybe_unused]] u32 modsLocked,
+    [[maybe_unused]] u32 group
+)
 {
     //
 }
 
 void
-keyboardRepeatInfoHandler([[maybe_unused]] void* data,
-                          [[maybe_unused]] wl_keyboard* wl_keyboard,
-                          [[maybe_unused]] s32 rate,
-                          [[maybe_unused]] s32 delay)
+keyboardRepeatInfoHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_keyboard* wl_keyboard,
+    [[maybe_unused]] s32 rate,
+    [[maybe_unused]] s32 delay
+)
 {
     //
 }
 
 
 void
-pointerEnterHandler([[maybe_unused]] void* data,
-                    [[maybe_unused]] wl_pointer* pointer,
-                    [[maybe_unused]] u32 serial,
-                    [[maybe_unused]] wl_surface* surface,
-                    [[maybe_unused]] wl_fixed_t surfaceX,
-                    [[maybe_unused]] wl_fixed_t surfaceY)
+pointerEnterHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_pointer* pointer,
+    [[maybe_unused]] u32 serial,
+    [[maybe_unused]] wl_surface* surface,
+    [[maybe_unused]] wl_fixed_t surfaceX,
+    [[maybe_unused]] wl_fixed_t surfaceY
+)
 {
     LOG_OK("pointerEnterHandler\n");
 
@@ -116,59 +129,69 @@ pointerEnterHandler([[maybe_unused]] void* data,
 }
 
 void
-pointerLeaveHandler([[maybe_unused]] void* data,
-                    [[maybe_unused]] wl_pointer* pointer,
-                    [[maybe_unused]] u32 serial,
-                    [[maybe_unused]] wl_surface* surface)
+pointerLeaveHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_pointer* pointer,
+    [[maybe_unused]] u32 serial,
+    [[maybe_unused]] wl_surface* surface
+)
 {
     LOG_OK("pointerLeaveHandler\n");
 }
 
 void
-pointerMotionHandler([[maybe_unused]] void* data,
-                     [[maybe_unused]] wl_pointer* pointer,
-                     [[maybe_unused]] u32 time,
-                     [[maybe_unused]] wl_fixed_t surfaceX,
-                     [[maybe_unused]] wl_fixed_t surfaceY)
+pointerMotionHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_pointer* pointer,
+    [[maybe_unused]] u32 time,
+    [[maybe_unused]] wl_fixed_t surfaceX,
+    [[maybe_unused]] wl_fixed_t surfaceY
+)
 {
-    frame::player._mouse.absX = wl_fixed_to_double(surfaceX);
-    frame::player._mouse.absY = wl_fixed_to_double(surfaceY);
+    frame::g_player._mouse.absX = wl_fixed_to_double(surfaceX);
+    frame::g_player._mouse.absY = wl_fixed_to_double(surfaceY);
 }
 
 void
-pointerButtonHandler([[maybe_unused]] void* data,
-                     [[maybe_unused]] wl_pointer* pointer,
-                     [[maybe_unused]] u32 serial,
-                     [[maybe_unused]] u32 time,
-                     [[maybe_unused]] u32 button,
-                     [[maybe_unused]] u32 buttonState)
+pointerButtonHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_pointer* pointer,
+    [[maybe_unused]] u32 serial,
+    [[maybe_unused]] u32 time,
+    [[maybe_unused]] u32 button,
+    [[maybe_unused]] u32 buttonState
+)
 {
-    frame::player._mouse.button = button;
-    frame::player._mouse.state = buttonState;
+    frame::g_player._mouse.button = button;
+    frame::g_player._mouse.state = buttonState;
 }
 
 void
-pointerAxisHandler([[maybe_unused]] void* data,
-                   [[maybe_unused]] wl_pointer* pointer,
-                   [[maybe_unused]] u32 time,
-                   [[maybe_unused]] u32 axis,
-                   [[maybe_unused]] wl_fixed_t value)
+pointerAxisHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_pointer* pointer,
+    [[maybe_unused]] u32 time,
+    [[maybe_unused]] u32 axis,
+    [[maybe_unused]] wl_fixed_t value
+)
 {
     //
 }
 
 void
-relativePointerMotionHandler([[maybe_unused]] void *data,
-				             [[maybe_unused]] zwp_relative_pointer_v1 *zwp_relative_pointer_v1,
-				             [[maybe_unused]] u32 utime_hi,
-				             [[maybe_unused]] u32 utime_lo,
-				             [[maybe_unused]] wl_fixed_t dx,
-				             [[maybe_unused]] wl_fixed_t dy,
-				             [[maybe_unused]] wl_fixed_t dxUnaccel,
-				             [[maybe_unused]] wl_fixed_t dyUnaccel)
+relativePointerMotionHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] zwp_relative_pointer_v1* zwp_relative_pointer_v1,
+    [[maybe_unused]] u32 utime_hi,
+    [[maybe_unused]] u32 utime_lo,
+    [[maybe_unused]] wl_fixed_t dx,
+    [[maybe_unused]] wl_fixed_t dy,
+    [[maybe_unused]] wl_fixed_t dxUnaccel,
+    [[maybe_unused]] wl_fixed_t dyUnaccel
+)
 {
-    frame::player._mouse.relX += wl_fixed_to_int(dxUnaccel);
-    frame::player._mouse.relY += wl_fixed_to_int(dyUnaccel);
+    frame::g_player._mouse.relX += wl_fixed_to_int(dxUnaccel);
+    frame::g_player._mouse.relY += wl_fixed_to_int(dyUnaccel);
 }
 
 } /* namespace input */

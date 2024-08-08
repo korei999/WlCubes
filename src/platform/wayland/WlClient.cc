@@ -53,18 +53,22 @@ static const wl_keyboard_listener keyboardListener {
 
 /* mutter compositor will complain if we do not pong */
 static void
-xdgWmBasePing([[maybe_unused]] void* data,
-              [[maybe_unused]] xdg_wm_base* xdgWmBase,
-              [[maybe_unused]] u32 serial)
+xdgWmBasePing(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] xdg_wm_base* xdgWmBase,
+    [[maybe_unused]] u32 serial
+)
 {
     auto app = (WlClient*)data;
     xdg_wm_base_pong(app->_xdgWmBase, serial);
 }
 
 static void
-seatCapabilitiesHandler([[maybe_unused]] void* data,
-                        [[maybe_unused]] wl_seat* seat,
-                        [[maybe_unused]] u32 capabilities)
+seatCapabilitiesHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_seat* seat,
+    [[maybe_unused]] u32 capabilities
+)
 {
     auto app = (WlClient*)data;
 
@@ -94,9 +98,11 @@ static const wl_seat_listener seatListener {
 };
 
 static void
-xdgSurfaceConfigureHandler([[maybe_unused]] void* data,
-                           [[maybe_unused]] xdg_surface* xdgSurface,
-                           [[maybe_unused]] u32 serial)
+xdgSurfaceConfigureHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] xdg_surface* xdgSurface,
+    [[maybe_unused]] u32 serial
+)
 {
     auto app = (WlClient*)data;
     xdg_surface_ack_configure(xdgSurface, serial);
@@ -104,11 +110,13 @@ xdgSurfaceConfigureHandler([[maybe_unused]] void* data,
 }
 
 static void
-xdgToplevelConfigureHandler([[maybe_unused]] void* data,
-                            [[maybe_unused]] xdg_toplevel* xdgToplevel,
-                            [[maybe_unused]] s32 width,
-                            [[maybe_unused]] s32 height,
-                            [[maybe_unused]] wl_array* states)
+xdgToplevelConfigureHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] xdg_toplevel* xdgToplevel,
+    [[maybe_unused]] s32 width,
+    [[maybe_unused]] s32 height,
+    [[maybe_unused]] wl_array* states
+)
 {
     auto app = (WlClient*)data;
 
@@ -124,8 +132,10 @@ xdgToplevelConfigureHandler([[maybe_unused]] void* data,
 }
 
 static void
-xdgToplevelCloseHandler([[maybe_unused]] void* data,
-		                [[maybe_unused]] xdg_toplevel* xdgToplevel)
+xdgToplevelCloseHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] xdg_toplevel* xdgToplevel
+)
 {
     auto app = (WlClient*)data;
     app->_bRunning = false;
@@ -133,10 +143,12 @@ xdgToplevelCloseHandler([[maybe_unused]] void* data,
 }
 
 static void
-xdgToplevelConfigureBounds([[maybe_unused]] void* data,
-                           [[maybe_unused]] xdg_toplevel* xdgToplevel,
-                           [[maybe_unused]] s32 width,
-                           [[maybe_unused]] s32 height)
+xdgToplevelConfigureBounds(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] xdg_toplevel* xdgToplevel,
+    [[maybe_unused]] s32 width,
+    [[maybe_unused]] s32 height
+)
 {
     //
 }
@@ -151,9 +163,11 @@ static const xdg_wm_base_listener xdgWmBaseListener {
 
 
 static void
-xdgToplevelWmCapabilities([[maybe_unused]] void* data,
-                          [[maybe_unused]] xdg_toplevel* xdgToplevel,
-                          [[maybe_unused]] wl_array* capabilities)
+xdgToplevelWmCapabilities(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] xdg_toplevel* xdgToplevel,
+    [[maybe_unused]] wl_array* capabilities
+)
 {
     //
 }
@@ -166,11 +180,13 @@ static const xdg_toplevel_listener xdgToplevelListener {
 };
 
 static void
-registryGlobalHandler([[maybe_unused]] void* data,
-                      [[maybe_unused]] wl_registry* registry,
-                      [[maybe_unused]] u32 name,
-                      [[maybe_unused]] const char* interface,
-                      [[maybe_unused]] u32 version)
+registryGlobalHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_registry* registry,
+    [[maybe_unused]] u32 name,
+    [[maybe_unused]] const char* interface,
+    [[maybe_unused]] u32 version
+)
 {
     LOG_OK("interface: '%s', version: %u, name: %u\n", interface, version, name);
     auto app = (WlClient*)data;
@@ -191,11 +207,15 @@ registryGlobalHandler([[maybe_unused]] void* data,
     }
     else if (strcmp(interface, zwp_pointer_constraints_v1_interface.name) == 0)
     {
-        app->_pointerConstraints = (zwp_pointer_constraints_v1*)wl_registry_bind(registry, name, &zwp_pointer_constraints_v1_interface, version);
+        app->_pointerConstraints = (zwp_pointer_constraints_v1*)wl_registry_bind(
+            registry, name, &zwp_pointer_constraints_v1_interface, version
+        );
     }
     else if (strcmp(interface, zwp_relative_pointer_manager_v1_interface.name) == 0)
     {
-        app->_relativePointerManager = (zwp_relative_pointer_manager_v1*)wl_registry_bind(registry, name, &zwp_relative_pointer_manager_v1_interface, version);
+        app->_relativePointerManager = (zwp_relative_pointer_manager_v1*)wl_registry_bind(
+            registry, name, &zwp_relative_pointer_manager_v1_interface, version
+        );
     }
     else if (strcmp(interface, wl_shm_interface.name) == 0)
     {
@@ -208,9 +228,11 @@ registryGlobalHandler([[maybe_unused]] void* data,
 }
 
 static void
-registryGlobalRemoveHandler([[maybe_unused]] void* data,
-                            [[maybe_unused]] wl_registry* wlRegistry,
-                            [[maybe_unused]] u32 name)
+registryGlobalRemoveHandler(
+    [[maybe_unused]] void* data,
+    [[maybe_unused]] wl_registry* wlRegistry,
+    [[maybe_unused]] u32 name
+)
 {
     /* can be empty */
 }
@@ -220,9 +242,9 @@ static const wl_registry_listener registryListener {
     .global_remove = registryGlobalRemoveHandler
 };
 
-WlClient::WlClient(adt::Allocator* _allocator, adt::String name)
+WlClient::WlClient(adt::Allocator* pA, adt::String name)
 {
-    _pAlloc = _allocator;
+    _pAlloc = pA;
     _svName = name;
     init();
 }
@@ -339,7 +361,7 @@ WlClient::init()
     xdg_toplevel_add_listener(_xdgToplevel, &xdgToplevelListener, this);
 
     _eglWindow = wl_egl_window_create(_surface, _wWidth, _wHeight);
-    EGLD( _eglSurface = eglCreateWindowSurface(_eglDisplay, eglConfig, reinterpret_cast<EGLNativeWindowType>(_eglWindow), nullptr) );
+    EGLD( _eglSurface = eglCreateWindowSurface(_eglDisplay, eglConfig, (EGLNativeWindowType)(_eglWindow), nullptr) );
 
     wl_surface_commit(_surface);
     wl_display_roundtrip(_display);
@@ -351,12 +373,13 @@ void
 WlClient::enableRelativeMode()
 {
     wl_pointer_set_cursor(_pointer, _pointerSerial, nullptr, 0, 0);
-    if (_cursorSurface) wl_surface_destroy(_cursorSurface);
-    _lockedPointer = zwp_pointer_constraints_v1_lock_pointer(_pointerConstraints,
-                                                                  _surface,
-                                                                  _pointer,
-                                                                  nullptr,
-                                                                  ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_ONESHOT);
+    if (_cursorSurface)
+        wl_surface_destroy(_cursorSurface);
+
+    _lockedPointer = zwp_pointer_constraints_v1_lock_pointer(
+        _pointerConstraints, _surface, _pointer, nullptr, ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_ONESHOT
+    );
+
     _relativePointer = zwp_relative_pointer_manager_v1_get_relative_pointer(_relativePointerManager, _pointer);
     zwp_relative_pointer_v1_add_listener(_relativePointer, &relativePointerListener, this);
 }

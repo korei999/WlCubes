@@ -1,11 +1,11 @@
 #pragma once
 
+#include "Allocator.hh"
 #include "Array.hh"
+#include "String.hh"
+#include "gl/gl.hh"
 #include "math.hh"
 #include "ultratypes.h"
-#include "App.hh"
-#include "gl/gl.hh"
-#include "Allocator.hh"
 
 enum TEX_TYPE : int
 {
@@ -33,15 +33,15 @@ struct Texture
 
     Texture() = default;
     Texture(adt::Allocator* p) : _pAlloc(p) {}
-    Texture(adt::Allocator* p, adt::String path, TEX_TYPE type, bool flip, GLint texMode, App* c) : _pAlloc(p) {
-        load(path, type, flip, texMode, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, c);
+    Texture(adt::Allocator* p, adt::String path, TEX_TYPE type, bool flip, GLint texMode) : _pAlloc(p) {
+        load(path, type, flip, texMode, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST);
     }
 
-    void load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint magFilter, GLint minFilter, App* c);
+    void load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint magFilter, GLint minFilter);
     void bind(GLint glTexture);
 
 private:
-    void setTexture(u8* data, GLint texMode, GLint format, GLsizei width, GLsizei height, GLint magFilter, GLint minFilter, App* c);
+    void setTexture(u8* data, GLint texMode, GLint format, GLsizei width, GLsizei height, GLint magFilter, GLint minFilter);
 };
 
 struct TexLoadArg
@@ -53,14 +53,13 @@ struct TexLoadArg
     GLint texMode;
     GLint magFilter;
     GLint minFilter;
-    App* c;
 };
 
 inline int
 TextureSubmit(void* p)
 {
     auto a = *(TexLoadArg*)p;
-    a.self->load(a.path, a.type, a.flip, a.texMode, a.magFilter, a.minFilter, a.c);
+    a.self->load(a.path, a.type, a.flip, a.texMode, a.magFilter, a.minFilter);
     return 0;
 }
 

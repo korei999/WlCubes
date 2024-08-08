@@ -10,6 +10,7 @@ main()
     adt::ArrayAllocator allocator;
 
     wayland::WlClient app(&allocator, "WlCubes");
+    frame::g_app = &app;
     frame::run(&app);
 
     allocator.freeAll();
@@ -27,6 +28,7 @@ WinMain([[maybe_unused]] HINSTANCE instance,
     adt::ArrayAllocator allocator;
 
     win32::Window app(&allocator, "wl-cube", instance);
+    frame::g_app = &app;
     frame::run(&app);
 
     allocator.freeAll();

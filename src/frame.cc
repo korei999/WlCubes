@@ -13,6 +13,8 @@ namespace frame
 
 static void mainLoop(App* pApp);
 
+App* g_app;
+
 f32 g_fov = 90.0f;
 f32 g_uiWidth = 192.0f;
 f32 g_uiHeight = (g_uiWidth * 9.0f) / 16.0f;
@@ -21,7 +23,7 @@ static f64 s_prevTime;
 static int s_fpsCount = 0;
 static char s_fpsStrBuff[40] {};
 
-controls::PlayerControls player({0.0f, 1.0f, 1.0f}, 4.0, 0.07);
+controls::PlayerControls g_player({0.0f, 1.0f, 1.0f}, 4.0, 0.07);
 
 static adt::AllocatorPool<adt::ArenaAllocator, ASSET_MAX_COUNT> s_apAssets;
 
@@ -115,12 +117,12 @@ prepareDraw(App* pApp)
     /* unbind before creating threads */
     pApp->unbindGlContext();
 
-    TexLoadArg bitMap {&s_tAsciiMap, "test-assets/bitmapFont2.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, pApp};
+    TexLoadArg bitMap {&s_tAsciiMap, "test-assets/bitmapFont2.bmp", TEX_TYPE::DIFFUSE, false, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST};
 
-    ModelLoadArg sphere {&s_mSphere, "test-assets/models/icosphere/gltf/untitled.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, pApp};
-    ModelLoadArg sponza {&s_mSponza, "test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, pApp};
-    ModelLoadArg backpack {&s_mBackpack, "test-assets/models/backpack/scene.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, pApp};
-    ModelLoadArg cube {&s_mCube, "test-assets/models/cube/gltf/cube.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT, pApp};
+    ModelLoadArg sphere {&s_mSphere, "test-assets/models/icosphere/gltf/untitled.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT};
+    ModelLoadArg sponza {&s_mSponza, "test-assets/models/Sponza/Sponza.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT};
+    ModelLoadArg backpack {&s_mBackpack, "test-assets/models/backpack/scene.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT};
+    ModelLoadArg cube {&s_mCube, "test-assets/models/cube/gltf/cube.gltf", GL_STATIC_DRAW, GL_MIRRORED_REPEAT};
 
     tp.submit(TextureSubmit, &bitMap);
     tp.submit(ModelSubmit, &sphere);
@@ -144,16 +146,15 @@ run(App* pApp)
 {
     pApp->_bRunning = true;
     /* FIXME: find better way to toggle this on startup */
-    pApp->_bRelativeMode = false;
-    pApp->togglePointerRelativeMode();
+    pApp->_bRelativeMode = true;
     pApp->bPaused = false;
     pApp->setCursorImage("default");
 
     s_prevTime = adt::timeNowS();
 
     prepareDraw(pApp);
-    player.updateDeltaTime(); /* reset delta time before drawing */
-    player.updateDeltaTime();
+    g_player.updateDeltaTime(); /* reset delta time before drawing */
+    g_player.updateDeltaTime();
 
     mainLoop(pApp);
 }
@@ -170,8 +171,7 @@ renderFPSCounter(adt::Allocator* pAlloc)
     if (_currTime >= s_prevTime + 1.0)
     {
         memset(s_fpsStrBuff, 0, adt::size(s_fpsStrBuff));
-        snprintf(s_fpsStrBuff, adt::size(s_fpsStrBuff),
-                "FPS: %u\nFrame time: %.3f ms", s_fpsCount, player._deltaTime);
+        snprintf(s_fpsStrBuff, adt::size(s_fpsStrBuff), "FPS: %u\nFrame time: %.3f ms", s_fpsCount, g_player._deltaTime);
 
         s_fpsCount = 0;
         s_prevTime = _currTime;
@@ -185,11 +185,14 @@ renderFPSCounter(adt::Allocator* pAlloc)
         bUpdateTextTest = false;
 
         char buf[256] {};
-        snprintf(buf, adt::size(buf), "Ascii test:\n!\"#$%%&'()*+,-./"
-                                      "0123456789:;<=>?@ABCDEFGHIJKLMN"
-                                      "OPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
+        snprintf(
+            buf, adt::size(buf),
+            "Ascii test:\n!\"#$%%&'()*+,-./"
+            "0123456789:;<=>?@ABCDEFGHIJKLMN"
+            "OPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+        );
 
-        s_textTest.update(pAlloc, buf, 0, int(g_uiHeight - 2.0f*2.0f));
+        s_textTest.update(pAlloc, buf, 0, int(g_uiHeight - 2.0f * 2.0f));
     }
 
     s_textFPS.draw();
@@ -199,7 +202,7 @@ renderFPSCounter(adt::Allocator* pAlloc)
 void
 renderSkyBox()
 {
-    m4 view = m3(player._view); /* remove translation */
+    m4 view = m3(g_player._view); /* remove translation */
 
     glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
@@ -234,9 +237,9 @@ mainLoop(App* pApp)
     while (pApp->_bRunning)
     {
         {
-            player.updateDeltaTime();
-            player.procMouse();
-            player.procKeys(pApp);
+            g_player.updateDeltaTime();
+            g_player.procMouse();
+            g_player.procKeys(pApp);
 
             pApp->procEvents();
 
@@ -245,12 +248,12 @@ mainLoop(App* pApp)
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            player.updateProj(toRad(g_fov), aspect, 0.01f, 100.0f);
-            player.updateView();
+            g_player.updateProj(toRad(g_fov), aspect, 0.01f, 100.0f);
+            g_player.updateView();
             /* copy both proj and view in one go */
-            s_uboProjView.bufferData(&player, 0, sizeof(m4) * 2);
+            s_uboProjView.bufferData(&g_player, 0, sizeof(m4) * 2);
 
-            v3 lightPos {cosf((f32)player._currTime) * 6.0f, 3.0f, sinf((f32)player._currTime) * 1.1f};
+            v3 lightPos {cosf((f32)g_player._currTime) * 6.0f, 3.0f, sinf((f32)g_player._currTime) * 1.1f};
             constexpr v3 lightColor(colors::whiteSmoke);
             constexpr f32 nearPlane = 0.01f, farPlane = 25.0f;
             m4 shadowProj = m4Pers(toRad(90), shadowAspect, nearPlane, farPlane);
@@ -287,7 +290,7 @@ mainLoop(App* pApp)
             s_shOmniDirShadow.use();
             s_shOmniDirShadow.setV3("uLightPos", lightPos);
             s_shOmniDirShadow.setV3("uLightColor", lightColor);
-            s_shOmniDirShadow.setV3("uViewPos", player._pos);
+            s_shOmniDirShadow.setV3("uViewPos", g_player._pos);
             s_shOmniDirShadow.setF("uFarPlane", farPlane);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_CUBE_MAP, s_cmCubeMap.tex);

@@ -1,9 +1,11 @@
 #include <immintrin.h>
 
-#include "Texture.hh"
+#include "App.hh"
 #include "ArenaAllocator.hh"
-#include "parser/Binary.hh"
+#include "Texture.hh"
+#include "frame.hh"
 #include "logs.hh"
+#include "parser/Binary.hh"
 
 /* Bitmap file format
  *
@@ -28,7 +30,7 @@
  */
 
 void
-Texture::load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint magFilter, GLint minFilter, App* c)
+Texture::load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint magFilter, GLint minFilter)
 {
 #ifdef TEXTURE
     LOG_OK("loading '%.*s' texture...\n", (int)path.size, path.pData);
@@ -48,7 +50,7 @@ Texture::load(adt::String path, TEX_TYPE type, bool flip, GLint texMode, GLint m
 
     adt::Array<u8> pixels = img.aData;
 
-    setTexture(pixels.data(), texMode, img.format, img.width, img.height, magFilter, minFilter, c);
+    setTexture(pixels.data(), texMode, img.format, img.width, img.height, magFilter, minFilter);
     _width = img.width;
     _height = img.height;
 
@@ -67,10 +69,10 @@ Texture::bind(GLint glTexture)
 }
 
 void
-Texture::setTexture(u8* pData, GLint texMode, GLint format, GLsizei width, GLsizei height, GLint magFilter, GLint minFilter, App* c)
+Texture::setTexture(u8* pData, GLint texMode, GLint format, GLsizei width, GLsizei height, GLint magFilter, GLint minFilter)
 {
     mtx_lock(&gl::mtxGlContext);
-    c->bindGlContext();
+    frame::g_app->bindGlContext();
 
     glGenTextures(1, &_id);
     glBindTexture(GL_TEXTURE_2D, _id);
@@ -89,7 +91,7 @@ Texture::setTexture(u8* pData, GLint texMode, GLint format, GLsizei width, GLsiz
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pData);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    c->unbindGlContext();
+    frame::g_app->unbindGlContext();
     mtx_unlock(&gl::mtxGlContext);
 }
 

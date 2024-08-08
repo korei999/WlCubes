@@ -1,14 +1,15 @@
 #include "Model.hh"
 #include "AtomicArenaAllocator.hh"
+#include "frame.hh"
 #include "logs.hh"
 #include "file.hh"
 #include "ThreadPool.hh"
 
 void
-Model::load(adt::String path, GLint drawMode, GLint texMode, App* c)
+Model::load(adt::String path, GLint drawMode, GLint texMode)
 {
     if (path.endsWith(".gltf"))
-        loadGLTF(path, drawMode, texMode, c);
+        loadGLTF(path, drawMode, texMode);
     else
         LOG_FATAL("trying to load unsupported asset: '%.*s'\n", path._size, path._pData);
 
@@ -16,7 +17,7 @@ Model::load(adt::String path, GLint drawMode, GLint texMode, App* c)
 }
 
 void
-Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
+Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode)
 {
     _asset.load(path);
     auto& a = _asset;;
@@ -26,7 +27,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
     for (u32 i = 0; i < a._aBuffers._size; i++)
     {
         mtx_lock(&gl::mtxGlContext);
-        c->bindGlContext();
+        frame::g_app->bindGlContext();
 
         GLuint b;
         glGenBuffers(1, &b);
@@ -35,7 +36,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         aBufferMap.push(b);
 
-        c->unbindGlContext();
+        frame::g_app->unbindGlContext();
         mtx_unlock(&gl::mtxGlContext);
     }
 
@@ -62,7 +63,6 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             TEX_TYPE type;
             bool flip;
             GLint texMode;
-            App* c;
         };
 
         auto* arg = (args*)aAlloc.alloc(1, sizeof(args));
@@ -72,13 +72,12 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             .path = adt::replacePathSuffix(_pAlloc, path, uri),
             .type = TEX_TYPE::DIFFUSE,
             .flip = true,
-            .texMode = texMode,
-            .c = c
+            .texMode = texMode
         };
 
         auto task = [](void* pArgs) -> int {
             auto a = *(args*)pArgs;
-            *a.p = Texture(a.pAlloc, a.path, a.type, a.flip, a.texMode, a.c);
+            *a.p = Texture(a.pAlloc, a.path, a.type, a.flip, a.texMode);
 
             return 0;
         };
@@ -113,7 +112,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             nMesh.mode = mode;
 
             mtx_lock(&gl::mtxGlContext);
-            c->bindGlContext();
+            frame::g_app->bindGlContext();
 
             glGenVertexArrays(1, &nMesh.meshData.vao);
             glBindVertexArray(nMesh.meshData.vao);
@@ -178,7 +177,7 @@ Model::loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c)
             }
 
             glBindVertexArray(0);
-            c->unbindGlContext();
+            frame::g_app->unbindGlContext();
             mtx_unlock(&gl::mtxGlContext);
 
             /* load textures */

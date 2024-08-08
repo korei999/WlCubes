@@ -84,14 +84,14 @@ struct Model
 
     Model(adt::Allocator* p) : _pAlloc(p), _aaMeshes(p), _asset(p), _aTmIdxs(p), _aTmCounters(p) {}
 
-    void load(adt::String path, GLint drawMode, GLint texMode, App* c);
-    void loadOBJ(adt::String path, GLint drawMode, GLint texMode, App* c);
-    void loadGLTF(adt::String path, GLint drawMode, GLint texMode, App* c);
+    void load(adt::String path, GLint drawMode, GLint texMode);
+    void loadOBJ(adt::String path, GLint drawMode, GLint texMode);
+    void loadGLTF(adt::String path, GLint drawMode, GLint texMode);
     void draw(enum DRAW flags, Shader* sh = nullptr, adt::String svUniform = "", adt::String svUniformM3Norm = "", const m4& tmGlobal = m4Iden());
     void drawGraph(adt::Allocator* pFrameAlloc, enum DRAW flags, Shader* sh, adt::String svUniform, adt::String svUniformM3Norm, const m4& tmGlobal);
 
 private:
-    void parseOBJ(adt::String path, GLint drawMode, GLint texMode, App* c);
+    void parseOBJ(adt::String path, GLint drawMode, GLint texMode);
 
     adt::Array<int> _aTmIdxs; /* parents map */
     adt::Array<int> _aTmCounters; /* map's sizes */
@@ -118,14 +118,13 @@ struct ModelLoadArg
     adt::String path;
     GLint drawMode;
     GLint texMode;
-    App* c;
 };
 
 inline int
 ModelSubmit(void* p)
 {
     auto a = *(ModelLoadArg*)p;
-    a.p->load(a.path, a.drawMode, a.texMode, a.c);
+    a.p->load(a.path, a.drawMode, a.texMode);
     return 0;
 };
 
