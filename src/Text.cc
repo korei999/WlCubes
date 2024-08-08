@@ -3,18 +3,18 @@
 #include "Text.hh"
 
 void
-Text::genMesh(u32 size, int xOrigin, int yOrigin, GLint drawMode)
+Text::genMesh(int xOrigin, int yOrigin, GLint drawMode)
 {
     adt::ArenaAllocator allocScope(adt::SIZE_1M);
 
-    auto aQuads = this->genBuffer(&allocScope, this->str, this->maxSize, xOrigin, yOrigin);
+    auto aQuads = genBuffer(&allocScope, _str, _maxSize, xOrigin, yOrigin);
 
-    glGenVertexArrays(1, &this->vao);
-    glBindVertexArray(this->vao);
+    glGenVertexArrays(1, &_vao);
+    glBindVertexArray(_vao);
 
-    glGenBuffers(1, &this->vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-    glBufferData(GL_ARRAY_BUFFER, this->maxSize * sizeof(f32) * 4 * 6, aQuads.data(), drawMode);
+    glGenBuffers(1, &_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+    glBufferData(GL_ARRAY_BUFFER, _maxSize * sizeof(f32) * 4 * 6, aQuads.data(), drawMode);
 
     /* positions */
     glEnableVertexAttribArray(0);
@@ -80,7 +80,7 @@ Text::genBuffer(adt::Allocator* pAlloc, adt::String s, u32 size, int xOrigin, in
         xOff += 2.0f;
     }
 
-    this->vboSize = aQuads._size * 6; /* 6 vertices for 1 quad */
+    _vboSize = aQuads._size * 6; /* 6 vertices for 1 quad */
 
     return aQuads;
 }
@@ -88,11 +88,11 @@ Text::genBuffer(adt::Allocator* pAlloc, adt::String s, u32 size, int xOrigin, in
 void
 Text::update(adt::Allocator* pAlloc, adt::String s, int x, int y)
 {
-    this->str = s;
-    auto aQuads = this->genBuffer(pAlloc, s, this->maxSize, x, y);
+    _str = s;
+    auto aQuads = genBuffer(pAlloc, s, _maxSize, x, y);
 
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, this->maxSize * sizeof(f32) * 4 * 6, aQuads.data());
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, _maxSize * sizeof(f32) * 4 * 6, aQuads.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     aQuads.destroy();
@@ -101,6 +101,6 @@ Text::update(adt::Allocator* pAlloc, adt::String s, int x, int y)
 void
 Text::draw()
 {
-    glBindVertexArray(this->vao);
-    glDrawArrays(GL_TRIANGLES, 0, this->vboSize);
+    glBindVertexArray(_vao);
+    glDrawArrays(GL_TRIANGLES, 0, _vboSize);
 }

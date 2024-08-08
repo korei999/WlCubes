@@ -84,7 +84,7 @@ if (CMAKE_BUILD_TYPE MATCHES "Asan")
 
         if (CMAKE_SYSTEM_NAME MATCHES "Windows")
             # doesn't work...
-            target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE clang_rt.asan_cxx-x86_64.lib clang_rt.asan-x86_64.lib)
+            # target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE clang_rt.asan_cxx-x86_64.lib clang_rt.asan-x86_64.lib)
         else()
             add_link_options(-fsanitize=undefined -fsanitize=address)
         endif()
@@ -96,16 +96,14 @@ message(STATUS "CMAKE_BUILD_TYPE: '${CMAKE_BUILD_TYPE}'")
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
 
-    if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmissing-field-initializers")
-        target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267 /wd4101 /wd4200")
     else()
-        target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /wd4267 /wd4101 /wd4200)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmissing-field-initializers -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function")
     endif()
 
-    add_definitions("-DLOGS") # used for LOG_* macros
+    add_definitions("-DLOGS")
     add_definitions("-DDEBUG")
-    add_definitions("-DFPS_COUNTER")
 endif()
 
 message(STATUS "CMAKE_SYSTEM_NAME: '${CMAKE_SYSTEM_NAME}'")
@@ -114,8 +112,8 @@ message(STATUS "CMAKE_SOURCE_DIR: '${CMAKE_SOURCE_DIR}'")
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(LINUX_PKGS REQUIRED gl egl glesv2 wayland-client wayland-egl wayland-cursor)
-    target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LINUX_PKGS_INCLUDE_DIRS})
-    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LINUX_PKGS_LIBRARIES})
+    include_directories(BEFORE ${LINUX_PKGS_INCLUDE_DIRS})
+    target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC ${LINUX_PKGS_LIBRARIES})
 
     set(WLP "./src/platform/wayland")
     set(WLPD "${WLP}/wayland-protocols")
@@ -162,7 +160,6 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     find_package(OpenGL REQUIRED)
     message(STATUS "OpenGL: '${OpenGL}'")
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
-    #target_link_options(${CMAKE_PROJECT_NAME} PRIVATE -ldinput8.lib -ldxguid.lib)
 
     target_sources(
         ${CMAKE_PROJECT_NAME}

@@ -83,7 +83,6 @@ struct Model
     gltf::Asset _asset;
 
     Model(adt::Allocator* p) : _pAlloc(p), _aaMeshes(p), _asset(p), _aTmIdxs(p), _aTmCounters(p) {}
-    Model(adt::Allocator* p, adt::String path, GLint drawMode, GLint texMode, App* c) : Model(p) {}
 
     void load(adt::String path, GLint drawMode, GLint texMode, App* c);
     void loadOBJ(adt::String path, GLint drawMode, GLint texMode, App* c);
