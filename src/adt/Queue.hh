@@ -65,7 +65,7 @@ struct Queue
             return *this;
         }
 
-        It operator++(int) { It tmp = *this; *this++; return tmp; }
+        It operator++(int) { It tmp = *this; (*this)++; return tmp; }
 
         friend bool operator==(const It& l, const It& r) { return l._i == r._i; }
         friend bool operator!=(const It& l, const It& r) { return l._i != r._i; }
