@@ -257,8 +257,8 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_MOUSEMOVE:
             {
-                frame::player._mouse.absX = GET_X_LPARAM(lParam);
-                frame::player._mouse.absY = GET_Y_LPARAM(lParam);
+                frame::g_player._mouse.absX = GET_X_LPARAM(lParam);
+                frame::g_player._mouse.absY = GET_Y_LPARAM(lParam);
             }
             break;
 
@@ -270,8 +270,8 @@ windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                 if (raw->header.dwType == RIM_TYPEMOUSE)
                 {
-                    frame::player._mouse.relX += raw->data.mouse.lLastX;
-                    frame::player._mouse.relY += raw->data.mouse.lLastY;
+                    frame::g_player._mouse.relX += raw->data.mouse.lLastX;
+                    frame::g_player._mouse.relY += raw->data.mouse.lLastY;
                 }
             }
             break;
